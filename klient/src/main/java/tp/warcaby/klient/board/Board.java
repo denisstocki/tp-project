@@ -3,9 +3,7 @@ package tp.warcaby.klient.board;
 //Class implementing asbtract Board object.
 //We dont care about look, view or handling changes, just internals.
 
-//Add asserts chececking if we have sth to delete or
-
-import tp.warcaby.klient.Pawn;
+//Add asserts chececking if we have sth to delete or not and throwe errors
 
 public class Board {
     //TODO check for better encapsulation here
@@ -19,6 +17,9 @@ public class Board {
 
     public int getSize() {
         return size;
+    }
+    public Pawn getPawn(int x, int y) {
+        return pieces[x][y];
     }
 
     public void setSize(int size) {

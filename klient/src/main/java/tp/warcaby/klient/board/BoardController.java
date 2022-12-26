@@ -1,27 +1,12 @@
 package tp.warcaby.klient.board;
 
-import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Scene;
-import javafx.scene.layout.GridPane;
-import javafx.scene.paint.Paint;
-import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
-import javafx.scene.Group;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.layout.GridPane;
-import javafx.scene.paint.Paint;
-import javafx.scene.shape.Circle;
 import javafx.util.Pair;
-import tp.warcaby.klient.board.BoardView;
-import tp.warcaby.klient.board.BoardController;
-import tp.warcaby.klient.board.Pawn;
-import tp.warcaby.klient.board.PawnColor;
-
-import java.util.ArrayList;
 
 //CLASS RESPONSIBLE FOR CONTROLLING STATE OF BOARD AND BOARDVIEW
 
@@ -51,9 +36,9 @@ public class BoardController implements EventHandler<ActionEvent> {
 
     public void updatePawnPosition(int oldX, int oldY, int newX, int newY)
     {
-        if(currentBoard.getPawn(oldX, oldY).get_color() == PawnColor.Black)
+        if(currentBoard.getPawn(oldX, oldY).get_color() == PawnColor.BLACK)
         {
-            currentBoard.addPawn(newX, newY, PawnType.NORMAL, PawnColor.Black);
+            currentBoard.addPawn(newX, newY, PawnType.NORMAL, PawnColor.BLACK);
         }
         else
         {

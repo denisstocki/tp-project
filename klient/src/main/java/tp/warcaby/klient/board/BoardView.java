@@ -1,26 +1,13 @@
 package tp.warcaby.klient.board;
 
 
-import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.Scene;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
-import javafx.stage.Stage;
 import javafx.scene.Group;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.layout.GridPane;
-import javafx.scene.paint.Paint;
-import javafx.scene.shape.Circle;
-import tp.warcaby.klient.board.BoardController;
-import tp.warcaby.klient.board.Pawn;
-import tp.warcaby.klient.board.PawnColor;
-
-import java.util.ArrayList;
-import java.util.List;
 
 //CLASS RESPONSIBLE ONLY FOR JAVAFX SITE OF GAME
 //JUST CLASSIFY WHAT WILL BE DISPLAYED WHEN CALLED
@@ -63,7 +50,7 @@ public class BoardView extends GridPane {
                     circle.setCenterX(buttonSize / 2.0);
                     circle.setCenterY(buttonSize / 2.0);
 
-                    if(pieces[row][col].get_color() == PawnColor.Black)
+                    if(pieces[row][col].get_color() == PawnColor.BLACK)
                         circle.setFill(Paint.valueOf("#000"));
                     else
                         circle.setFill(Paint.valueOf("#FFF"));

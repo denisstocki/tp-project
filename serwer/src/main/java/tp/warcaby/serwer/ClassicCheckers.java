@@ -19,6 +19,7 @@ public class ClassicCheckers implements GameLogic{
         finished = false;
     }
 
+
     public static void main(String[] args) {
         ClassicCheckers classicCheckers = new ClassicCheckers();
         System.out.println(classicCheckers);

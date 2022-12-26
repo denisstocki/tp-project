@@ -4,7 +4,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class SeverThread {
+public class ServerThread {
     /**
      * FUNKCJA GL0WNA MAIN
      * @param args
@@ -26,7 +26,7 @@ public class SeverThread {
              */
             GameLogic logic;
             boolean finished;
-            int game_number = 1;
+            int game_number = 1, player_number = 0;
             String input_mess, output_mess, game_logic, winner;
             Socket socket1, socket2;
             InputStream player1in, player2in;
@@ -39,10 +39,12 @@ public class SeverThread {
                 logic = null;
                 finished = false;
                 socket1 = serverSocket.accept();
+                player_number++;
                 player1in = socket1.getInputStream();
                 in1 = new BufferedReader(new InputStreamReader(player1in));
                 player1out = socket1.getOutputStream();
                 out1 = new PrintWriter(player1out, true);
+                System.out.println("Player connected, id: " + player_number + ", game id: " + game_number);
 
                 //1 - wyświetl okienko z przywitaniem gracza i zapytac o rodzaj gry
                 output_mess = "choose";
@@ -69,10 +71,12 @@ public class SeverThread {
                 out1.print(output_mess);
 
                 socket2 = serverSocket.accept();
+                player_number++;
                 player2in = socket2.getInputStream();
                 in2 = new BufferedReader(new InputStreamReader(player2in));
                 player2out = new DataOutputStream(socket2.getOutputStream());
                 out2 = new PrintWriter(player2out, true);
+                System.out.println("Player connected, id: " + player_number + ", game id: " + game_number);
 
                 //3 - wyslanie graczowi 2 rodzaju gry
                 output_mess = game_logic;

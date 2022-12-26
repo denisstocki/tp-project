@@ -8,6 +8,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 
+import java.io.PrintWriter;
+
 public class ChoiceStage extends Stage {
     private final double xSize;
     private final double ySize;
@@ -16,11 +18,13 @@ public class ChoiceStage extends Stage {
     private final Label chooseText, classicChoice, englishChoice, overtakingChoice;
 
     private String choice;
+    private PrintWriter out;
 
 
-    public ChoiceStage(double xSize, double ySize) {
+    public ChoiceStage(double xSize, double ySize, PrintWriter out) {
         this.xSize = xSize;
         this.ySize = ySize;
+        this.out = out;
         gridPane = new GridPane();
         scene = new Scene(gridPane, xSize, ySize);
         chooseText = new Label("Wybierz rodzaj gry:");
@@ -123,6 +127,21 @@ public class ChoiceStage extends Stage {
                     "-fx-border-width: 0;" +
                     "-fx-border-color: none;" +
                     "-fx-border-style: solid");
+        });
+        classicChoice.setOnMouseClicked(mouseEvent -> {
+            choice = "classic";
+            out.print(choice);
+            hide();
+        });
+        englishChoice.setOnMouseClicked(mouseEvent -> {
+            choice = "english";
+            out.print(choice);
+            hide();
+        });
+        overtakingChoice.setOnMouseClicked(mouseEvent -> {
+            choice = "overtaking";
+            out.print(choice);
+            hide();
         });
     }
 

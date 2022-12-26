@@ -50,7 +50,7 @@ public class Game extends Application {
             ex.printStackTrace();
         }
         controller = new BoardController(stage);
-        choiceStage = new ChoiceStage(250, 250);
+        choiceStage = new ChoiceStage(250, 250, out);
         choiceStage.show();
 
     }

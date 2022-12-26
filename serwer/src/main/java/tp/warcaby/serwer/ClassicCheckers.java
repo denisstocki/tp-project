@@ -19,7 +19,7 @@ public class ClassicCheckers implements GameLogic{
         finished = false;
     }
 
-
+    /*
     public static void main(String[] args) {
         ClassicCheckers classicCheckers = new ClassicCheckers();
         System.out.println(classicCheckers);
@@ -104,7 +104,7 @@ public class ClassicCheckers implements GameLogic{
         classicCheckers.movePawn("6341");
         System.out.println(classicCheckers);
         System.out.println(classicCheckers.gameFinishState);
-    }
+    }*/
 
     @Override
     public void initializeBoard() {

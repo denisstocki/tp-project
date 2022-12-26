@@ -18,7 +18,7 @@ public class OvertakingCheckers implements GameLogic{
     }
 
     @Override
-    public boolean gameFinished() {
+    public boolean isFinished() {
         return false;
     }
 
@@ -30,5 +30,15 @@ public class OvertakingCheckers implements GameLogic{
     @Override
     public String getPossibleMovesFor(int i, int j) {
         return null;
+    }
+
+    @Override
+    public int quantityOf(Character color) {
+        return 0;
+    }
+
+    @Override
+    public boolean hasMoves(Character color) {
+        return false;
     }
 }

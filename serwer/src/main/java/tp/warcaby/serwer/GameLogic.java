@@ -5,11 +5,12 @@ public interface GameLogic {
     boolean isLegal(String move);
     void movePawn(String move);
 
-    boolean gameFinished();
+    boolean isFinished();
 
     String getWinner();
 
     String getPossibleMovesFor(int i, int j);
+    int quantityOf(Character color);
 
-
+    boolean hasMoves(Character color);
 }

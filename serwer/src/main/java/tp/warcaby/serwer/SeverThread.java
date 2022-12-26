@@ -115,7 +115,7 @@ public class SeverThread {
     private static boolean isFinished(GameLogic logic, PrintWriter out1, PrintWriter out2) {
         String output_mess;
         String winner;
-        if(logic.gameFinished()){
+        if(logic.isFinished()){
             winner = logic.getWinner();
             output_mess = winner;
             out1.print(output_mess);

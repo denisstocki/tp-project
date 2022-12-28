@@ -1,9 +1,9 @@
 package tp.warcaby.klient.board;
 
 //Class implementing asbtract Board object.
-//We dont care about look, view or handling changes, just internals.
+//We dont care about look, view or handling changes, just internal behaviours of the board
 
-//Add asserts chececking if we have sth to delete or not and throwe errors
+//Add asserts chececking if we have sth to delete or not and throwe errors respectively.
 
 public class Board {
     //TODO check for better encapsulation here

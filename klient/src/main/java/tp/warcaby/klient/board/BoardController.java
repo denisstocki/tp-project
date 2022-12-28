@@ -21,7 +21,7 @@ public class BoardController implements EventHandler<ActionEvent> {
     public BoardController(Stage stage) {
         this.stage = stage;
         currentBoard = initBoard();
-        activePawn = null;
+        activePawn = new Pair<>(-1, -1);
         currentView = null;
     }
 
@@ -73,18 +73,20 @@ public class BoardController implements EventHandler<ActionEvent> {
             for(int j = 0; j < currentBoard.getSize(); j++) {
                 if(source.equals(buttons[i][j]))
                 {
-
-                    //jesli to aktyny to skip
-                    //jesli to niaktywny i to jest jedno pole do przodu (w zaleznosci od koloru0
-                    // to przesun pionka na nowe pole
-
-
                     if(activePawn.getKey() == i && activePawn.getValue() == j) {
+                        System.out.println("You clicked active pawn");
                        continue;
                     }
-                    else {
-
+                    else if (currentBoard.getPawn(i, j) != null && activePawn.getKey() == -1) {
+                        System.out.println("Setting up first active pawn");
+                        activePawn = new Pair<>(i, j);
+                    }
+                    else if (currentBoard.getPawn(i, j) == null) {
+                        System.out.println("Trying to move active pawn there");
                         updatePawnPosition(activePawn.getKey(), activePawn.getValue(), i, j);
+                        activePawn = new Pair<>(i, j);
+                    } else {
+                        System.out.println("changing active pawn");
                         activePawn = new Pair<>(i, j);
                     }
 
@@ -100,7 +102,6 @@ public class BoardController implements EventHandler<ActionEvent> {
         Board initialBoard = new Board(size);
         for(int row = 0; row < size; row++) {
             for(int col = 0; col < size; col++) {
-                System.out.println(row);
                 if ((col + row) % 2 == 0) {
                     if (col <= 2) {
                         initialBoard.addPawn(row, col, PawnType.NORMAL, PawnColor.WHITE);

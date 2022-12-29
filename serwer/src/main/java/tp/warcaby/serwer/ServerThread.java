@@ -5,127 +5,146 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class ServerThread {
-    /**
-     * FUNKCJA GL0WNA MAIN
-     * @param args
-     */
-    public static void main(String[] args) {
 
-        /**
-         * PROBUJEMY UTWORZY SOCKETA
-         */
-        try (ServerSocket serverSocket = new ServerSocket(4444)) {
+    public static void main(String[] args) throws IOException {
 
-            /**
-             * INFORMACJA SYSTEMOWA
-             */
-            System.out.println("Server is working on port 4444 ...");
 
-            /**
-             * DEKLARACJA ZMIENNYCH
-             */
-            GameLogic logic;
+        try(ServerSocket serverSocket = new ServerSocket(4444)){
+
+            System.out.println("Server is working on port number 4444");
+
+            String game_type, winner, msgin, msgout;
+            BufferedReader readA, readB;
+            OutputStream outA, outB;
+            InputStream inA, inB;
+            PrintWriter writeA, writeB;
+            GameLogic game_logic;
+            Socket socketA, socketB;
             boolean finished;
-            int game_number = 1, player_number = 0;
-            String input_mess, output_mess, game_logic, winner;
-            Socket socket1, socket2;
-            InputStream player1in, player2in;
-            BufferedReader in1, in2;
-            OutputStream player1out, player2out;
-            PrintWriter out1, out2;
+            int game_number, player_number, move_counter;
 
-            while (true) {
+            game_number = 0;
+            player_number = 0;
 
-                logic = null;
+            while (true){
+
+                System.out.println("\nWaiting to start game nr.: " + ++game_number);
+
+                game_logic = null;
                 finished = false;
-                socket1 = serverSocket.accept();
-                player_number++;
-                player1in = socket1.getInputStream();
-                in1 = new BufferedReader(new InputStreamReader(player1in));
-                player1out = socket1.getOutputStream();
-                out1 = new PrintWriter(player1out, true);
-                System.out.println("Player connected, id: " + player_number + ", game id: " + game_number);
+                socketA = serverSocket.accept();
 
-                //1 - wyświetl okienko z przywitaniem gracza i zapytac o rodzaj gry
-                output_mess = "choose";
-                out1.print(output_mess);
+                playerJoinedInfo(++player_number);
 
-                //1 - odczytanie odpoweidzi na temat rodzaju gry
-                game_logic = in1.readLine();
+                inA = socketA.getInputStream();
+                outA = socketA.getOutputStream();
+                readA = new BufferedReader(new InputStreamReader(inA));
+                writeA = new PrintWriter(outA, true);
 
-                //ustawienie zmiennej GameLogic
-                switch (game_logic) {
+                sendMsgTo(writeA, "choose");
+
+                game_type = getMsgFrom(readA);
+
+                switch (game_type){
                     case "classic":
-                        logic = new ClassicCheckers();
-                        break;
-                    case "overtaking":
-                        logic = new OvertakingCheckers();
+                        game_logic = new ClassicCheckers();
                         break;
                     case "english":
-                        logic = new EnglishCheckers();
+                        game_logic = new EnglishCheckers();
                         break;
+                    case "overtaking":
+                        game_logic = new OvertakingCheckers();
+                        break;
+                    default:
+                        sendMsgTo(writeA, "error");
+                        serverSocket.close();
                 }
 
-                //2 - wyswietlenie napisu u gracza 1 o oczekiwaniu na gracza 2
-                output_mess = "wait";
-                out1.print(output_mess);
+                socketB = serverSocket.accept();
 
-                socket2 = serverSocket.accept();
-                player_number++;
-                player2in = socket2.getInputStream();
-                in2 = new BufferedReader(new InputStreamReader(player2in));
-                player2out = new DataOutputStream(socket2.getOutputStream());
-                out2 = new PrintWriter(player2out, true);
-                System.out.println("Player connected, id: " + player_number + ", game id: " + game_number);
+                playerJoinedInfo(++player_number);
 
-                //3 - wyslanie graczowi 2 rodzaju gry
-                output_mess = game_logic;
-                out2.print(output_mess);
+                inB = socketB.getInputStream();
+                outB = socketB.getOutputStream();
+                readB = new BufferedReader(new InputStreamReader(inB));
+                writeB = new PrintWriter(outB, true);
 
-                //4 - wyslanie graczowi 1 aby wyswietlil plansze i zrobil pierwszy ruch
-                output_mess = "start";
-                out1.print(output_mess);
+                sendMsgTo(writeB, game_type);
+                sendMsgTo(writeA, "joined");
 
-                logic.initializeBoard();
+                move_counter = 1;
 
-                System.out.println("Game nr: " + game_number++ + " started ...");
+                while (!finished){
+                    while (true) {
+                        msgin = readA.readLine();
+                        System.out.println("Ruch gracza A! Numer ruchu: " +
+                                move_counter +
+                                " Ruch: (" +
+                                msgin.charAt(0) + ", " +
+                                msgin.charAt(1) + ") -> (" +
+                                msgin.charAt(2) + ", " +
+                                msgin.charAt(3) + ")");
 
-                while (true) {
-                    turnOf(in1, out1, logic);
-                    if (isFinished(logic, out1, out2)) break;
-                    turnOf(in2, out2, logic);
-                    if (isFinished(logic, out1, out2)) break;
+                        if (game_logic.isLegal(msgin)) {
+                            game_logic.movePawn(msgin);
+                            move_counter++;
+                            if (game_logic.isFinished()) {
+                                finished = true;
+                            } else {
+                                msgout = "block";
+                                sendMsgTo(writeA, msgout);
+                                sendMsgTo(writeB, "unblocked" + msgin);
+                            }
+                            break;
+                        } else {
+                            msgout = "illegal";
+                            sendMsgTo(writeA, msgout);
+                        }
+                    }
+                    while (!finished){
+                        msgin = readB.readLine();
+                        System.out.println("Ruch gracza B! Numer ruchu: " +
+                                move_counter +
+                                " Ruch: (" +
+                                msgin.charAt(0) + ", " +
+                                msgin.charAt(1) + ") -> (" +
+                                msgin.charAt(2) + ", " +
+                                msgin.charAt(3) + ")");
+
+                        if (game_logic.isLegal(msgin)) {
+                            game_logic.movePawn(msgin);
+                            if (game_logic.isFinished()) {
+                                finished = true;
+                            } else {
+                                msgout = "block";
+                                sendMsgTo(writeB, msgout);
+                                sendMsgTo(writeA, "unblocked" + msgin);
+                            }
+                            break;
+                        } else {
+                            msgout = "illegal";
+                            sendMsgTo(writeB, msgout);
+                        }
+                    }
                 }
 
-                System.out.println("Game nr: " + game_number++ + " finished ...");
+                msgout = game_logic.getWinner();
+
+                sendMsgTo(writeA, msgout);
+                sendMsgTo(writeB, msgout);
             }
-
-        } catch (IOException ex) {
-            System.out.println("Server exception: " + ex.getMessage());
-            ex.printStackTrace();
         }
     }
 
-    private static void turnOf(BufferedReader in, PrintWriter out, GameLogic logic) throws IOException {
-        String move = in.readLine();
-        while (!logic.isLegal(move)){
-            out.print("illegal");
-            move = in.readLine();
-        }
-        out.print("allowed");
-        logic.movePawn(move);
+    private static void playerJoinedInfo(int i) {
+        System.out.println("Player joined! Player number: " + i);
     }
 
-    private static boolean isFinished(GameLogic logic, PrintWriter out1, PrintWriter out2) {
-        String output_mess;
-        String winner;
-        if(logic.isFinished()){
-            winner = logic.getWinner();
-            output_mess = winner;
-            out1.print(output_mess);
-            out2.print(output_mess);
-            return true;
-        }
-        return false;
+    private static String getMsgFrom(BufferedReader readA) throws IOException {
+        return readA.readLine();
+    }
+
+    private static void sendMsgTo(PrintWriter writeA, String choose) {
+        writeA.print(choose);
     }
 }

@@ -11,8 +11,8 @@ import javafx.stage.Stage;
 import java.io.PrintWriter;
 
 public class ChoiceStage extends Stage {
-    private final double xSize;
-    private final double ySize;
+    private final double xSize = 250;
+    private final double ySize = 250;
     private final GridPane gridPane;
     private final Scene scene;
     private final Label chooseText, classicChoice, englishChoice, overtakingChoice;
@@ -21,9 +21,7 @@ public class ChoiceStage extends Stage {
     private PrintWriter out;
 
 
-    public ChoiceStage(double xSize, double ySize, PrintWriter out) {
-        this.xSize = xSize;
-        this.ySize = ySize;
+    public ChoiceStage(PrintWriter out) {
         this.out = out;
         gridPane = new GridPane();
         scene = new Scene(gridPane, xSize, ySize);

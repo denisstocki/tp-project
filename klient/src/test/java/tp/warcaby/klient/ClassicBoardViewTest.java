@@ -7,7 +7,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Unit test for simple App.
  */
-public class BoardViewTest
+public class ClassicBoardViewTest
 {
     /**
      * Rigorous Test :-)

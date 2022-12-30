@@ -1,40 +1,23 @@
 package tp.warcaby.klient.board;
 
-import tp.warcaby.klient.board.PawnColor;
-import tp.warcaby.klient.board.PawnType;
+import javafx.scene.shape.Circle;
 
-public class Pawn {
-    private int x_cord;
-    private int y_cord;
-    private PawnColor color;
-    private PawnType type;
+public class Pawn extends Circle {
+    private PawnLook look;
+    private final double size;
 
-    public Pawn(int x_cord, int y_cord, PawnColor color, PawnType pawnType) {
-        this.x_cord = x_cord;
-        this.y_cord = y_cord;
-        this.color = color;
-        this.type = pawnType;
-    }
-    public void upgradeToQueen() {
-        type = PawnType.QUEEN;
+    public Pawn(PawnLook look, double size) {
+        super(size, look.getPaint());
+        this.look = look;
+        this.size = size;
     }
 
-    public void downgradeToNormal() {
-        type = PawnType.NORMAL;
+    public void make(PawnLook look) {
+        this.look = look;
+        setFill(look.getPaint());
     }
 
-    //GETTERS AND SETTERS
-    public int get_x_cord() {
-        return x_cord;
-    }
-
-    public int get_y_cord() {
-        return y_cord;
-    }
-    public PawnType get_type() {
-        return type;
-    }
-    public PawnColor get_color() {
-        return color;
+    public PawnLook getLook() {
+        return look;
     }
 }

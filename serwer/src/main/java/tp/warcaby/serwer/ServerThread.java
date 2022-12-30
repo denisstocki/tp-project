@@ -8,143 +8,137 @@ public class ServerThread {
 
     public static void main(String[] args) throws IOException {
 
-
+        //TODO consider adding setup file to avoid hardcoded data
         try(ServerSocket serverSocket = new ServerSocket(4444)){
 
-            System.out.println("Server is working on port number 4444");
-
-            String game_type, winner, msgin, msgout;
+            System.out.println("[SERVER IS WORKING ON PORT 4444]\n");
+            
+            //TODO consider eplacing the A/B naming convention, for Example First/Second
+            String gameType, messageIn, messageOut;
+            MoveDecoder currentMove;
             BufferedReader readA, readB;
             OutputStream outA, outB;
             InputStream inA, inB;
             PrintWriter writeA, writeB;
-            GameLogic game_logic;
+            GameLogic gameLogic;
             Socket socketA, socketB;
-            boolean finished;
-            int game_number, player_number, move_counter;
+            boolean isFinished;
+            int gameNumber, playerNumber, moveCounter;
 
-            game_number = 0;
-            player_number = 0;
+            gameNumber = 0;
+            playerNumber = 0;
 
-            while (true){
+            while (true) {
 
-                System.out.println("\nWaiting to start game nr.: " + ++game_number);
+                System.out.println("[WAITING TO START GAME NUMBER: " + (++gameNumber) + "]\n");
 
-                game_logic = null;
-                finished = false;
+                gameLogic = null;
+                isFinished = false;
                 socketA = serverSocket.accept();
 
-                playerJoinedInfo(++player_number);
+                playerJoinedInfo(++playerNumber);
 
                 inA = socketA.getInputStream();
                 outA = socketA.getOutputStream();
                 readA = new BufferedReader(new InputStreamReader(inA));
                 writeA = new PrintWriter(outA, true);
 
-                sendMsgTo(writeA, "choose");
+                sendMessageTo(writeA, "choose");
 
-                game_type = getMsgFrom(readA);
+                gameType = readMessageFrom(readA);
 
-                switch (game_type){
+                switch (gameType){
                     case "classic":
-                        game_logic = new ClassicCheckers();
+                        gameLogic = new ClassicCheckers();
                         break;
                     case "english":
-                        game_logic = new EnglishCheckers();
+                        gameLogic = new EnglishCheckers();
                         break;
                     case "overtaking":
-                        game_logic = new OvertakingCheckers();
+                        gameLogic = new OvertakingCheckers();
                         break;
                     default:
-                        sendMsgTo(writeA, "error");
+                        sendMessageTo(writeA, "error");
                         serverSocket.close();
                 }
 
                 socketB = serverSocket.accept();
 
-                playerJoinedInfo(++player_number);
+                playerJoinedInfo(++playerNumber);
 
                 inB = socketB.getInputStream();
                 outB = socketB.getOutputStream();
                 readB = new BufferedReader(new InputStreamReader(inB));
                 writeB = new PrintWriter(outB, true);
 
-                sendMsgTo(writeB, game_type);
-                sendMsgTo(writeA, "joined");
+                sendMessageTo(writeB, gameType);
+                sendMessageTo(writeA, "joined");
 
-                move_counter = 1;
+                moveCounter = 1;
 
-                while (!finished){
+                while (!isFinished) {
                     while (true) {
-                        msgin = readA.readLine();
-                        System.out.println("Ruch gracza A! Numer ruchu: " +
-                                move_counter +
-                                " Ruch: (" +
-                                msgin.charAt(0) + ", " +
-                                msgin.charAt(1) + ") -> (" +
-                                msgin.charAt(2) + ", " +
-                                msgin.charAt(3) + ")");
+                        messageIn = readA.readLine();
+                        currentMove = new MoveDecoder(messageIn);
+                        System.out.println("Ruch gracza A! Numer ruchu:" + moveCounter + "\n");
+                        currentMove.printMove();
 
-                        if (game_logic.isLegal(msgin)) {
-                            game_logic.movePawn(msgin);
-                            move_counter++;
-                            if (game_logic.isFinished()) {
-                                finished = true;
+                        if (gameLogic.isLegal(messageIn)) {
+                            gameLogic.movePawn(messageIn);
+                            moveCounter++;
+                            if (gameLogic.isFinished()) {
+                                isFinished = true;
                             } else {
-                                msgout = "block";
-                                sendMsgTo(writeA, msgout);
-                                sendMsgTo(writeB, "unblocked" + msgin);
+                                messageOut = "block";
+                                sendMessageTo(writeA, messageOut);
+                                sendMessageTo(writeB, "unblocked" + messageIn);
                             }
                             break;
                         } else {
-                            msgout = "illegal";
-                            sendMsgTo(writeA, msgout);
+                            messageOut = "illegal";
+                            sendMessageTo(writeA, messageOut);
                         }
                     }
-                    while (!finished){
-                        msgin = readB.readLine();
-                        System.out.println("Ruch gracza B! Numer ruchu: " +
-                                move_counter +
-                                " Ruch: (" +
-                                msgin.charAt(0) + ", " +
-                                msgin.charAt(1) + ") -> (" +
-                                msgin.charAt(2) + ", " +
-                                msgin.charAt(3) + ")");
+                    while (!isFinished){
+                        messageIn = readB.readLine();
+                        currentMove = new MoveDecoder(messageIn);
+                        System.out.println("Ruch gracza B! Numer ruchu:" + moveCounter + "\n");
+                        currentMove.printMove();
 
-                        if (game_logic.isLegal(msgin)) {
-                            game_logic.movePawn(msgin);
-                            if (game_logic.isFinished()) {
-                                finished = true;
+                        if (gameLogic.isLegal(messageIn)) {
+                            gameLogic.movePawn(messageIn);
+                            if (gameLogic.isFinished()) {
+                                isFinished = true;
                             } else {
-                                msgout = "block";
-                                sendMsgTo(writeB, msgout);
-                                sendMsgTo(writeA, "unblocked" + msgin);
+                                messageOut = "block";
+                                sendMessageTo(writeB, messageOut);
+                                sendMessageTo(writeA, "unblocked" + messageIn);
                             }
                             break;
                         } else {
-                            msgout = "illegal";
-                            sendMsgTo(writeB, msgout);
+                            messageOut = "illegal";
+                            sendMessageTo(writeB, messageOut);
                         }
                     }
                 }
 
-                msgout = game_logic.getWinner();
+                messageOut = gameLogic.getWinner();
 
-                sendMsgTo(writeA, msgout);
-                sendMsgTo(writeB, msgout);
+                sendMessageTo(writeA, messageOut);
+                sendMessageTo(writeB, messageOut);
             }
         }
     }
 
-    private static void playerJoinedInfo(int i) {
-        System.out.println("Player joined! Player number: " + i);
+    private static void playerJoinedInfo(int playerID) {
+        System.out.println("[PLAYER NUMBER: "+ playerID + "JOINED THE GAME]\n");
     }
 
-    private static String getMsgFrom(BufferedReader readA) throws IOException {
-        return readA.readLine();
+    private static String readMessageFrom(BufferedReader playerReader) throws IOException {
+        return playerReader.readLine();
     }
 
-    private static void sendMsgTo(PrintWriter writeA, String choose) {
-        writeA.print(choose);
+    private static void sendMessageTo(PrintWriter playerWriter, String messageContent) {
+        playerWriter.print(messageContent);
     }
 }

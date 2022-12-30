@@ -14,7 +14,7 @@ public class ServerThread {
             System.out.println("[SERVER IS WORKING ON PORT 4444]\n");
             
             //TODO consider eplacing the A/B naming convention, for Example First/Second
-            String gameType, messageIn, messageOut;
+            String gameType, messageOut;
             MoveDecoder currentMove;
             BufferedReader readA, readB;
             OutputStream outA, outB;
@@ -78,20 +78,19 @@ public class ServerThread {
 
                 while (!isFinished) {
                     while (true) {
-                        messageIn = readA.readLine();
-                        currentMove = new MoveDecoder(messageIn);
+                        currentMove = new MoveDecoder(readA.readLine());
                         System.out.println("Ruch gracza A! Numer ruchu:" + moveCounter + "\n");
                         currentMove.printMove();
 
-                        if (gameLogic.isLegal(messageIn)) {
-                            gameLogic.movePawn(messageIn);
+                        if (gameLogic.isLegal(currentMove.getMessage())) {
+                            gameLogic.movePawn(currentMove.getMessage());
                             moveCounter++;
                             if (gameLogic.isFinished()) {
                                 isFinished = true;
                             } else {
                                 messageOut = "block";
                                 sendMessageTo(writeA, messageOut);
-                                sendMessageTo(writeB, "unblocked" + messageIn);
+                                sendMessageTo(writeB, "unblocked" + currentMove.getMessage());
                             }
                             break;
                         } else {
@@ -100,19 +99,18 @@ public class ServerThread {
                         }
                     }
                     while (!isFinished){
-                        messageIn = readB.readLine();
-                        currentMove = new MoveDecoder(messageIn);
+                        currentMove = new MoveDecoder(readB.readLine());
                         System.out.println("Ruch gracza B! Numer ruchu:" + moveCounter + "\n");
                         currentMove.printMove();
 
-                        if (gameLogic.isLegal(messageIn)) {
-                            gameLogic.movePawn(messageIn);
+                        if (gameLogic.isLegal(currentMove.getMessage())) {
+                            gameLogic.movePawn(currentMove.getMessage());
                             if (gameLogic.isFinished()) {
                                 isFinished = true;
                             } else {
                                 messageOut = "block";
                                 sendMessageTo(writeB, messageOut);
-                                sendMessageTo(writeA, "unblocked" + messageIn);
+                                sendMessageTo(writeA, "unblocked" + currentMove.getMessage());
                             }
                             break;
                         } else {

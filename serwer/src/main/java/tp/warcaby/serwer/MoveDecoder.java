@@ -23,6 +23,11 @@ public class MoveDecoder {
                 newCoords.getValue()  + ")\n");
     }
 
+    public String getMessage() {
+        String result = String.valueOf(previousCoords.getKey()+ previousCoords.getValue()+ newCoords.getKey() + newCoords.getValue());
+        return result;
+    }
+
     public MoveDecoder(String messageIn) {
         previousCoords = new Pair<Character, Character>(messageIn.charAt(0), messageIn.charAt(1));
         newCoords = new Pair<Character, Character>(messageIn.charAt(2), messageIn.charAt(3));

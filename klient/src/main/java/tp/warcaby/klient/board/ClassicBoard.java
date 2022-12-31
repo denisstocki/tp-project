@@ -134,12 +134,27 @@ public class ClassicBoard extends Stage implements Boardable{
             tempField.getOuterCrown().toFront();
             tempField.getInnerCrown().toFront();
         } else {
-
+            tempField.getPawn().toFront();
         }
     }
 
     @Override
     public void setBoardState(BoardState state) {
         this.boardState = state;
+    }
+
+    @Override
+    public void setGameInfo(String info) {
+
+    }
+
+    @Override
+    public void setWinnerInfo(String winner) {
+
+    }
+
+    @Override
+    public void setOurMove() {
+
     }
 }

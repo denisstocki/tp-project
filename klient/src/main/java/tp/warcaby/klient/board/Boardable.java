@@ -7,4 +7,7 @@ public interface Boardable {
     void setOpponentMove(String move);
 
     void setBoardState(BoardState state);
+    void setGameInfo(String info);
+    void setWinnerInfo(String winner);
+    void setOurMove();
 }

@@ -8,8 +8,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 
-import java.io.PrintWriter;
-
 public class ChoiceStage extends Stage {
     private final double xSize = 250;
     private final double ySize = 250;
@@ -18,11 +16,11 @@ public class ChoiceStage extends Stage {
     private final Label chooseText, classicChoice, englishChoice, overtakingChoice;
 
     private String choice;
-    private PrintWriter out;
+    private boolean finished;
+    private Game game;
 
 
-    public ChoiceStage(PrintWriter out) {
-        this.out = out;
+    public ChoiceStage() {
         gridPane = new GridPane();
         scene = new Scene(gridPane, xSize, ySize);
         chooseText = new Label("Wybierz rodzaj gry:");
@@ -30,6 +28,7 @@ public class ChoiceStage extends Stage {
         englishChoice = new Label("2. Warcaby angielskie");
         overtakingChoice = new Label("3. Warcaby wybijanka");
         choice = "none";
+        finished = false;
         gridPane.add(chooseText, 0, 0);
         gridPane.add(classicChoice, 0, 1);
         gridPane.add(englishChoice, 0, 2);
@@ -128,22 +127,39 @@ public class ChoiceStage extends Stage {
         });
         classicChoice.setOnMouseClicked(mouseEvent -> {
             choice = "classic";
-            out.print(choice);
-            hide();
+            finished = true;
         });
         englishChoice.setOnMouseClicked(mouseEvent -> {
             choice = "english";
-            out.print(choice);
-            hide();
+            finished = true;
         });
         overtakingChoice.setOnMouseClicked(mouseEvent -> {
             choice = "overtaking";
-            out.print(choice);
-            hide();
+            finished = true;
         });
     }
 
     public String getChoice() {
         return choice;
+    }
+
+    public Game getGame() {
+        return game;
+    }
+
+    public void setGame(Game game) {
+        this.game = game;
+    }
+
+    public boolean isFinished(){
+        return finished;
+    }
+
+    public void showStage(){
+        show();
+    }
+
+    public void hideStage(){
+        hide();
     }
 }

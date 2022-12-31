@@ -1,11 +1,15 @@
-package tp.warcaby.klient.board;
+package tp.warcaby.klient;
 
-public class BoardController implements Boardable{
-    private final Boardable board;
-    public BoardController(Boardable board) {
-        this.board = board;
+import tp.warcaby.klient.board.BoardState;
+import tp.warcaby.klient.board.Boardable;
+
+public class OvertakingBoard implements Boardable {
+
+    private BoardState boardState;
+
+    public OvertakingBoard(BoardState boardState) {
+        this.boardState = boardState;
     }
-
 
     @Override
     public void initializeBoard() {
@@ -24,7 +28,7 @@ public class BoardController implements Boardable{
 
     @Override
     public void setGameInfo(String info) {
-        board.setGameInfo(info);
+
     }
 
     @Override

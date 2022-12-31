@@ -3,6 +3,7 @@ package tp.warcaby.serwer;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Scanner;
 
 public class ServerThread {
 
@@ -16,7 +17,7 @@ public class ServerThread {
             //TODO consider eplacing the A/B naming convention, for Example First/Second
             String gameType, messageOut;
             MoveDecoder currentMove;
-            BufferedReader readA, readB;
+            Scanner readA, readB;
             OutputStream outA, outB;
             InputStream inA, inB;
             PrintWriter writeA, writeB;
@@ -38,10 +39,8 @@ public class ServerThread {
 
                 playerJoinedInfo(++playerNumber);
 
-                inA = socketA.getInputStream();
-                outA = socketA.getOutputStream();
-                readA = new BufferedReader(new InputStreamReader(inA));
-                writeA = new PrintWriter(outA, true);
+                readA = new Scanner(socketA.getInputStream());
+                writeA = new PrintWriter(socketA.getOutputStream(), true);
 
                 sendMessageTo(writeA, "choose");
 
@@ -66,10 +65,8 @@ public class ServerThread {
 
                 playerJoinedInfo(++playerNumber);
 
-                inB = socketB.getInputStream();
-                outB = socketB.getOutputStream();
-                readB = new BufferedReader(new InputStreamReader(inB));
-                writeB = new PrintWriter(outB, true);
+                readB = new Scanner(socketB.getInputStream());
+                writeB = new PrintWriter(socketB.getOutputStream(), true);
 
                 sendMessageTo(writeB, gameType);
                 sendMessageTo(writeA, "joined");
@@ -78,7 +75,7 @@ public class ServerThread {
 
                 while (!isFinished) {
                     while (true) {
-                        currentMove = new MoveDecoder(readA.readLine());
+                        currentMove = new MoveDecoder(readA.nextLine());
                         System.out.println("Ruch gracza A! Numer ruchu:" + moveCounter + "\n");
                         currentMove.printMove();
 
@@ -99,7 +96,7 @@ public class ServerThread {
                         }
                     }
                     while (!isFinished){
-                        currentMove = new MoveDecoder(readB.readLine());
+                        currentMove = new MoveDecoder(readB.nextLine());
                         System.out.println("Ruch gracza B! Numer ruchu:" + moveCounter + "\n");
                         currentMove.printMove();
 
@@ -132,8 +129,8 @@ public class ServerThread {
         System.out.println("[PLAYER NUMBER: "+ playerID + "JOINED THE GAME]\n");
     }
 
-    private static String readMessageFrom(BufferedReader playerReader) throws IOException {
-        return playerReader.readLine();
+    private static String readMessageFrom(Scanner playerReader) throws IOException {
+        return playerReader.nextLine();
     }
 
     private static void sendMessageTo(PrintWriter playerWriter, String messageContent) {

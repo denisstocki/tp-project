@@ -1,35 +1,39 @@
 package tp.warcaby.serwer;
 
-import javafx.util.Pair;
+
+import java.util.ArrayList;
 
 public class MoveDecoder {
-    private Pair<Character, Character> previousCoords;
-    private Pair<Character, Character> newCoords;
+    private final ArrayList<Character> previousCoords;
+    private final ArrayList<Character> newCoords;
 
     //ADD other funcionality if needed here
-    public Pair getOldCoords() {
+    public ArrayList<Character> getOldCoords() {
         return previousCoords;
     }
 
-    public Pair getNewCoords() {
+    public ArrayList<Character> getNewCoords() {
         return newCoords;
     }
 
     public void printMove(){
         System.out.println( " Move is: (" +
-                previousCoords.getKey() + ", " +
-                previousCoords.getValue() + ") -> (" +
-                newCoords.getKey() + ", " +
-                newCoords.getValue()  + ")\n");
+                previousCoords.get(0) + ", " +
+                previousCoords.get(1) + ") -> (" +
+                newCoords.get(0) + ", " +
+                newCoords.get(1)  + ")\n");
     }
 
     public String getMessage() {
-        String result = String.valueOf(previousCoords.getKey()+ previousCoords.getValue()+ newCoords.getKey() + newCoords.getValue());
-        return result;
+        return String.valueOf(previousCoords.get(0)) + previousCoords.get(1)+ newCoords.get(0) + newCoords.get(1);
     }
 
     public MoveDecoder(String messageIn) {
-        previousCoords = new Pair<Character, Character>(messageIn.charAt(0), messageIn.charAt(1));
-        newCoords = new Pair<Character, Character>(messageIn.charAt(2), messageIn.charAt(3));
+        previousCoords = new ArrayList<>();
+        previousCoords.add(messageIn.charAt(0));
+        previousCoords.add(messageIn.charAt(1));
+        newCoords = new ArrayList<>();
+        newCoords.add(messageIn.charAt(2));
+        newCoords.add(messageIn.charAt(3));
     }
 }

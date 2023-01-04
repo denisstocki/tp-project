@@ -1,39 +1,54 @@
 package tp.warcaby.klient.board;
 
-public class BoardController implements Boardable{
+import java.util.concurrent.CountDownLatch;
+
+public class BoardController{
     private final Boardable board;
     public BoardController(Boardable board) {
         this.board = board;
     }
 
-
-    @Override
     public void initializeBoard() {
-
+        board.initializePawns();
     }
 
-    @Override
     public void setOpponentMove(String move) {
-
+        board.setOpponentMove(move);
     }
 
-    @Override
     public void setBoardState(BoardState state) {
-
+        board.setBoardState(state);
     }
 
-    @Override
     public void setGameInfo(String info) {
         board.setGameInfo(info);
     }
 
-    @Override
     public void setWinnerInfo(String winner) {
-
+        board.setWinnerInfo(winner);
     }
 
-    @Override
     public void setOurMove() {
+        board.setOurMove();
+    }
 
+    public void showBoard() {
+        board.showBoard();
+    }
+
+    public boolean wasMoved() {
+        return board.wasMoved();
+    }
+
+    public String getMove() {
+        return board.getMove();
+    }
+
+    public BoardState getBoardState(){
+        return board.getBoardState();
+    }
+
+    public void setLatch(CountDownLatch latch){
+        board.setLatch(latch);
     }
 }

@@ -1,7 +1,11 @@
 package tp.warcaby.klient;
 
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 import tp.warcaby.klient.board.BoardController;
 import tp.warcaby.klient.board.BoardState;
+import tp.warcaby.klient.board.Boardable;
 import tp.warcaby.klient.board.ClassicBoard;
 
 import java.io.IOException;
@@ -9,90 +13,55 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class Game  {
-
+public class Game extends Application {
 
     public static void main(String[] args) {
-        BoardController controller = null;
-        String command;
-        ChoiceStage choiceStage;
-        Socket socket;
+        launch();
+    }
+
+    @Override
+    public void start(Stage stage) throws Exception {
+
+        Boardable board = null;
+        String message;
 
         try {
 
-            socket = new Socket("localhost", 3333);
+            final Socket socket = new Socket("localhost", 4444);
+            final Scanner in = new Scanner(socket.getInputStream());
+            final PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 
-            Scanner in = new Scanner(socket.getInputStream());
-            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            message = in.nextLine();
+            System.out.println("[Received message]: " + message);
 
-            String msgin, move;
+            if ("choose".equals(message)) {
 
-            EndingStage endingStage;
-            move = null;
+                Stage choiceStage = new Stage();
+                ChoiceGrid choiceGrid = new ChoiceGrid(choiceStage);
+                Scene choiceScene = new Scene(choiceGrid, 250, 250);
 
-            System.out.println("Here");
-            ChoiceStage choiceStage1 = new ChoiceStage();
-//            msgin = in.nextLine();
-//            if("choose".equals(msgin)){
-//                choiceStage1.start(new Stage());
-//                out.println(choiceStage1.getChoice());
-//            }
+                choiceStage.setResizable(false);
+                choiceStage.setTitle("Warcaby");
+                choiceStage.setScene(choiceScene);
+                choiceStage.showAndWait();
 
-            game_loop: while (true){
-                System.out.println("Again");
-                msgin = in.nextLine();
-                System.out.println("Received message: " + msgin);
-                if(msgin.contains("unblocked")) move = msgin.replace("unblocked", "");
-                switch (msgin){
-                    case "choose":
-                        System.out.println("Tutaj");
-                        choiceStage1.showStage();
-                        System.out.println("nie dziala");
-                        break;
-                    case "classic":
-                        controller = new BoardController(new ClassicBoard(BoardState.LOCKED));
-                        break;
-                    case "english":
-                        controller = new BoardController(new EnglishBoard(BoardState.LOCKED));
-                        break;
-                    case "overtaking":
-                        controller = new BoardController(new OvertakingBoard(BoardState.LOCKED));
-                        break;
-                    case "illegal":
-                        controller.setGameInfo("Wykonano nielegalny ruch! Spróbuj ponownie ...");
-                        controller.setBoardState(BoardState.UNLOCKED);
-                        break;
-                    case "black":
-                    case "white":
-                    case "tie":
-                        controller.setBoardState(BoardState.LOCKED);
-                        controller.setWinnerInfo(msgin);
-                        endingStage = new EndingStage(msgin);
-                        endingStage.show();
-                        socket.close();
-                        break game_loop;
-                    case "block":
-                        controller.setBoardState(BoardState.LOCKED);
-                        controller.setOurMove();
-                        controller.setGameInfo("Oczekiwanie na ruch przeciwnika!");
-                        break;
-                    case "unblocked":
-                        controller.setOpponentMove(move);
-                        controller.setGameInfo("Twoj ruch!");
-                        controller.setBoardState(BoardState.UNLOCKED);
-                        break;
-                    case "error":
-                        controller.setBoardState(BoardState.LOCKED);
-                        endingStage = new EndingStage(msgin);
-                        endingStage.show();
-                        socket.close();
-                        break game_loop;
-                }
+                message = choiceGrid.getChoice();
+                out.println(message);
+                System.out.println("[Sent message]: " + message);
+
+                if ("classic".equals(message)) board = new ClassicBoard(BoardState.LOCKED, "white");
+                else if ("english".equals(message)) board = new EnglishBoard(BoardState.LOCKED, "white");
+                else if ("overtaking".equals(message)) board = new OvertakingBoard(BoardState.LOCKED, "white");
+
             }
+            else if ("classic".equals(message)) board = new ClassicBoard(BoardState.LOCKED, "black");
+            else if ("english".equals(message)) board = new EnglishBoard(BoardState.LOCKED, "black");
+            else if ("overtaking".equals(message)) board = new OvertakingBoard(BoardState.LOCKED, "black");
 
-        } catch (IOException ex) {
-            System.out.println("Server exception: " + ex.getMessage());
-            ex.printStackTrace();
+            new GameThread(new BoardController(board), in, out, socket).start();
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }

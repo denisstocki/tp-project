@@ -1,43 +1,10 @@
 package tp.warcaby.klient;
 
 import tp.warcaby.klient.board.BoardState;
-import tp.warcaby.klient.board.Boardable;
 
-public class EnglishBoard implements Boardable {
+public class EnglishBoard extends ClassicallyBoardable {
 
-    private BoardState boardState;
-
-    public EnglishBoard(BoardState boardState) {
-        this.boardState = boardState;
-    }
-
-    @Override
-    public void initializeBoard() {
-
-    }
-
-    @Override
-    public void setOpponentMove(String move) {
-
-    }
-
-    @Override
-    public void setBoardState(BoardState state) {
-
-    }
-
-    @Override
-    public void setGameInfo(String info) {
-
-    }
-
-    @Override
-    public void setWinnerInfo(String winner) {
-
-    }
-
-    @Override
-    public void setOurMove() {
-
+    public EnglishBoard(BoardState boardState, String color) {
+        super(boardState, color, 8, "English checkers");
     }
 }

@@ -7,19 +7,13 @@ import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 
 public class EndingStage extends Stage {
-    private final double xSize = 250;
-    private final double ySize = 250;
-    private final Scene scene;
     private final Label msgLabel;
 
     public EndingStage(String message) {
         msgLabel = new Label(message);
-        scene = new Scene(msgLabel, xSize, ySize);
-        setScene(scene);
-        setResizable(false);
-        setTitle("Critical Error!");
         msgLabel.setPrefSize(250, 250);
         msgLabel.setAlignment(Pos.CENTER);
+
         switch (message){
             case "white":
                 whiteTemplate();
@@ -34,6 +28,12 @@ public class EndingStage extends Stage {
                 errorTemplate();
                 break;
         }
+
+        Scene scene = new Scene(msgLabel);
+
+        setScene(scene);
+        setResizable(false);
+        setTitle("Game message");
     }
 
     private void tieTemplate() {

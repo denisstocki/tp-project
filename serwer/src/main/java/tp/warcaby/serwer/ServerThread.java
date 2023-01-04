@@ -31,7 +31,7 @@ public class ServerThread {
 
             while (true) {
 
-                System.out.println("[WAITING TO START GAME NUMBER: " + (++gameNumber) + "]\n");
+                System.out.println("[WAITING TO START GAME NUMBER]: " + (++gameNumber) + "\n");
 
                 gameLogic = null;
                 isFinished = false;
@@ -43,6 +43,7 @@ public class ServerThread {
                 writeA = new PrintWriter(socketA.getOutputStream(), true);
 
                 sendMessageTo(writeA, "choose");
+                System.out.println("[Sent message]: choose (Player 1)");
 
                 gameType = readMessageFrom(readA);
 
@@ -85,7 +86,7 @@ public class ServerThread {
                             if (gameLogic.isFinished()) {
                                 isFinished = true;
                             } else {
-                                messageOut = "block";
+                                messageOut = "accepted";
                                 sendMessageTo(writeA, messageOut);
                                 sendMessageTo(writeB, "unblocked" + currentMove.getMessage());
                             }
@@ -134,6 +135,6 @@ public class ServerThread {
     }
 
     private static void sendMessageTo(PrintWriter playerWriter, String messageContent) {
-        playerWriter.print(messageContent);
+        playerWriter.println(messageContent);
     }
 }

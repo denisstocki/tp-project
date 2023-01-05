@@ -13,8 +13,7 @@ public class ServerThread {
         try(ServerSocket serverSocket = new ServerSocket(4444)){
 
             System.out.println("[SERVER IS WORKING ON PORT 4444]\n");
-            
-            //TODO consider eplacing the A/B naming convention, for Example First/Second
+
             String gameType, messageOut;
             MoveDecoder currentMove;
             Scanner readA, readB;
@@ -56,6 +55,9 @@ public class ServerThread {
                         break;
                     case "overtaking":
                         gameLogic = new OvertakingCheckers();
+                        break;
+                    case "polsih":
+                        gameLogic = new PolishCheckers();
                         break;
                     default:
                         sendMessageTo(writeA, "error");

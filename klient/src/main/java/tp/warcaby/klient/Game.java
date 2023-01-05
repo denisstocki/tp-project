@@ -52,11 +52,13 @@ public class Game extends Application {
                 if ("classic".equals(message)) board = new ClassicBoard(BoardState.LOCKED, "white");
                 else if ("english".equals(message)) board = new EnglishBoard(BoardState.LOCKED, "white");
                 else if ("overtaking".equals(message)) board = new OvertakingBoard(BoardState.LOCKED, "white");
+                else if ("polish".equals(message)) board = new PolishBoard(BoardState.LOCKED, "white");
 
             }
             else if ("classic".equals(message)) board = new ClassicBoard(BoardState.LOCKED, "black");
             else if ("english".equals(message)) board = new EnglishBoard(BoardState.LOCKED, "black");
             else if ("overtaking".equals(message)) board = new OvertakingBoard(BoardState.LOCKED, "black");
+            else if ("polsih".equals(message)) board = new PolishBoard(BoardState.LOCKED, "black");
 
             new GameThread(new BoardController(board), in, out, socket).start();
 

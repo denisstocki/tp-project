@@ -8,7 +8,7 @@ import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 
 public class ChoiceGrid extends GridPane {
-    private final Label chooseText, classicChoice, englishChoice, overtakingChoice;
+    private final Label chooseText, classicChoice, englishChoice, overtakingChoice, polishChoice;
 
     private String choice;
     private Stage stage;
@@ -20,11 +20,13 @@ public class ChoiceGrid extends GridPane {
         classicChoice = new Label("1. Warcaby klasyczne");
         englishChoice = new Label("2. Warcaby angielskie");
         overtakingChoice = new Label("3. Warcaby wybijanka");
+        polishChoice = new Label("3. Warcaby polskie");
 
         add(chooseText, 0, 0);
         add(classicChoice, 0, 1);
         add(englishChoice, 0, 2);
         add(overtakingChoice, 0, 3);
+        add(polishChoice, 0, 4);
 
         setGridStyle();
 
@@ -33,6 +35,7 @@ public class ChoiceGrid extends GridPane {
         setLabelBehaviour(classicChoice);
         setLabelBehaviour(englishChoice);
         setLabelBehaviour(overtakingChoice);
+        setLabelBehaviour(polishChoice);
 
         classicChoice.setOnMouseClicked(mouseEvent -> {
             choice = "classic";
@@ -44,6 +47,10 @@ public class ChoiceGrid extends GridPane {
         });
         overtakingChoice.setOnMouseClicked(mouseEvent -> {
             choice = "overtaking";
+            this.stage.hide();
+        });
+        polishChoice.setOnMouseClicked(mouseEvent -> {
+            choice = "polish";
             this.stage.hide();
         });
     }
@@ -71,13 +78,14 @@ public class ChoiceGrid extends GridPane {
         classicChoice.setPrefSize(220, 50);
         englishChoice.setPrefSize(220, 50);
         overtakingChoice.setPrefSize(220, 50);
+        polishChoice.setPrefSize(220, 50);
 
         chooseText.setAlignment(Pos.CENTER);
         classicChoice.setAlignment(Pos.CENTER);
         englishChoice.setAlignment(Pos.CENTER);
         overtakingChoice.setAlignment(Pos.CENTER);
-
-        setAlignment(Pos.CENTER);
+        overtakingChoice.setAlignment(Pos.CENTER);
+        polishChoice.setAlignment(Pos.CENTER);
         setVgap(8);
     }
 
@@ -86,6 +94,7 @@ public class ChoiceGrid extends GridPane {
         classicChoice.setBackground(Background.fill(Paint.valueOf("BD7A44")));
         englishChoice.setBackground(Background.fill(Paint.valueOf("BD7A44")));
         overtakingChoice.setBackground(Background.fill(Paint.valueOf("BD7A44")));
+        polishChoice.setBackground(Background.fill(Paint.valueOf("BD7A44")));
 
         setBackground(Background.fill(Paint.valueOf("E3C193")));
 
@@ -100,6 +109,10 @@ public class ChoiceGrid extends GridPane {
                 "-fx-font-size: 17px");
         englishChoice.setStyle("-fx-background-radius: 20 20 20 20;" +
                 "-fx-background-color: BD7A44;"+
+                "-fx-font-family: Arial;" +
+                "-fx-font-size: 17px");
+        overtakingChoice.setStyle("-fx-background-radius: 20 20 20 20;" +
+                "-fx-background-color: BD7A44;" +
                 "-fx-font-family: Arial;" +
                 "-fx-font-size: 17px");
         overtakingChoice.setStyle("-fx-background-radius: 20 20 20 20;" +

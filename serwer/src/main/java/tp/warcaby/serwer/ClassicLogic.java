@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-//TODO verif if you tryna move your pawn or not yours (both server and client)
-
 abstract class BaseLogic implements GameLogic{
     private List<List<String>> board;
 
@@ -117,14 +115,14 @@ abstract class BaseLogic implements GameLogic{
         }
         else if(Objects.equals(pawn, "BQ") || Objects.equals(pawn, "WQ")){
             if(Math.abs(x2-x1)==Math.abs(y2-y1) && Objects.equals(direction, "E") && (x2 != x1) && (y2 != y1)){
-                if(pawn.equals("WQ") && !isTraitor("WQ", x1, x2, y1, y2) && isFairFight("WQ", x1, x2, y1, y2)) score = true;
-                else if(pawn.equals("BQ") && !isTraitor("BQ", x1, x2, y1, y2) && isFairFight("BQ", x1, x2, y1, y2)) score = true;
+                if(pawn.equals("WQ") && !isTraitor("WQ", x1, x2, y1, y2) && isFairFight("WQ", x1, x2, y1, y2) <= 1) score = true;
+                else if(pawn.equals("BQ") && !isTraitor("BQ", x1, x2, y1, y2) && isFairFight("BQ", x1, x2, y1, y2) <= 1) score = true;
             }
         }
         return score;
     }
 
-    private boolean isFairFight(String queen, int x1, int x2, int y1, int y2) {
+    public int isFairFight(String queen, int x1, int x2, int y1, int y2) {
         int dx, dy;
         if(x2>x1) dx=1;
         else dx=-1;
@@ -139,10 +137,10 @@ abstract class BaseLogic implements GameLogic{
             y1 += dy;
             if(board.get(x1).get(y1).equals(target)) counter++;
         }
-        return counter<=1;
+        return counter;
     }
 
-    private boolean isTraitor(String queen, int x1, int x2, int y1, int y2) {
+    public boolean isTraitor(String queen, int x1, int x2, int y1, int y2) {
         int dx, dy;
         if(x2>x1) dx=1;
         else dx=-1;
@@ -235,17 +233,17 @@ abstract class BaseLogic implements GameLogic{
             }
             temp_x = x-1;
             temp_y = y+1;
-            if(temp_x >= 0 && temp_y <= 7 && isLegal("" + x + y + temp_x + temp_y)){
+            if(temp_x >= 0 && temp_y <= boardSize - 1 && isLegal("" + x + y + temp_x + temp_y)){
                 moves.append("|").append(temp_x).append(temp_y);
             }
             temp_x = x+1;
             temp_y = y-1;
-            if(temp_x <= 7 && temp_y >= 0 && isLegal("" + x + y + temp_x + temp_y)){
+            if(temp_x <= boardSize - 1 && temp_y >= 0 && isLegal("" + x + y + temp_x + temp_y)){
                 moves.append("|").append(temp_x).append(temp_y);
             }
             temp_x = x+1;
             temp_y = y+1;
-            if(temp_x <= 7 && temp_y <= 7 && isLegal("" + x + y + temp_x + temp_y)){
+            if(temp_x <= boardSize - 1 && temp_y <= boardSize - 1 && isLegal("" + x + y + temp_x + temp_y)){
                 moves.append("|").append(temp_x).append(temp_y);
             }
             temp_x = x-2;
@@ -255,22 +253,22 @@ abstract class BaseLogic implements GameLogic{
             }
             temp_x = x-2;
             temp_y = y+2;
-            if(temp_x >= 0 && temp_y <= 7 && isLegal("" + x + y + temp_x + temp_y)){
+            if(temp_x >= 0 && temp_y <= boardSize - 1 && isLegal("" + x + y + temp_x + temp_y)){
                 moves.append("|").append(temp_x).append(temp_y);
             }
             temp_x = x+2;
             temp_y = y-2;
-            if(temp_x <= 7 && temp_y >= 0 && isLegal("" + x + y + temp_x + temp_y)){
+            if(temp_x <= boardSize - 1 && temp_y >= 0 && isLegal("" + x + y + temp_x + temp_y)){
                 moves.append("|").append(temp_x).append(temp_y);
             }
             temp_x = x+2;
             temp_y = y+2;
-            if(temp_x <= 7 && temp_y <= 7 && isLegal("" + x + y + temp_x + temp_y)){
+            if(temp_x <= boardSize - 1 && temp_y <= boardSize - 1 && isLegal("" + x + y + temp_x + temp_y)){
                 moves.append("|").append(temp_x).append(temp_y);
             }
         }
         else {
-            for (int i = 1; i < 8; i++) {
+            for (int i = 1; i < boardSize; i++) {
                 temp_x = x-i;
                 temp_y = y-i;
                 if(temp_x >= 0 && temp_y >= 0 && isLegal("" + x + y + temp_x + temp_y)){
@@ -279,30 +277,30 @@ abstract class BaseLogic implements GameLogic{
                     break;
                 }
             }
-            for (int i = 1; i < 8; i++) {
+            for (int i = 1; i < boardSize; i++) {
                 temp_x = x-i;
                 temp_y = y+i;
-                if(temp_x >= 0 && temp_y <= 7 && isLegal("" + x + y + temp_x + temp_y)){
+                if(temp_x >= 0 && temp_y <= boardSize - 1 && isLegal("" + x + y + temp_x + temp_y)){
                     moves.append("|").append(temp_x).append(temp_y);
-                } else if (temp_x <= 0 || temp_y >= 8) {
+                } else if (temp_x <= 0 || temp_y >= boardSize) {
                     break;
                 }
             }
-            for (int i = 1; i < 8; i++) {
+            for (int i = 1; i < boardSize; i++) {
                 temp_x = x+i;
                 temp_y = y-i;
-                if(temp_x <= 7 && temp_y >= 0 && isLegal("" + x + y + temp_x + temp_y)){
+                if(temp_x <= boardSize - 1 && temp_y >= 0 && isLegal("" + x + y + temp_x + temp_y)){
                     moves.append("|").append(temp_x).append(temp_y);
-                } else if (temp_x >= 8 || temp_y <= 0) {
+                } else if (temp_x >= boardSize || temp_y <= 0) {
                     break;
                 }
             }
-            for (int i = 1; i < 8; i++) {
+            for (int i = 1; i < boardSize; i++) {
                 temp_x = x+i;
                 temp_y = y+i;
-                if(temp_x <= 7 && temp_y <= 7 && isLegal("" + x + y + temp_x + temp_y)){
+                if(temp_x <= boardSize - 1 && temp_y <= boardSize && isLegal("" + x + y + temp_x + temp_y)){
                     moves.append("|").append(temp_x).append(temp_y);
-                } else if (temp_x >= 8 || temp_y >= 8) {
+                } else if (temp_x >= boardSize || temp_y >= boardSize) {
                     break;
                 }
             }

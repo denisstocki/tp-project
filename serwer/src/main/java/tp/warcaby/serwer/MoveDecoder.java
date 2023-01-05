@@ -7,7 +7,6 @@ public class MoveDecoder {
     private final ArrayList<Character> previousCoords;
     private final ArrayList<Character> newCoords;
 
-    //ADD other funcionality if needed here
     public ArrayList<Character> getOldCoords() {
         return previousCoords;
     }

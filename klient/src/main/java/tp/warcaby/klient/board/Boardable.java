@@ -317,7 +317,9 @@ public abstract class Boardable {
                             if (mouseState.toString().equalsIgnoreCase("first_click") && fields[k][l].getPawn().getLook().getColor().equals(color)) {
                                 if(prevColor != null){
                                     fields[prevCoords[0]][prevCoords[1]].setFieldStyle(prevColor);
+                                    System.out.println("1");
                                 }
+                                System.out.println("2");
                                 prevCoords[0] = k;
                                 prevCoords[1] = l;
                                 mouseState = MouseState.SECOND_CLICK;
@@ -326,18 +328,21 @@ public abstract class Boardable {
                                 System.out.println("pierwszy ruch " + fields[prevCoords[0]][prevCoords[1]].getPawn().getLook().getColor());
                             } else if (mouseState.toString().equalsIgnoreCase("second_click")) {
                                 if(fields[k][l].getPawn().getLook().getColor().equals(color)){
-                                    if(k != prevCoords[0] && l != prevCoords[1]){
+                                    System.out.println("3");
+                                    if(k != prevCoords[0] || l != prevCoords[1]){
                                         fields[k][l].setFieldStyle("#FFB31A");
                                         fields[prevCoords[0]][prevCoords[1]].setFieldStyle(prevColor);
                                         prevCoords[0] = k;
                                         prevCoords[1] = l;
                                     }
                                 } else {
+                                    System.out.println("5");
                                     nextCoords[0] = k;
                                     nextCoords[1] = l;
                                     mouseState = MouseState.FIRST_CLICK;
                                     if(fields[prevCoords[0]][prevCoords[1]].getPawn().getLook().getColor().equals(color) &&
                                             fields[nextCoords[0]][nextCoords[1]].getPawn().getLook().getColor().equals("none")){
+                                        System.out.println("6");
                                         moved = true;
                                         System.out.println("dobry ruch");
                                     }

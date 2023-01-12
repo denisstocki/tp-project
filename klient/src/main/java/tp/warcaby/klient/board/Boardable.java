@@ -14,6 +14,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
 
 public abstract class Boardable {
@@ -137,23 +138,41 @@ public abstract class Boardable {
         int x2 = Integer.parseInt(String.valueOf(move.charAt(2)));
         int y2 = Integer.parseInt(String.valueOf(move.charAt(3)));
 
+        System.out.println("KUr " + x1 + y1 + x2 + y2 );
+
+        String enemy;
+
+        if("white".equals(color)){
+            enemy = "BLACK";
+        } else {
+            enemy = "WHITE";
+        }
+
         if(fields[x1][y1].getPawn().getLook().toString().toLowerCase().contains("queen")){
             fields[x2][y2].getPawn().make(fields[x1][y1].getPawn().getLook());
             fields[x2][y2].getPawn().toFront();
             fields[x2][y2].getOuterCrown().toFront();
             fields[x2][y2].getInnerCrown().setFill(fields[x2][y2].getPawn().getLook().getPaint());
             fields[x2][y2].getInnerCrown().toFront();
-        } else if(ended & x2 == size - 1 & fields[x1][y1].getPawn().getLook() == PawnLook.BLACK){
-            fields[x2][y2].getPawn().make(PawnLook.BLACK_QUEEN);
+        } else if(ended & x2 == size - 1 & fields[x1][y1].getPawn().getLook().toString().equals(enemy)){
+            if("white".equals(color)){
+                fields[x2][y2].getPawn().make(PawnLook.BLACK_QUEEN);
+            } else {
+                fields[x2][y2].getPawn().make(PawnLook.WHITE_QUEEN);
+            }
             fields[x2][y2].getPawn().toFront();
             fields[x2][y2].getOuterCrown().toFront();
-            fields[x2][y2].getInnerCrown().setFill(PawnLook.BLACK_QUEEN.getPaint());
+            fields[x2][y2].getInnerCrown().setFill(fields[x2][y2].getPawn().getLook().getPaint());
             fields[x2][y2].getInnerCrown().toFront();
-        } else if (ended & x2 == 0 & fields[x1][y1].getPawn().getLook() == PawnLook.WHITE) {
-            fields[x2][y2].getPawn().make(PawnLook.WHITE_QUEEN);
+        } else if (ended & x2 == 0 & fields[x1][y1].getPawn().getLook().toString().equals(color.toUpperCase())) {
+            if("white".equals(color)){
+                fields[x2][y2].getPawn().make(PawnLook.WHITE_QUEEN);
+            } else {
+                fields[x2][y2].getPawn().make(PawnLook.BLACK_QUEEN);
+            }
             fields[x2][y2].getPawn().toFront();
             fields[x2][y2].getOuterCrown().toFront();
-            fields[x2][y2].getInnerCrown().setFill(PawnLook.WHITE_QUEEN.getPaint());
+            fields[x2][y2].getInnerCrown().setFill(fields[x2][y2].getPawn().getLook().getPaint());
             fields[x2][y2].getInnerCrown().toFront();
         } else {
             fields[x2][y2].getPawn().make(fields[x1][y1].getPawn().getLook());
@@ -198,20 +217,38 @@ public abstract class Boardable {
         int x2 = prevCoords[0];
         int y2 = prevCoords[1];
 
+        System.out.println("KUr " + x1 + y1 + x2 + y2 );
+
+        String enemy;
+
+        if("white".equals(color)){
+            enemy = "BLACK";
+        } else {
+            enemy = "WHITE";
+        }
+
         if(fields[x2][y2].getPawn().getLook().toString().toLowerCase().contains("queen")){
             fields[x1][y1].getPawn().make(fields[x2][y2].getPawn().getLook());
             fields[x1][y1].getPawn().toFront();
             fields[x1][y1].getOuterCrown().toFront();
             fields[x1][y1].getInnerCrown().setFill(fields[x2][y2].getPawn().getLook().getPaint());
             fields[x1][y1].getInnerCrown().toFront();
-        } else if(ended & x1 == size - 1 & fields[x2][y2].getPawn().getLook() == PawnLook.BLACK){
-            fields[x1][y1].getPawn().make(PawnLook.BLACK_QUEEN);
+        } else if(ended & x1 == size - 1 & fields[x2][y2].getPawn().getLook().toString().equals(enemy)){
+            if("white".equals(color)){
+                fields[x1][y1].getPawn().make(PawnLook.BLACK_QUEEN);
+            } else {
+                fields[x1][y1].getPawn().make(PawnLook.WHITE_QUEEN);
+            }
             fields[x1][y1].getPawn().toFront();
             fields[x1][y1].getOuterCrown().toFront();
             fields[x1][y1].getInnerCrown().setFill(fields[x1][y1].getPawn().getLook().getPaint());
             fields[x1][y1].getInnerCrown().toFront();
-        } else if (ended & x1 == 0 & fields[x2][y2].getPawn().getLook() == PawnLook.WHITE) {
-            fields[x1][y1].getPawn().make(PawnLook.WHITE_QUEEN);
+        } else if (ended & x1 == 0 & fields[x2][y2].getPawn().getLook().toString().equals(color.toUpperCase())) {
+            if("white".equals(color)){
+                fields[x1][y1].getPawn().make(PawnLook.WHITE_QUEEN);
+            } else {
+                fields[x1][y1].getPawn().make(PawnLook.BLACK_QUEEN);
+            }
             fields[x1][y1].getPawn().toFront();
             fields[x1][y1].getOuterCrown().toFront();
             fields[x1][y1].getInnerCrown().setFill(fields[x1][y1].getPawn().getLook().getPaint());

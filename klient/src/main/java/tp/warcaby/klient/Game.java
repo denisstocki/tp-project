@@ -38,7 +38,7 @@ public class Game extends Application {
 
                 Stage choiceStage = new Stage();
                 ChoiceGrid choiceGrid = new ChoiceGrid(choiceStage);
-                Scene choiceScene = new Scene(choiceGrid, 250, 250);
+                Scene choiceScene = new Scene(choiceGrid, 250, 298);
 
                 choiceStage.setResizable(false);
                 choiceStage.setTitle("Warcaby");
@@ -58,9 +58,13 @@ public class Game extends Application {
             else if ("classic".equals(message)) board = new ClassicBoard(BoardState.LOCKED, "black");
             else if ("english".equals(message)) board = new EnglishBoard(BoardState.LOCKED, "black");
             else if ("overtaking".equals(message)) board = new OvertakingBoard(BoardState.LOCKED, "black");
-            else if ("polsih".equals(message)) board = new PolishBoard(BoardState.LOCKED, "black");
+            else if ("polish".equals(message)) board = new PolishBoard(BoardState.LOCKED, "black");
 
-            new GameThread(new BoardController(board), in, out, socket).start();
+            Thread game = new GameThread(new BoardController(board), in, out, socket);
+
+            board.setOnExit(socket, game);
+
+            game.start();
 
         } catch (IOException e) {
             throw new RuntimeException(e);

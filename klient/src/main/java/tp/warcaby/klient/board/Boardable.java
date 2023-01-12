@@ -12,6 +12,8 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 
+import java.io.IOException;
+import java.net.Socket;
 import java.util.concurrent.CountDownLatch;
 
 public abstract class Boardable {
@@ -36,6 +38,8 @@ public abstract class Boardable {
     public MouseState mouseState;
     public final int size;
 
+    public String prevColor;
+
     public Boardable(BoardState boardState, String color, int size, String title) {
         double screenX = 800;
 
@@ -58,7 +62,7 @@ public abstract class Boardable {
 
         mouseState = MouseState.FIRST_CLICK;
         latch = null;
-        moved = false;
+        prevColor = null;
 
         setBoard();
     }
@@ -70,7 +74,7 @@ public abstract class Boardable {
         setGridPane();
         setPane();
         setStage();
-        initializePawns();
+        initializePawns(color);
     }
 
     private void setStage() {
@@ -127,25 +131,54 @@ public abstract class Boardable {
                 "-fx-text-fill: #000");
     }
 
-    public void setOpponentMove(String move){
-        int x1 = move.charAt(0);
-        int y1 = move.charAt(1);
-        int x2 = move.charAt(2);
-        int y2 = move.charAt(3);
+    public void setOpponentMove(String move, boolean ended){
+        int x1 = Integer.parseInt(String.valueOf(move.charAt(0)));
+        int y1 = Integer.parseInt(String.valueOf(move.charAt(1)));
+        int x2 = Integer.parseInt(String.valueOf(move.charAt(2)));
+        int y2 = Integer.parseInt(String.valueOf(move.charAt(3)));
 
-        PawnLook prevLook = fields[x1][y1].getPawn().getLook();
-        Field tempField = fields[x2][y2];
+        if(fields[x1][y1].getPawn().getLook().toString().toLowerCase().contains("queen")){
+            fields[x2][y2].getPawn().make(fields[x1][y1].getPawn().getLook());
+            fields[x2][y2].getPawn().toFront();
+            fields[x2][y2].getOuterCrown().toFront();
+            fields[x2][y2].getInnerCrown().setFill(fields[x2][y2].getPawn().getLook().getPaint());
+            fields[x2][y2].getInnerCrown().toFront();
+        } else if(ended & x2 == size - 1 & fields[x1][y1].getPawn().getLook() == PawnLook.BLACK){
+            fields[x2][y2].getPawn().make(PawnLook.BLACK_QUEEN);
+            fields[x2][y2].getPawn().toFront();
+            fields[x2][y2].getOuterCrown().toFront();
+            fields[x2][y2].getInnerCrown().setFill(PawnLook.BLACK_QUEEN.getPaint());
+            fields[x2][y2].getInnerCrown().toFront();
+        } else if (ended & x2 == 0 & fields[x1][y1].getPawn().getLook() == PawnLook.WHITE) {
+            fields[x2][y2].getPawn().make(PawnLook.WHITE_QUEEN);
+            fields[x2][y2].getPawn().toFront();
+            fields[x2][y2].getOuterCrown().toFront();
+            fields[x2][y2].getInnerCrown().setFill(PawnLook.WHITE_QUEEN.getPaint());
+            fields[x2][y2].getInnerCrown().toFront();
+        } else {
+            fields[x2][y2].getPawn().make(fields[x1][y1].getPawn().getLook());
+            fields[x2][y2].getPawn().toFront();
+        }
 
         fields[x1][y1].getPawn().make(PawnLook.GHOST);
-        tempField.getPawn().make(prevLook);
-
         buttons[x1][y1].toFront();
 
-        if(prevLook.toString().contains("queen")){
-            tempField.getPawn().toFront();
-            tempField.getOuterCrown().toFront();
-            tempField.getInnerCrown().toFront();
-        } else tempField.getPawn().toFront();
+        int tempX, tempY, dx, dy;
+
+        if(x2 > x1) dx = 1;
+        else dx = -1;
+        if(y2 > y1) dy = 1;
+        else dy = -1;
+
+        tempX = x1 + dx;
+        tempY = y1 + dy;
+
+        while (tempX != x2 && tempY != y2){
+            fields[tempX][tempY].getPawn().make(PawnLook.GHOST);
+            buttons[tempX][tempY].toFront();
+            tempX += dx;
+            tempY += dy;
+        }
     }
     public void setBoardState(BoardState state){
         boardState = state;
@@ -159,33 +192,69 @@ public abstract class Boardable {
         else if ("black".equals(winner)) infoLabel.setText("Wygrały czarne pionki !");
         else infoLabel.setText("Remis !");
     }
-    public void setOurMove(){
+    public void setOurMove(boolean ended){
         int x1 = nextCoords[0];
         int y1 = nextCoords[1];
         int x2 = prevCoords[0];
         int y2 = prevCoords[1];
 
-        fields[x1][y1].getPawn().make(fields[x2][y2].getPawn().getLook());
-
-        if(fields[x1][y1].getPawn().getLook().toString().toLowerCase().contains("queen")){
+        if(fields[x2][y2].getPawn().getLook().toString().toLowerCase().contains("queen")){
+            fields[x1][y1].getPawn().make(fields[x2][y2].getPawn().getLook());
             fields[x1][y1].getPawn().toFront();
             fields[x1][y1].getOuterCrown().toFront();
+            fields[x1][y1].getInnerCrown().setFill(fields[x2][y2].getPawn().getLook().getPaint());
             fields[x1][y1].getInnerCrown().toFront();
-            fields[x1][y1].getInnerCrown().setFill(fields[x1][y1].getPawn().getFill());
-        } else fields[x1][y1].getPawn().toFront();
+        } else if(ended & x1 == size - 1 & fields[x2][y2].getPawn().getLook() == PawnLook.BLACK){
+            fields[x1][y1].getPawn().make(PawnLook.BLACK_QUEEN);
+            fields[x1][y1].getPawn().toFront();
+            fields[x1][y1].getOuterCrown().toFront();
+            fields[x1][y1].getInnerCrown().setFill(fields[x1][y1].getPawn().getLook().getPaint());
+            fields[x1][y1].getInnerCrown().toFront();
+        } else if (ended & x1 == 0 & fields[x2][y2].getPawn().getLook() == PawnLook.WHITE) {
+            fields[x1][y1].getPawn().make(PawnLook.WHITE_QUEEN);
+            fields[x1][y1].getPawn().toFront();
+            fields[x1][y1].getOuterCrown().toFront();
+            fields[x1][y1].getInnerCrown().setFill(fields[x1][y1].getPawn().getLook().getPaint());
+            fields[x1][y1].getInnerCrown().toFront();
+        } else {
+            fields[x1][y1].getPawn().make(fields[x2][y2].getPawn().getLook());
+            fields[x1][y1].getPawn().toFront();
+        }
 
         fields[x2][y2].getPawn().make(PawnLook.GHOST);
         buttons[x2][y2].toFront();
+
+        int tempX, tempY, dx, dy;
+
+        if(x1 > x2) dx = 1;
+        else dx = -1;
+        if(y1 > y2) dy = 1;
+        else dy = -1;
+
+        tempX = x2;
+        tempY = y2;
+
+        tempX += dx;
+        tempY += dy;
+
+        while (tempX != x1 && tempY != y1){
+            fields[tempX][tempY].getPawn().make(PawnLook.GHOST);
+            buttons[tempX][tempY].toFront();
+            tempX += dx;
+            tempY += dy;
+        }
     }
     public void showBoard(){
         stage.show();
     }
     public boolean wasMoved(){
-        if(moved){
-            moved = false;
-            return true;
-        } else return false;
+        return moved;
     }
+
+    public void setMoved(boolean moved) {
+        this.moved = moved;
+    }
+
     public String getMove(){
         return String.valueOf(prevCoords[0]) +
                 prevCoords[1] +
@@ -208,16 +277,36 @@ public abstract class Boardable {
                 for (int k = 0; k < size; k++) {
                     for (int l = 0; l < size; l++) {
                         if (source.equals(buttons[k][l])) {
-                            if (mouseState.toString().equalsIgnoreCase("first_click")) {
+                            if (mouseState.toString().equalsIgnoreCase("first_click") && fields[k][l].getPawn().getLook().getColor().equals(color)) {
+                                if(prevColor != null){
+                                    fields[prevCoords[0]][prevCoords[1]].setFieldStyle(prevColor);
+                                }
                                 prevCoords[0] = k;
                                 prevCoords[1] = l;
                                 mouseState = MouseState.SECOND_CLICK;
+                                prevColor = fields[k][l].getFieldColor();
+                                fields[k][l].setFieldStyle("#FFB31A");
+                                System.out.println("pierwszy ruch " + fields[prevCoords[0]][prevCoords[1]].getPawn().getLook().getColor());
                             } else if (mouseState.toString().equalsIgnoreCase("second_click")) {
-                                nextCoords[0] = k;
-                                nextCoords[1] = l;
-                                mouseState = MouseState.FIRST_CLICK;
-                                moved = true;
-                                latch.countDown();
+                                if(fields[k][l].getPawn().getLook().getColor().equals(color)){
+                                    if(k != prevCoords[0] && l != prevCoords[1]){
+                                        fields[k][l].setFieldStyle("#FFB31A");
+                                        fields[prevCoords[0]][prevCoords[1]].setFieldStyle(prevColor);
+                                        prevCoords[0] = k;
+                                        prevCoords[1] = l;
+                                    }
+                                } else {
+                                    nextCoords[0] = k;
+                                    nextCoords[1] = l;
+                                    mouseState = MouseState.FIRST_CLICK;
+                                    if(fields[prevCoords[0]][prevCoords[1]].getPawn().getLook().getColor().equals(color) &&
+                                            fields[nextCoords[0]][nextCoords[1]].getPawn().getLook().getColor().equals("none")){
+                                        moved = true;
+                                        System.out.println("dobry ruch");
+                                    }
+                                    fields[prevCoords[0]][prevCoords[1]].setFieldStyle(prevColor);
+                                    latch.countDown();
+                                }
                             }
                             break outer_loop;
                         }
@@ -227,5 +316,32 @@ public abstract class Boardable {
         });
     }
 
-    public abstract void initializePawns();
+    public String getColor(){
+        return color;
+    }
+
+    public double getBoardX(){
+        return stage.getX() + stage.getWidth()/2;
+    }
+
+    public double getBoardY(){
+        return stage.getY() + stage.getHeight()/2;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setOnExit(Socket socket, Thread game){
+        stage.setOnCloseRequest(windowEvent -> {
+            try {
+                socket.close();
+                game.interrupt();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+    }
+
+    public abstract void initializePawns(String color);
 }

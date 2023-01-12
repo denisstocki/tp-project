@@ -10,6 +10,11 @@ public enum PawnLook {
         }
 
         @Override
+        String getColor() {
+            return "black";
+        }
+
+        @Override
         PawnState getPawnState() {
             return PawnState.ACTIVE;
         }
@@ -18,6 +23,11 @@ public enum PawnLook {
         @Override
         Paint getPaint() {
             return Paint.valueOf("white");
+        }
+
+        @Override
+        String getColor() {
+            return "white";
         }
 
         @Override
@@ -32,6 +42,11 @@ public enum PawnLook {
         }
 
         @Override
+        String getColor() {
+            return "black";
+        }
+
+        @Override
         PawnState getPawnState() {
             return PawnState.ACTIVE;
         }
@@ -40,6 +55,11 @@ public enum PawnLook {
         @Override
         Paint getPaint() {
             return Paint.valueOf("white");
+        }
+
+        @Override
+        String getColor() {
+            return "white";
         }
 
         @Override
@@ -54,11 +74,17 @@ public enum PawnLook {
         }
 
         @Override
+        String getColor() {
+            return "none";
+        }
+
+        @Override
         PawnState getPawnState() {
             return PawnState.DISABLED;
         }
     };
 
     abstract Paint getPaint();
+    abstract String getColor();
     abstract PawnState getPawnState();
 }

@@ -1,8 +1,7 @@
 package tp.warcaby.serwer;
 
-public class PolishCheckers extends BaseLogic {
-    PolishCheckers() {
-            super();
-            setBoardSize(10);
+public class PolishCheckers extends ClassicLogic {
+    public PolishCheckers() {
+        super(10, 20, 20);
     }
 }

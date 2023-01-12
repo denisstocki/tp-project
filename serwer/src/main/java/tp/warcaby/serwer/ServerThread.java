@@ -14,13 +14,10 @@ public class ServerThread {
 
             System.out.println("[SERVER IS WORKING ON PORT 4444]\n");
 
-            String gameType, messageOut;
-            MoveDecoder currentMove;
+            String gameType;
             Scanner readA, readB;
-            OutputStream outA, outB;
-            InputStream inA, inB;
             PrintWriter writeA, writeB;
-            GameLogic gameLogic;
+            Gameable gameable;
             Socket socketA, socketB;
             boolean isFinished;
             int gameNumber, playerNumber, moveCounter;
@@ -30,109 +27,134 @@ public class ServerThread {
 
             while (true) {
 
-                System.out.println("[WAITING TO START GAME NUMBER]: " + (++gameNumber) + "\n");
+                System.out.println("[WAITING TO START GAME NUMBER " + (++gameNumber) + "]\n");
 
-                gameLogic = null;
+                gameable = null;
                 isFinished = false;
-                socketA = serverSocket.accept();
 
-                playerJoinedInfo(++playerNumber);
+                socketA = serverSocket.accept();
+                System.out.println("[PLAYER NUMBER: "+ ++playerNumber + "JOINED THE GAME...] (white pawns)\n" +
+                        "[WAITING FOR PLAYER NUMBER: " + (playerNumber + 1) + " TO JOIN THE GAME]\n");
 
                 readA = new Scanner(socketA.getInputStream());
                 writeA = new PrintWriter(socketA.getOutputStream(), true);
 
                 sendMessageTo(writeA, "choose");
-                System.out.println("[Sent message]: choose (Player 1)");
+                System.out.println("[SENT MESSAGE TO WHITE PAWN PLAYER]: 'choose'\n");
 
                 gameType = readMessageFrom(readA);
+                System.out.println("[RECEIVED MESSAGE FROM WHITE PAWN PLAYER]: '" + gameType + "'\n");
 
                 switch (gameType){
                     case "classic":
-                        gameLogic = new ClassicCheckers();
+                        gameable = new ClassicCheckers();
                         break;
                     case "english":
-                        gameLogic = new EnglishCheckers();
+                        gameable = new EnglishCheckers();
                         break;
                     case "overtaking":
-                        gameLogic = new OvertakingCheckers();
+                        gameable = new OvertakingCheckers();
                         break;
-                    case "polsih":
-                        gameLogic = new PolishCheckers();
+                    case "polish":
+                        gameable = new PolishCheckers();
                         break;
                     default:
                         sendMessageTo(writeA, "error");
+                        System.out.println("[SENT MESSAGE TO WHITE PAWN PLAYER]: 'error'\n");
                         serverSocket.close();
                 }
 
                 socketB = serverSocket.accept();
-
-                playerJoinedInfo(++playerNumber);
+                System.out.println("[PLAYER NUMBER: "+ ++playerNumber + "JOINED THE GAME...] (black pawns)\n" +
+                        "[THE GAME NUMBER: " + gameNumber + " WILL SOON START...]\n");
 
                 readB = new Scanner(socketB.getInputStream());
                 writeB = new PrintWriter(socketB.getOutputStream(), true);
 
                 sendMessageTo(writeB, gameType);
+                System.out.println("[SENT MESSAGE TO BLACK PAWN PLAYER]: '" + gameType + "'\n");
                 sendMessageTo(writeA, "joined");
+                System.out.println("[SENT MESSAGE TO WHITE PAWN PLAYER]: 'joined'\n");
+                System.out.println("[THE GAME STARTS RIGHT NOW...]");
 
-                moveCounter = 1;
+                moveCounter = 0;
 
-                while (!isFinished) {
+                game_loop : while (!isFinished) {
                     while (true) {
-                        currentMove = new MoveDecoder(readA.nextLine());
-                        System.out.println("Ruch gracza A! Numer ruchu:" + moveCounter + "\n");
-                        currentMove.printMove();
 
-                        if (gameLogic.isLegal(currentMove.getMessage())) {
-                            gameLogic.movePawn(currentMove.getMessage());
-                            moveCounter++;
-                            if (gameLogic.isFinished()) {
-                                isFinished = true;
-                            } else {
-                                messageOut = "accepted";
-                                sendMessageTo(writeA, messageOut);
-                                sendMessageTo(writeB, "unblocked" + currentMove.getMessage());
-                            }
-                            break;
-                        } else {
-                            messageOut = "illegal";
-                            sendMessageTo(writeA, messageOut);
+                        if(!readA.hasNext()){
+                            sendMessageTo(writeB, "error");
+                            break game_loop;
                         }
+                        String move = readA.nextLine();
+                        System.out.println("[MOVE NUMBER: " + ++moveCounter + "] [WHITE PAWN PLAYER MOVE IS: " + move + "]\n");
+
+                        assert gameable != null;
+
+                        gameable.createRespond(move, "white");
+
+                        String whiteRespond = gameable.getWhiteRespond();
+                        String blackRespond = gameable.getBlackRespond();
+
+                        if(whiteRespond != null){
+                            sendMessageTo(writeA, whiteRespond);
+                            System.out.println("[SENT MESSAGE TO WHITE PLAYER]: " + whiteRespond);
+                        }
+                        if(blackRespond != null){
+                            sendMessageTo(writeB, blackRespond);
+                            System.out.println("[SENT MESSAGE TO BLACK PLAYER]: " + blackRespond);
+                        }
+
+                        if(gameable.isFinished()){
+                            isFinished = true;
+                            gameable.showBoard();
+                            break;
+                        } else if (gameable.turned()) {
+                            gameable.showBoard();
+                            break;
+                        }
+                        gameable.showBoard();
                     }
                     while (!isFinished){
-                        currentMove = new MoveDecoder(readB.nextLine());
-                        System.out.println("Ruch gracza B! Numer ruchu:" + moveCounter + "\n");
-                        currentMove.printMove();
 
-                        if (gameLogic.isLegal(currentMove.getMessage())) {
-                            gameLogic.movePawn(currentMove.getMessage());
-                            if (gameLogic.isFinished()) {
-                                isFinished = true;
-                            } else {
-                                messageOut = "block";
-                                sendMessageTo(writeB, messageOut);
-                                sendMessageTo(writeA, "unblocked" + currentMove.getMessage());
-                            }
-                            break;
-                        } else {
-                            messageOut = "illegal";
-                            sendMessageTo(writeB, messageOut);
+                        if(!readB.hasNext()){
+                            sendMessageTo(writeA, "error");
+                            break game_loop;
                         }
+
+                        String move = readB.nextLine();
+                        System.out.println("[MOVE NUMBER: " + ++moveCounter + "] [BLACK PAWN PLAYER MOVE IS: " + move + "]\n");
+
+                        gameable.createRespond(move, "black");
+
+                        String whiteRespond = gameable.getWhiteRespond();
+                        String blackRespond = gameable.getBlackRespond();
+
+                        if(whiteRespond != null){
+                            sendMessageTo(writeA, whiteRespond);
+                            System.out.println("[SENT MESSAGE TO WHITE PLAYER]: " + whiteRespond);
+                        }
+                        if(blackRespond != null){
+                            sendMessageTo(writeB, blackRespond);
+                            System.out.println("[SENT MESSAGE TO BLACK PLAYER]: " + blackRespond);
+                        }
+
+                        if(gameable.isFinished()){
+                            isFinished = true;
+                            gameable.showBoard();
+                            break;
+                        } else if (gameable.turned()) {
+                            gameable.showBoard();
+                            break;
+                        }
+                        gameable.showBoard();
                     }
                 }
-
-                messageOut = gameLogic.getWinner();
-
-                sendMessageTo(writeA, messageOut);
-                sendMessageTo(writeB, messageOut);
             }
         }
     }
 
-    private static void playerJoinedInfo(int playerID) {
-        System.out.println("[PLAYER NUMBER: "+ playerID + "JOINED THE GAME]\n");
-    }
-
-    private static String readMessageFrom(Scanner playerReader) throws IOException {
+    private static String readMessageFrom(Scanner playerReader) {
         return playerReader.nextLine();
     }
 

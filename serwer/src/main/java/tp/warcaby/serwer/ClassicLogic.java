@@ -1,343 +1,546 @@
 package tp.warcaby.serwer;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 
-abstract class BaseLogic implements GameLogic{
-    private List<List<String>> board;
+public abstract class ClassicLogic extends GameLogic{
 
-    private GameState gameState;
-    private GameFinishState gameFinishState;
-
-    private boolean finished;
-
-    private int boardSize;
-
-    private int movesWithoutCapture = 0;
-
-    public void setBoardSize(int boardSize) {
-        this.boardSize = boardSize;
+    private final int size;
+    public ClassicLogic(int size, int whiteCount, int blackCount) {
+        super(size, whiteCount, blackCount);
+        this.size = size;
     }
 
-    public int getBoardSize() {
-        return boardSize;
-    }
+    @Override
+    public void createRespond(String move, String color) {
+        String enemy;
 
-    public GameState getGameState() {
-        return gameState;
-    }
+        if("white".equals(color)){
+            enemy = "B";
+        } else {
+            enemy = "W";
+        }
 
-    public void setGameState(GameState gameState) {
-        this.gameState = gameState;
-    }
+        if(isLegal(move, color, true)){
 
-    public List<List<String>> getBoard() {
-        return board;
-    }
+            System.out.println(mustMoves + "legal");
 
-    public GameFinishState getGameFinishState() {
-        return gameFinishState;
-    }
-
-    public void setGameFinishState(GameFinishState gameFinishState) {
-        this.gameFinishState = gameFinishState;
-    }
-
-    public void setFinished(boolean finished) {
-        this.finished = finished;
-    }
-
-    public int getMovesWithoutCapture() {
-        return movesWithoutCapture;
-    }
-
-    public void setMovesWithoutCapture(int movesWithoutCapture) {
-        this.movesWithoutCapture = movesWithoutCapture;
-    }
-
-    public BaseLogic() {
-        initializeBoard();
-        gameState = GameState.WHITE_TURN;
-        gameFinishState = GameFinishState.DURING;
-        finished = false;
-        boardSize = 8;
-    }
-
-    public void initializeBoard() {
-        ArrayList<String> rowArray;
-        board = new ArrayList<>(boardSize);
-        for (int row = 0; row < boardSize; row++) {
-            rowArray = new ArrayList<String>(boardSize);
-            board.add(rowArray);
-            if(row<(boardSize)/2 - 1){
-                for (int col = 0; col < boardSize; col++) {
-                    if((row+col) % 2 == 1) rowArray.add("B");
-                    else rowArray.add("E");
-                }
-            }else if(row>(boardSize/2)){
-                for (int col = 0; col < boardSize; col++) {
-                    if((row+col) % 2 == 1) rowArray.add("W");
-                    else rowArray.add("E");
-                }
-            }
-            else{
-                for (int col = 0; col < boardSize; col++) {
-                    rowArray.add("E");
+            updateCount();
+            updateBlock(enemy);
+            updateFinish();
+            System.out.println(latestMoves  );
+            System.out.println(repeated);
+            if(isFinished()){
+                if("white".equalsIgnoreCase(getWinner())){
+                    whiteRespond = "white";
+                    blackRespond = "white" + move;
+                } else if ("black".equalsIgnoreCase(getWinner())) {
+                    blackRespond = "white";
+                    whiteRespond = "white" + move;
+                } else {
+                    if(repeated){
+                        if ("white".equals(color)) {
+                            whiteRespond = "repeated";
+                            blackRespond = "repeated" + move;
+                        } else {
+                            whiteRespond = "repeated" + move;
+                            blackRespond = "repeated";
+                        }
+                    } else if(unCaptured){
+                        if ("white".equals(color)) {
+                            whiteRespond = "uncaptured";
+                            blackRespond = "uncaptured" + move;
+                        } else {
+                            whiteRespond = "uncaptured" + move;
+                            blackRespond = "uncaptured";
+                        }
+                    } else {
+                        if ("white".equals(color)) {
+                            whiteRespond = "tie";
+                            blackRespond = "tie" + move;
+                        } else {
+                            whiteRespond = "tie" + move;
+                            blackRespond = "tie";
+                        }
+                    }
                 }
             }
         }
+        System.out.println("(game)[RESPOND FOR " + color.toUpperCase() + " PLAYER PREPARED]: " + move + " [WHITE]: " + whiteRespond + " [BLACK]: " + blackRespond);
     }
 
-    public boolean isLegal(String move) {
-        int x1 = Integer.parseInt(String.valueOf(move.charAt(0)));
-        int y1 = Integer.parseInt(String.valueOf(move.charAt(1)));
-        int x2 = Integer.parseInt(String.valueOf(move.charAt(2)));
-        int y2 = Integer.parseInt(String.valueOf(move.charAt(3)));
-        String pawn = board.get(x1).get(y1), jumped;
-        //Checks if player uses his own pawn
-        if((Objects.equals(pawn, "B") && gameState == GameState.WHITE_TURN) || (Objects.equals(pawn, "W") && gameState == GameState.BLACK_TURN)) return false;
-        int x0, y0;
-        boolean score = false;
-        String direction = board.get(x2).get(y2);
-        System.out.println("Checking pawn " + pawn + " moving from " + x1 +"," + y1 + " to " + x2 + "," + y2);
-        if(Objects.equals(pawn, "B") || Objects.equals(pawn, "W")){
-            if(Math.abs(x2-x1)==1 && Math.abs(y2-y1)==1 && Objects.equals(direction, "E")) score = true;
-            else if(Math.abs(x2-x1)==2 && Math.abs(y2-y1)==2 && Objects.equals(direction, "E")){
-                if(x2>x1) x0 = x1+1;
-                else x0 = x1-1;
-                if(y2>y1) y0 = y1+1;
-                else y0 = y1-1;
-                jumped = board.get(x0).get(y0);
-                if(pawn.equals("B") && Objects.equals(jumped, "W")) score = true;
-                else if(pawn.equals("W") && Objects.equals(jumped, "B")) score =  true;
+    private void updateBlock(String color) {
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                if(board.get(i).get(j).contains(color) && possibleMovesFor(i, j) > 0){
+                    return;
+                }
             }
         }
-        else if(Objects.equals(pawn, "BQ") || Objects.equals(pawn, "WQ")){
-            if(Math.abs(x2-x1)==Math.abs(y2-y1) && Objects.equals(direction, "E") && (x2 != x1) && (y2 != y1)){
-                if(pawn.equals("WQ") && !isTraitor("WQ", x1, x2, y1, y2) && isFairFight("WQ", x1, x2, y1, y2) <= 1) score = true;
-                else if(pawn.equals("BQ") && !isTraitor("BQ", x1, x2, y1, y2) && isFairFight("BQ", x1, x2, y1, y2) <= 1) score = true;
-            }
+        if("W".equals(color)){
+            whiteBlocked = true;
+        } else {
+            blackBlocked = true;
         }
-        return score;
     }
 
-    public int isFairFight(String queen, int x1, int x2, int y1, int y2) {
-        int dx, dy;
-        if(x2>x1) dx=1;
-        else dx=-1;
-        if(y2>y1) dy=1;
-        else dy=-1;
-        int counter = 0;
-        String target;
-        if(queen.charAt(0) == 'W') target = "B";
-        else target = "W";
-        while(x1 != x2 && y1 != y2){
-            x1 += dx;
-            y1 += dy;
-            if(board.get(x1).get(y1).equals(target)) counter++;
+    private int possibleMovesFor(int i, int j) {
+        String pawn = board.get(i).get(j);
+        String color, enemy;
+
+        int tempX, tempY, counter = 0;
+
+        if(pawn.charAt(0) == 'W'){
+            color = "white";
+            enemy = "B";
         }
+        else{
+            color = "black";
+            enemy = "W";
+        }
+
+        if(pawn.contains("Q")){
+            tempX = i + 1;
+            tempY = j + 1;
+
+            while(tempX < size && tempY < size){
+                createKillCount("" + i + j + tempX + tempY);
+                if(isLegal("" + i + j + tempX + tempY, color, false)) counter++;
+                tempX++;
+                tempY++;
+            }
+
+            tempX = i + 1;
+            tempY = j - 1;
+
+            while(tempX < size && tempY > 0){
+                if(isLegal("" + i + j + tempX + tempY, color, false)) counter++;
+                tempX++;
+                tempY--;
+            }
+
+            tempX = i - 1;
+            tempY = j + 1;
+
+            while(tempX > 0 && tempY < size){
+                if(isLegal("" + i + j + tempX + tempY, color, false)) counter++;
+                tempX--;
+                tempY++;
+            }
+
+            tempX = i - 1;
+            tempY = j - 1;
+
+            while(tempX > 0 && tempY > 0){
+                if(isLegal("" + i + j + tempX + tempY, color, false)) counter++;
+                tempX--;
+                tempY--;
+            }
+        } else {
+            if(i + 1 <= size - 1 && j + 1 <= size - 1){
+                if(board.get(i + 1).get(j + 1).equals("E")) counter++;
+                if(i + 2 <=size && j + 2 <= size){
+                    if(board.get(i + 1).get(j + 1).contains(enemy) && board.get(i + 2).get(j + 2).equals("E")) counter++;
+                }
+            }
+            if(i + 1 <= size - 1 && j - 1 >= 0){
+                if(board.get(i + 1).get(j - 1).equals("E")) counter++;
+                if(i + 2 <=size - 1 && j - 2 >= 0){
+                    if(board.get(i + 1).get(j - 1).contains(enemy) && board.get(i + 2).get(j - 2).equals("E")) counter++;
+                }
+            }
+            if(i - 1 >= 0 && j + 1 <= size - 1){
+                if(board.get(i - 1).get(j + 1).equals("E")) counter++;
+                if(i - 2 >= 0 && j + 2 <= size - 1){
+                    if(board.get(i - 1).get(j + 1).contains(enemy) && board.get(i - 2).get(j + 2).equals("E")) counter++;
+                }
+            }
+            if(i - 1 >= 0 && j - 1 >= 0){
+                if(board.get(i - 1).get(j - 1).equals("E")) counter++;
+                if(i - 2 >= 0 && j - 2 >= 0){
+                    if(board.get(i - 1).get(j - 1).contains(enemy) && board.get(i - 2).get(j - 2).equals("E")) counter++;
+                }
+            }
+        }
+        System.out.println(counter + " no to jajajaja");
         return counter;
     }
 
-    public boolean isTraitor(String queen, int x1, int x2, int y1, int y2) {
-        int dx, dy;
-        if(x2>x1) dx=1;
-        else dx=-1;
-        if(y2>y1) dy=1;
-        else dy=-1;
-        while(x1 != x2 && y1 != y2){
-            x1 += dx;
-            y1 += dy;
-            if(board.get(x1).get(y1).equals(String.valueOf(queen.charAt(0)))) return true;
-        }
-        return false;
+    private void updateCount() {
+        whiteCount -= whiteKills;
+        blackCount -= blackKills;
+        whiteKills = 0;
+        blackKills = 0;
     }
 
-    public void movePawn(String move) {
-        int x1 = Integer.parseInt(String.valueOf(move.charAt(0)));
-        int y1 = Integer.parseInt(String.valueOf(move.charAt(1)));
-        int x2 = Integer.parseInt(String.valueOf(move.charAt(2)));
-        int y2 = Integer.parseInt(String.valueOf(move.charAt(3)));
-        String figure = board.get(x1).get(y1);
-        int dx, dy;
-        if(x2>x1) dx=1;
-        else dx=-1;
-        if(y2>y1) dy=1;
-        else dy=-1;
-        if("W".equals(figure) && x2 == 0){
-            board.get(x2).set(y2, "WQ");
-        } else if ("B".equals(figure) && x2 == 7) {
-            board.get(x2).set(y2, "BQ");
-        } else {
-            board.get(x2).set(y2, figure);
+    @Override
+    public boolean isLegal(String move, String color, boolean create) {
+        //1. Ruch nie jest w miejscu czyli na przykład 0,0 -> 0,0
+        //2. Nie można przeskoczyć nad swoimi pionkami
+        //3. Można przeskoczyć tylko jednego przeciwnika w jednym skoku
+        //4. Miejsce za przeciwnikiem musi być E
+        //5. Ruch musi być po skosie i do przodu jeśli to zwykły pionek, jeśli królowa to może być też do tyłu i dowolnej
+        //długości
+        //6. Gracz porusza się tylko swoimi pionkami, czyli pawn = color.charAt(0) i direction = E
+        //7. Czy gracz wykonał mustMOve
+        //8. Ruch nie jest poza planszą
+        int x1 = getCoord(move, 0);
+        int y1 = getCoord(move, 1);
+        int x2 = getCoord(move, 2);
+        int y2 = getCoord(move, 3);
+
+        if(create) createKillCount(move);
+
+        if(create){
+            if("white".equals(color)){
+                whiteRespond = "cheat";
+                blackRespond = null;
+            } else {
+                blackRespond = "cheat";
+                whiteRespond = null;
+            }
         }
-        board.get(x1).set(y1, "E");
+
+        if(x1 < 0 || x1 > size - 1) return false; //8
+        if(y1 < 0 || y1 > size - 1) return false;
+        if(x2 < 0 || x2 > size - 1) return false;
+        if(y2 < 0 || y2 > size - 1) return false;
+
+        System.out.println("no tu blad");
+
+        if(create) {
+            if ("white".equals(color)) {
+                whiteRespond = "duplicate";
+                blackRespond = null;
+            } else {
+                blackRespond = "duplicate";
+                whiteRespond = null;
+            }
+        }
+
+        if(x1 == x2 && y1 == y2) return false; //1
+        System.out.println("no tu blad 1");
+
+
+        if(create) {
+            if ("white".equals(color)) {
+                whiteRespond = "betrayal";
+                blackRespond = null;
+            } else {
+                blackRespond = "betrayal";
+                whiteRespond = null;
+            }
+        }
+
+        if(isBetrayalMove(move)) return false; //2
+        System.out.println("no tu blad 2");
+
+
+        if(create) {
+            if ("white".equals(color)) {
+                whiteRespond = "multiple";
+                blackRespond = null;
+            } else {
+                blackRespond = "multiple";
+                whiteRespond = null;
+            }
+        }
+
+        if(!isFairMove(move)) return false; //3
+        System.out.println("no tu blad 3");
+
+
+        if(create) {
+            if ("white".equals(color)) {
+                whiteRespond = "stack";
+                blackRespond = null;
+            } else {
+                blackRespond = "stack";
+                whiteRespond = null;
+            }
+        }
+
+        if(!"E".equals(board.get(x2).get(y2))) return false; //4
+        System.out.println("siema");
+
+        if(create) {
+            if ("white".equals(color)) {
+                whiteRespond = "owner";
+                blackRespond = null;
+            } else {
+                blackRespond = "owner";
+                whiteRespond = null;
+            }
+        }
+
+        if(!board.get(x1).get(y1).contains(getTurn().toString().substring(0, 1))) return false; //6
+
+        if(create) {
+            if ("white".equals(color)) {
+                whiteRespond = "diagonal";
+                blackRespond = null;
+            } else {
+                blackRespond = "diagonal";
+                whiteRespond = null;
+            }
+        }
+
+        if(!isCorrectDiagonal(move)) return false; //5
+
+        if(create){
+            whiteRespond = "repeated";
+            blackRespond = "repeated";
+        }
+
+        if(create){
+            whiteRespond = "uncaptured";
+            blackRespond = "uncaptured";
+        }
+
+        if(movesWithoutCapture >= 30){
+            unCaptured = true;
+            return false;
+        }
+
+        if(create) {
+            if ("white".equals(color)) {
+                whiteRespond = "rules";
+                blackRespond = null;
+            } else {
+                blackRespond = "rules";
+                whiteRespond = null;
+            }
+        }
+
+        System.out.println(mustMoves + "111111");
+        if(create){
+            if(hasMustMoves()){
+                if(!isMustMove(move)){
+                    return false; //7
+                }
+            }
+            fetchMove(move);
+            createMustMoves(move);
+            promoteToQueen(move);
+        }
+        System.out.println(mustMoves + "2222222");
+
+        if(create) {
+            if (hasMustMoves()) {
+                if ("white".equals(color)) {
+                    whiteRespond = "another";
+                    blackRespond = "moved" + move;
+                } else {
+                    blackRespond = "another";
+                    whiteRespond = "moved" + move;
+                }
+            } else {
+                if ("white".equals(color)) {
+                    whiteRespond = "accepted";
+                    blackRespond = "unblocked" + move;
+                } else {
+                    blackRespond = "accepted";
+                    whiteRespond = "unblocked" + move;
+                }
+                changeTurn();
+            }
+        }
+
+        return true;
+    }
+
+    private void promoteToQueen(String move) {
+        int x1 = getCoord(move, 0);
+        int y1 = getCoord(move, 1);
+        int x2 = getCoord(move, 2);
+        int y2 = getCoord(move, 3);
+
+        if(board.get(x2).get(y2).contains("B") && x2 == size - 1 && !hasMustMoves()){
+            board.get(x2).set(y2, "BQ");
+        } else if(board.get(x2).get(y2).contains("W") && x2 == 0 && !hasMustMoves()) {
+            board.get(x2).set(y2, "WQ");
+        }
+    }
+
+    @Override
+    public void createMustMoves(String move) {
+        int x1 = getCoord(move, 0);
+        int y1 = getCoord(move, 1);
+        int x2 = getCoord(move, 2);
+        int y2 = getCoord(move, 3);
+
+        mustMoves = new ArrayList<>();
+
+        if(whiteKills > 0 || blackKills > 0){
+            String pawn = board.get(x2).get(y2);
+            String enemy;
+
+            if(pawn.charAt(0) == 'W'){
+                enemy = "B";
+            } else {
+                enemy = "W";
+            }
+
+            if(pawn.contains("Q")){
+                checkDiagonalForQueen(x2, y2, 1, 1, size - 1, size - 1, enemy);
+                checkDiagonalForQueen(x2, y2, 1, -1, size - 1, 0, enemy);
+                checkDiagonalForQueen(x2, y2, -1, 1, 0, size - 1, enemy);
+                checkDiagonalForQueen(x2, y2, -1, -1, 0, 0, enemy);
+            } else {
+                if(x2 - 2 >= 0 && y2 - 2 >= 0) {
+                    if (board.get(x2 - 1).get(y2 - 1).contains(enemy) &&
+                            board.get(x2 - 2).get(y2 - 2).equals("E")) {
+                        mustMoves.add("" + x2 + y2 + (x2 - 2) + (y2 - 2));
+                    }
+                }
+                if(x2 - 2 >= 0 && y2 + 2 <= size - 1) {
+                    if (board.get(x2 - 1).get(y2 + 1).contains(enemy) &&
+                            board.get(x2 - 2).get(y2 + 2).equals("E")) {
+                        mustMoves.add("" + x2 + y2 + (x2 - 2) + (y2 + 2));
+                    }
+                }
+                if(x2 + 2 <= size - 1 && y2 + 2 <= size - 1) {
+                    if (board.get(x2 + 1).get(y2 + 1).contains(enemy) &&
+                            board.get(x2 + 2).get(y2 + 2).equals("E")) {
+                        mustMoves.add("" + x2 + y2 + (x2 + 2) + (y2 + 2));
+                    }
+                }
+                if(x2 + 2 <= size - 1 && y2 - 2 >= 0) {
+                    if (board.get(x2 + 1).get(y2 - 1).contains(enemy) &&
+                            board.get(x2 + 2).get(y2 - 2).equals("E")) {
+                        mustMoves.add("" + x2 + y2 + (x2 + 2) + (y2 - 2));
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void checkDiagonalForQueen(int x2, int y2, int dx, int dy, int maxX, int maxY, String enemy) {
+        int tempX, tempY;
+
+        tempX = x2 + dx;
+        tempY = y2 + dy;
+
+        if(tempX + dx < 0 || tempX + dx > size - 1 || tempY + dy < 0 || tempY + dy > size - 1) return;
+        while(tempX < maxX && tempY < maxY){
+            if(board.get(tempX).get(tempY).contains(enemy)){
+                if (board.get(tempX + dx).get(tempY + dy).equals("E")) {
+                    mustMoves.add("" + x2 + y2 + (tempX + dx) + (tempY + dy));
+                } else {
+                    return;
+                }
+                break;
+            }
+            tempX += dx;
+            tempY += dy;
+        }
+    }
+
+    @Override
+    public void createKillCount(String move) {
+        whiteKills = 0;
+        blackKills = 0;
+
+        int x1 = getCoord(move, 0);
+        int y1 = getCoord(move, 1);
+        int x2 = getCoord(move, 2);
+        int y2 = getCoord(move, 3);
+
+        int dx, dy;
+
+        if(x2 > x1) dx = 1;
+        else dx = -1;
+        if (y2 > y1) dy = 1;
+        else dy = -1;
+
         x1 += dx;
         y1 += dy;
-        while(x1 != x2 && y1 != y2){
-            board.get(x1).set(y1, "E");
+
+        while (x1 != x2 && y1 != y2){
+            if(board.get(x1).get(y1).equals("B") || board.get(x1).get(y1).equals("BQ")) blackKills++;
+            if(board.get(x1).get(y1).equals("W") || board.get(x1).get(y1).equals("WQ")) whiteKills++;
             x1 += dx;
             y1 += dy;
         }
-        if('B' == figure.charAt(0)){
-            if(quantityOf('W')==0){
-                gameFinishState = GameFinishState.BLACK_WON;
-                finished = true;
-            }
-            else if(!hasMoves('W')){
-                gameFinishState = GameFinishState.TIE;
-                finished = true;
-            }
-            else {
-                gameState = GameState.WHITE_TURN;
-            }
-        }
-        else {
-            if(quantityOf('B')==0){
-                gameFinishState = GameFinishState.WHITE_WON;
-                finished = true;
-            }
-            else if(!hasMoves('B')){
-                gameFinishState = GameFinishState.TIE;
-                finished = true;
-            }
-            else {
-                gameState = GameState.BLACK_TURN;
-            }
-        }
-
-        if(++movesWithoutCapture >= 15) {
-            gameFinishState = GameFinishState.TIE;
-            finished = true;
-        }
     }
 
-    public boolean isFinished() {
-        return finished;
+    @Override
+    public boolean isBetrayalMove(String move) {
+        int x1 = getCoord(move, 0);
+        int y1 = getCoord(move, 1);
+        int x2 = getCoord(move, 2);
+        int y2 = getCoord(move, 3);
+
+        String pawn = board.get(x1).get(y1);
+
+        boolean result = false;
+
+        if(("B".equals(pawn) || "BQ".equals(pawn)) && blackKills > 0) result = true;
+        else if(("W".equals(pawn) || "WQ".equals(pawn)) && whiteKills > 0) result = true;
+
+        return result;
     }
 
-    public String getWinner() {
-        return gameFinishState.name().toLowerCase();
+    @Override
+    public boolean isFairMove(String move) {
+        int x1 = getCoord(move, 0);
+        int y1 = getCoord(move, 1);
+        int x2 = getCoord(move, 2);
+        int y2 = getCoord(move, 3);
+
+        String pawn = board.get(x1).get(y1);
+
+        boolean result = false;
+
+        if(("B".equals(pawn) || "BQ".equals(pawn)) && whiteKills <= 1) result = true;
+        else if(("W".equals(pawn) || "WQ".equals(pawn)) && blackKills <= 1) result = true;
+
+        return result;
     }
 
-    public String getPossibleMovesFor(int x, int y) {
-        StringBuilder moves = new StringBuilder();
-        int temp_x, temp_y, temp;
-        String figure = board.get(x).get(y);
-        if("W".equals(figure) || "B".equals(figure)){
-            temp_x = x-1;
-            temp_y = y-1;
-            if(temp_x >= 0 && temp_y >= 0 && isLegal("" + x + y + temp_x + temp_y)){
-                moves.append("|").append(temp_x).append(temp_y);
-            }
-            temp_x = x-1;
-            temp_y = y+1;
-            if(temp_x >= 0 && temp_y <= boardSize - 1 && isLegal("" + x + y + temp_x + temp_y)){
-                moves.append("|").append(temp_x).append(temp_y);
-            }
-            temp_x = x+1;
-            temp_y = y-1;
-            if(temp_x <= boardSize - 1 && temp_y >= 0 && isLegal("" + x + y + temp_x + temp_y)){
-                moves.append("|").append(temp_x).append(temp_y);
-            }
-            temp_x = x+1;
-            temp_y = y+1;
-            if(temp_x <= boardSize - 1 && temp_y <= boardSize - 1 && isLegal("" + x + y + temp_x + temp_y)){
-                moves.append("|").append(temp_x).append(temp_y);
-            }
-            temp_x = x-2;
-            temp_y = y-2;
-            if(temp_x >= 0 && temp_y >= 0 && isLegal("" + x + y + temp_x + temp_y)){
-                moves.append("|").append(temp_x).append(temp_y);
-            }
-            temp_x = x-2;
-            temp_y = y+2;
-            if(temp_x >= 0 && temp_y <= boardSize - 1 && isLegal("" + x + y + temp_x + temp_y)){
-                moves.append("|").append(temp_x).append(temp_y);
-            }
-            temp_x = x+2;
-            temp_y = y-2;
-            if(temp_x <= boardSize - 1 && temp_y >= 0 && isLegal("" + x + y + temp_x + temp_y)){
-                moves.append("|").append(temp_x).append(temp_y);
-            }
-            temp_x = x+2;
-            temp_y = y+2;
-            if(temp_x <= boardSize - 1 && temp_y <= boardSize - 1 && isLegal("" + x + y + temp_x + temp_y)){
-                moves.append("|").append(temp_x).append(temp_y);
-            }
-        }
-        else {
-            for (int i = 1; i < boardSize; i++) {
-                temp_x = x-i;
-                temp_y = y-i;
-                if(temp_x >= 0 && temp_y >= 0 && isLegal("" + x + y + temp_x + temp_y)){
-                    moves.append("|").append(temp_x).append(temp_y);
-                } else if (temp_x <= 0 || temp_y <= 0) {
-                    break;
-                }
-            }
-            for (int i = 1; i < boardSize; i++) {
-                temp_x = x-i;
-                temp_y = y+i;
-                if(temp_x >= 0 && temp_y <= boardSize - 1 && isLegal("" + x + y + temp_x + temp_y)){
-                    moves.append("|").append(temp_x).append(temp_y);
-                } else if (temp_x <= 0 || temp_y >= boardSize) {
-                    break;
-                }
-            }
-            for (int i = 1; i < boardSize; i++) {
-                temp_x = x+i;
-                temp_y = y-i;
-                if(temp_x <= boardSize - 1 && temp_y >= 0 && isLegal("" + x + y + temp_x + temp_y)){
-                    moves.append("|").append(temp_x).append(temp_y);
-                } else if (temp_x >= boardSize || temp_y <= 0) {
-                    break;
-                }
-            }
-            for (int i = 1; i < boardSize; i++) {
-                temp_x = x+i;
-                temp_y = y+i;
-                if(temp_x <= boardSize - 1 && temp_y <= boardSize && isLegal("" + x + y + temp_x + temp_y)){
-                    moves.append("|").append(temp_x).append(temp_y);
-                } else if (temp_x >= boardSize || temp_y >= boardSize) {
-                    break;
-                }
-            }
-        }
-        return moves.toString();
-    }
-
-    public int quantityOf(Character color) {
-        int counter=0;
-        for (int i = 0; i < boardSize; i++) {
-            List<String> rowArray = board.get(i);
-            for (int j = 0; j < boardSize; j++) {
-                if(rowArray.get(j).charAt(0) == color) counter++;
-            }
-        }
-        return counter;
-    }
-
-    public boolean hasMoves(Character color) {
-        for (int i = 0; i < boardSize; i++) {
-            List<String> rowArray = board.get(i);
-            for (int j = 0; j < boardSize; j++) {
-                if(rowArray.get(j).charAt(0) == color && !getPossibleMovesFor(i, j).equals("")) return true;
+    @Override
+    public boolean isMustMove(String move) {
+        for (String mustMove : mustMoves) {
+            if(move.equals(mustMove)){
+                return true;
             }
         }
         return false;
     }
 
-    public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < boardSize; i++) {
-            List<String> rowArray = board.get(i);
-            for (int j = 0; j < boardSize; j++) {
-                sb.append(rowArray.get(j)).append(" ");
+    @Override
+    public boolean isCorrectDiagonal(String move) {
+        int x1 = getCoord(move, 0);
+        int y1 = getCoord(move, 1);
+        int x2 = getCoord(move, 2);
+        int y2 = getCoord(move, 3);
+
+        String pawn = board.get(x1).get(y1);
+
+        if(Math.abs(x2-x1) == Math.abs(y2-y1)) {
+            if (pawn.contains("Q")) {
+                return true;
+            } else {
+                if("W".equals(pawn)){
+                    if(x2 < x1 && Math.abs(x2-x1) == 1){
+                        return true;
+                    } else if (x2 < x1 && Math.abs(x2-x1) == 2 && blackKills == 1) {
+                        return true;
+                    } else if (x2 > x1 && Math.abs(x2-x1) == 2 && blackKills == 1) {
+                        return true;
+                    }
+                } else {
+                    if(x2 > x1 && Math.abs(x2-x1) == 1){
+                        return true;
+                    } else if (x2 > x1 && Math.abs(x2-x1) == 2 && whiteKills == 1) {
+                        return true;
+                    } else if (x2 < x1 && Math.abs(x2-x1) == 2 && whiteKills == 1) {
+                        return true;
+                    }
+                }
             }
-            sb.append('\n');
         }
-        return sb.toString();
+
+        return false;
     }
 }

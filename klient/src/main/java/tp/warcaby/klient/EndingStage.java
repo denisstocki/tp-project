@@ -8,8 +8,12 @@ import javafx.stage.Stage;
 
 public class EndingStage extends Stage {
     private final Label msgLabel;
+    private final double xCoord, yCoord;
 
-    public EndingStage(String message) {
+    public EndingStage(String message, double xCoord, double yCoord) {
+        this.xCoord = xCoord;
+        this.yCoord = yCoord;
+
         msgLabel = new Label(message);
         msgLabel.setPrefSize(250, 250);
         msgLabel.setAlignment(Pos.CENTER);
@@ -28,6 +32,9 @@ public class EndingStage extends Stage {
                 errorTemplate();
                 break;
         }
+
+        setX(xCoord - 125);
+        setY(yCoord - 125);
 
         Scene scene = new Scene(msgLabel);
 

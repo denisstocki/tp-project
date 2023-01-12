@@ -1,9 +1,7 @@
 package tp.warcaby.serwer;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class ClassicCheckers extends BaseLogic {
-
-
+public class ClassicCheckers extends ClassicLogic {
+    public ClassicCheckers() {
+        super(8, 12, 12);
+    }
 }

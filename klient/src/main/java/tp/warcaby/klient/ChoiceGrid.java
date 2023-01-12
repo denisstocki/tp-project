@@ -20,7 +20,7 @@ public class ChoiceGrid extends GridPane {
         classicChoice = new Label("1. Warcaby klasyczne");
         englishChoice = new Label("2. Warcaby angielskie");
         overtakingChoice = new Label("3. Warcaby wybijanka");
-        polishChoice = new Label("3. Warcaby polskie");
+        polishChoice = new Label("4. Warcaby polskie");
 
         add(chooseText, 0, 0);
         add(classicChoice, 0, 1);
@@ -80,12 +80,14 @@ public class ChoiceGrid extends GridPane {
         overtakingChoice.setPrefSize(220, 50);
         polishChoice.setPrefSize(220, 50);
 
+        setAlignment(Pos.CENTER);
+
         chooseText.setAlignment(Pos.CENTER);
         classicChoice.setAlignment(Pos.CENTER);
         englishChoice.setAlignment(Pos.CENTER);
         overtakingChoice.setAlignment(Pos.CENTER);
-        overtakingChoice.setAlignment(Pos.CENTER);
         polishChoice.setAlignment(Pos.CENTER);
+
         setVgap(8);
     }
 
@@ -115,7 +117,7 @@ public class ChoiceGrid extends GridPane {
                 "-fx-background-color: BD7A44;" +
                 "-fx-font-family: Arial;" +
                 "-fx-font-size: 17px");
-        overtakingChoice.setStyle("-fx-background-radius: 20 20 20 20;" +
+        polishChoice.setStyle("-fx-background-radius: 20 20 20 20;" +
                 "-fx-background-color: BD7A44;" +
                 "-fx-font-family: Arial;" +
                 "-fx-font-size: 17px");

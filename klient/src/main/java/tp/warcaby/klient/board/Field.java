@@ -13,9 +13,11 @@ public class Field extends Group {
     private Button field;
     private final double size;
     private final double pawnSize;
+    private final String color;
 
     public Field(String color, Pawn pawn, double size, double pawnSize, Button field) {
         super();
+        this.color = color;
         this.pawn = pawn;
         this.size = size;
         this.pawnSize = pawnSize;
@@ -70,5 +72,18 @@ public class Field extends Group {
 
     public Circle getInnerCrown() {
         return innerCrown;
+    }
+    public void setFieldStyle(String color){
+        field.setStyle(String.format("-fx-background-color: %s; " +
+                "-fx-background-radius: 0; " +
+                "-fx-background-insets: 0 0 -1 0, 0, 1, 2;" +
+                "-fx-border-insets: 0 0 -1 0, 0, 1, 2;" +
+                "-fx-border-width: 1 1 1 1;" +
+                "-fx-border-color: #392613;", color));
+
+    }
+
+    public String getFieldColor(){
+        return color;
     }
 }

@@ -95,13 +95,7 @@ abstract class GameLogic implements Gameable {
         int x2 = getCoord(move, 2);
         int y2 = getCoord(move, 3);
 
-        String pawn = board.get(x1).get(y1), enemy;
-
-        if(pawn.contains("W")){
-            enemy = "B";
-        } else {
-            enemy = "W";
-        }
+        String pawn = board.get(x1).get(y1);
 
         board.get(x2).set(y2, pawn);
 
@@ -144,7 +138,6 @@ abstract class GameLogic implements Gameable {
             System.out.println(latestMoves.get(i + 4));
             System.out.println(latestMoves.get(i + 8));
             if(!latestMoves.get(i).equals(latestMoves.get(i + 4)) || !latestMoves.get(i).equals(latestMoves.get(i + 8))){
-                System.out.println("SIEMKAJKDJAKLDAJ");
                 return false;
             }
         }
@@ -189,7 +182,7 @@ abstract class GameLogic implements Gameable {
     }
 
     @Override
-    public int getCoord(String move, int index) {
+    public int getCoord(String  move, int index) {
         return Integer.parseInt(String.valueOf(move.charAt(index)));
     }
 

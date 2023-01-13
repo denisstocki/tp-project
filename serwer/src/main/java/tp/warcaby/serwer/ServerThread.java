@@ -9,7 +9,6 @@ public class ServerThread {
 
     public static void main(String[] args) throws IOException {
 
-        //TODO consider adding setup file to avoid hardcoded data
         try(ServerSocket serverSocket = new ServerSocket(4444)){
 
             System.out.println("[SERVER IS WORKING ON PORT 4444]\n");

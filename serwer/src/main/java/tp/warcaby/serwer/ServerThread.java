@@ -5,8 +5,13 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
 
+/*
+ * Base class of connection from server to clients
+ * */
 public class ServerThread {
-
+    /*
+     * Main server loop
+     * */
     public static void main(String[] args) throws IOException {
 
         try(ServerSocket serverSocket = new ServerSocket(4444)){
@@ -152,11 +157,16 @@ public class ServerThread {
             }
         }
     }
-
+    /*
+     * Read message from client to server
+     * */
     private static String readMessageFrom(Scanner playerReader) {
         return playerReader.nextLine();
     }
 
+    /*
+     * Send message via sockets to client
+     * */
     private static void sendMessageTo(PrintWriter playerWriter, String messageContent) {
         playerWriter.println(messageContent);
     }

@@ -1,7 +1,9 @@
 package tp.warcaby.serwer;
 
 import java.util.ArrayList;
-
+/*
+ * Logic containing most common rules and settings shared by most of variants
+ * */
 public abstract class ClassicLogic extends GameLogic{
 
     private final int size;
@@ -10,6 +12,9 @@ public abstract class ClassicLogic extends GameLogic{
         this.size = size;
     }
 
+    /*
+     * Respond for Player after making move
+     * */
     @Override
     public void createRespond(String move, String color) {
         String enemy;
@@ -68,6 +73,9 @@ public abstract class ClassicLogic extends GameLogic{
         System.out.println("(game)[RESPOND FOR " + color.toUpperCase() + " PLAYER PREPARED]: " + move + " [WHITE]: " + whiteRespond + " [BLACK]: " + blackRespond);
     }
 
+    /*
+     * Check and update info whether someone is blocked
+     * */
     private void updateBlock(String color) {
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
@@ -82,7 +90,9 @@ public abstract class ClassicLogic extends GameLogic{
             blackBlocked = true;
         }
     }
-
+    /*
+     * Count possible moves for a pawn position
+     * */
     private int possibleMovesFor(int i, int j) {
         String pawn = board.get(i).get(j);
         String color, enemy;
@@ -161,10 +171,12 @@ public abstract class ClassicLogic extends GameLogic{
                 }
             }
         }
-        System.out.println(counter + " no to jajajaja");
         return counter;
     }
 
+    /*
+     * Update stats of pieces taken
+     * */
     private void updateCount() {
         whiteCount -= whiteKills;
         blackCount -= blackKills;
@@ -172,17 +184,12 @@ public abstract class ClassicLogic extends GameLogic{
         blackKills = 0;
     }
 
+    /*
+     * Check whther sent move is legal or not
+     * */
     @Override
     public boolean isLegal(String move, String color, boolean create) {
-        //1. Ruch nie jest w miejscu czyli na przykład 0,0 -> 0,0
-        //2. Nie można przeskoczyć nad swoimi pionkami
-        //3. Można przeskoczyć tylko jednego przeciwnika w jednym skoku
-        //4. Miejsce za przeciwnikiem musi być E
-        //5. Ruch musi być po skosie i do przodu jeśli to zwykły pionek, jeśli królowa to może być też do tyłu i dowolnej
-        //długości
-        //6. Gracz porusza się tylko swoimi pionkami, czyli pawn = color.charAt(0) i direction = E
-        //7. Czy gracz wykonał mustMOve
-        //8. Ruch nie jest poza planszą
+
         int x1 = getCoord(move, 0);
         int y1 = getCoord(move, 1);
         int x2 = getCoord(move, 2);
@@ -348,6 +355,9 @@ public abstract class ClassicLogic extends GameLogic{
         return true;
     }
 
+    /*
+     * Promotes piece to Queen, updates board
+     * */
     private void promoteToQueen(String move) {
         int x1 = getCoord(move, 0);
         int y1 = getCoord(move, 1);
@@ -361,6 +371,9 @@ public abstract class ClassicLogic extends GameLogic{
         }
     }
 
+    /*
+     * Fills the list of moves forced to pawn
+     * */
     @Override
     public void createMustMoves(String move) {
         int x1 = getCoord(move, 0);
@@ -413,7 +426,9 @@ public abstract class ClassicLogic extends GameLogic{
             }
         }
     }
-
+    /*
+     * Checks diagonal queen move for correctness
+     * */
     @Override
     public void checkDiagonalForQueen(int x2, int y2, int dx, int dy, int maxX, int maxY, String enemy) {
         int tempX, tempY;
@@ -435,7 +450,9 @@ public abstract class ClassicLogic extends GameLogic{
             tempY += dy;
         }
     }
-
+    /*
+     * creates Capture Info to start counting captured pieces
+     * */
     @Override
     public void createKillCount(String move) {
         whiteKills = 0;
@@ -463,7 +480,9 @@ public abstract class ClassicLogic extends GameLogic{
             y1 += dy;
         }
     }
-
+    /*
+     * Checks whether you jump over your own pieces
+     * */
     @Override
     public boolean isBetrayalMove(String move) {
         int x1 = getCoord(move, 0);
@@ -481,6 +500,9 @@ public abstract class ClassicLogic extends GameLogic{
         return result;
     }
 
+    /*
+     * Check whether capture is affecting only one enemy pawn
+     * */
     @Override
     public boolean isFairMove(String move) {
         int x1 = getCoord(move, 0);
@@ -498,6 +520,9 @@ public abstract class ClassicLogic extends GameLogic{
         return result;
     }
 
+    /*
+     * Check whteher move is forced for apawn
+     * */
     @Override
     public boolean isMustMove(String move) {
         for (String mustMove : mustMoves) {
@@ -508,6 +533,9 @@ public abstract class ClassicLogic extends GameLogic{
         return false;
     }
 
+    /*
+     * Check whther moves is correctly placed on diagonals, considers also queen
+     * */
     @Override
     public boolean isCorrectDiagonal(String move) {
         int x1 = getCoord(move, 0);

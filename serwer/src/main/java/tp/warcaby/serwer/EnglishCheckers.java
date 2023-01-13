@@ -1,11 +1,17 @@
 package tp.warcaby.serwer;
 
+/*
+ * Code holding logic for English checkers variant
+ * */
 public class EnglishCheckers extends ClassicLogic {
 
     public EnglishCheckers() {
         super(8, 12, 12);
     }
 
+    /*
+     * Check diagonal move for correctness, english varaint rules
+     * */
     @Override
     public boolean isCorrectDiagonal(String move) {
         int x1 = getCoord(move, 0);
@@ -45,7 +51,9 @@ public class EnglishCheckers extends ClassicLogic {
 
         return false;
     }
-
+    /*
+     * Check diagonal queen move for correctness, english varaint rules
+     * */
     @Override
     public void checkDiagonalForQueen(int x2, int y2, int dx, int dy, int maxX, int maxY, String enemy) {
         int tempX, tempY;

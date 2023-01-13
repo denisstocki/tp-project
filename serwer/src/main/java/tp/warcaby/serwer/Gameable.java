@@ -1,5 +1,8 @@
 package tp.warcaby.serwer;
 
+/*
+ * Simplest interface representing object playable in checkers
+ * */
 public interface Gameable {
 
     void createRespond(String move, String color);

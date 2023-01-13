@@ -77,8 +77,26 @@ public class GameLogicTest {
     }
     @Test
     public void killAllOpponnetsAndWinTest() {
+        //Kill all opponents and win test
         MockGameLogic gl = new MockGameLogic(8, 12, 12);
+        //Jeden pjon przechodzi po wszystkich pozycjach czarnych
+        gl.fetchMove("0071");//1
+        gl.fetchMove("7173");//2
+        gl.fetchMove("7375");//3
+        gl.fetchMove("7577");//3
+        gl.fetchMove("7766");//4
+        gl.fetchMove("6664");//5
+        gl.fetchMove("6462");//6
+        gl.fetchMove("6260");//1
+        gl.fetchMove("6051");//2
+        gl.fetchMove("5153");//3
+        gl.fetchMove("5355");//4
+        gl.fetchMove("5557");//5
 
+        assertEquals(gl.isFinished(), true);
+        assertEquals(gl.getWinner(), "WHITE");
+
+        //kill all opponents and win test
     }
     @Test
     public void NoCaptureDrawTest() {
@@ -124,7 +142,7 @@ public class GameLogicTest {
         gl.fetchMove("3245");//4
         gl.fetchMove("3300");//5
         gl.fetchMove("4571");//6
-        
+
         assertEquals(gl.isFinished(), true);
         assertEquals(gl.getWinner(), "TIE");
 

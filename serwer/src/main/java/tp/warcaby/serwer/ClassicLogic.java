@@ -212,8 +212,6 @@ public abstract class ClassicLogic extends GameLogic{
         if(x2 < 0 || x2 > size - 1) return false;
         if(y2 < 0 || y2 > size - 1) return false;
 
-        System.out.println("no tu blad");
-
         if(create) {
             if ("white".equals(color)) {
                 whiteRespond = "duplicate";
@@ -225,7 +223,6 @@ public abstract class ClassicLogic extends GameLogic{
         }
 
         if(x1 == x2 && y1 == y2) return false; //1
-        System.out.println("no tu blad 1");
 
 
         if(create) {
@@ -239,7 +236,6 @@ public abstract class ClassicLogic extends GameLogic{
         }
 
         if(isBetrayalMove(move)) return false; //2
-        System.out.println("no tu blad 2");
 
 
         if(create) {
@@ -253,7 +249,6 @@ public abstract class ClassicLogic extends GameLogic{
         }
 
         if(!isFairMove(move)) return false; //3
-        System.out.println("no tu blad 3");
 
 
         if(create) {
@@ -358,7 +353,7 @@ public abstract class ClassicLogic extends GameLogic{
     /**
      * Promotes piece to Queen, updates board
      * */
-    private void promoteToQueen(String move) {
+    public void promoteToQueen(String move) {
         int x1 = getCoord(move, 0);
         int y1 = getCoord(move, 1);
         int x2 = getCoord(move, 2);

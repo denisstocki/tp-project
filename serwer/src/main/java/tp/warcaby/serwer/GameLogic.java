@@ -201,11 +201,8 @@ abstract class GameLogic implements Gameable {
     /**
      * Check for three time repetitions of movements, then optionally draw game
      * */
-    private boolean repetitionCheck() {
+    public boolean repetitionCheck() {
         for (int i = 0; i < 4; i++) {
-            System.out.println(latestMoves.get(i));
-            System.out.println(latestMoves.get(i + 4));
-            System.out.println(latestMoves.get(i + 8));
             if(!latestMoves.get(i).equals(latestMoves.get(i + 4)) || !latestMoves.get(i).equals(latestMoves.get(i + 8))){
                 return false;
             }

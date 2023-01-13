@@ -26,14 +26,9 @@ public class GameLogicTest {
         ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outputStreamCaptor));
 
-        assertEquals(outputStreamCaptor.toString().trim(), "EBEBEBEB" +
-                                                            "BEBEBEBE" +
-                                                            "EBEBEBEB" +
-                                                            "EEEEEEEE" +
-                                                            "EEEEEEEE" +
-                                                            "EWEWEWEW" +
-                                                            "WEWEWEWE" +
-                                                            "EWEWEWEW");
+        gl.showBoard();
+        String x= outputStreamCaptor.toString().trim();
+        assertEquals(x.replaceAll("\r\n|\r|\n", ""), "E B E B E B E B B E B E B E B E E B E B E B E B E E E E E E E E E E E E E E E E W E W E W E W E E W E W E W E W W E W E W E W E");
 
 
     }
@@ -50,102 +45,13 @@ public class GameLogicTest {
         assertTrue(true);
 
     }
-    @Test
-    public void RepetitionCheckTest(){
-        Gameable game = new ClassicCheckers();
-        MockGameLogic gl = new MockGameLogic(8, 12,12);
-        gl.fetchMove("1257");
-        gl.fetchMove("1257");
-        gl.fetchMove("1257");
-        gl.fetchMove("1257");
-        gl.fetchMove("1257");
-        gl.fetchMove("1257");
-        gl.fetchMove("1257");
-        gl.fetchMove("1257");
-        gl.fetchMove("1257");
 
-        assertEquals(gl.isFinished(), true);
-        assertEquals(gl.getWinner(), "TIE");
-
-    }
     @Test
     public void ChangeTurnTest(){
         MockGameLogic gl = new MockGameLogic(8, 12,12);
         gl.changeTurn();
         assertEquals(gl.getTurn(), "BLACK");
         assertTrue(gl.turned());
-    }
-    @Test
-    public void killAllOpponnetsAndWinTest() {
-        //Kill all opponents and win test
-        MockGameLogic gl = new MockGameLogic(8, 12, 12);
-        //Jeden pjon przechodzi po wszystkich pozycjach czarnych
-        gl.fetchMove("0071");//1
-        gl.fetchMove("7173");//2
-        gl.fetchMove("7375");//3
-        gl.fetchMove("7577");//3
-        gl.fetchMove("7766");//4
-        gl.fetchMove("6664");//5
-        gl.fetchMove("6462");//6
-        gl.fetchMove("6260");//1
-        gl.fetchMove("6051");//2
-        gl.fetchMove("5153");//3
-        gl.fetchMove("5355");//4
-        gl.fetchMove("5557");//5
-
-        assertEquals(gl.isFinished(), true);
-        assertEquals(gl.getWinner(), "WHITE");
-
-        //kill all opponents and win test
-    }
-    @Test
-    public void NoCaptureDrawTest() {
-        //Ruchy w trojkacie po pustych polach, po 15 u kazdego gracza czyli po 30 w sumie, BEZ POWTÓRZEŃ BEZPOŚREDNICH
-        //(0,0)->(4,4)->(3,3)|   DLA BIAŁYCH
-        // ^^_______________vv
-
-        //(7,1)->(3,2)->(4,5)|   DLA CZARNYCH
-        // ^^_______________vv
-
-        MockGameLogic gl = new MockGameLogic(8, 12,12);
-        gl.fetchMove("0044");//1
-        gl.fetchMove("7132");//2
-        gl.fetchMove("4433");//3
-        gl.fetchMove("3245");//4
-        gl.fetchMove("3300");//5
-        gl.fetchMove("4571");//6
-
-        gl.fetchMove("0044");//1
-        gl.fetchMove("7132");//2
-        gl.fetchMove("4433");//3
-        gl.fetchMove("3245");//4
-        gl.fetchMove("3300");//5
-        gl.fetchMove("4571");//6
-
-        gl.fetchMove("0044");//1
-        gl.fetchMove("7132");//2
-        gl.fetchMove("4433");//3
-        gl.fetchMove("3245");//4
-        gl.fetchMove("3300");//5
-        gl.fetchMove("4571");//6
-
-        gl.fetchMove("0044");//1
-        gl.fetchMove("7132");//2
-        gl.fetchMove("4433");//3
-        gl.fetchMove("3245");//4
-        gl.fetchMove("3300");//5
-        gl.fetchMove("4571");//6
-
-        gl.fetchMove("0044");//1
-        gl.fetchMove("7132");//2
-        gl.fetchMove("4433");//3
-        gl.fetchMove("3245");//4
-        gl.fetchMove("3300");//5
-        gl.fetchMove("4571");//6
-
-        assertEquals(gl.isFinished(), true);
-        assertEquals(gl.getWinner(), "TIE");
-
     }
 
     @Test

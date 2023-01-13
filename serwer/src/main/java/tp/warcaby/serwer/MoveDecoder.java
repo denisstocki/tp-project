@@ -29,17 +29,6 @@ public class MoveDecoder {
     }
 
     /**
-     * Prints decoded move to standard outpu
-     * */
-    public void printMove(){
-        System.out.println( " Move is: (" +
-                previousCoords.get(0) + ", " +
-                previousCoords.get(1) + ") -> (" +
-                newCoords.get(0) + ", " +
-                newCoords.get(1)  + ")\n");
-    }
-
-    /**
      * Get the move message as string
      * */
     public String getMessage() {

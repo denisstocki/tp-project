@@ -17,18 +17,6 @@ public class MoveDecoderTest {
     }
 
     @Test
-    public void PrintMoveTest() {
-
-        PrintStream standardOut = System.out;
-        ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(outputStreamCaptor));
-
-        MoveDecoder md = new MoveDecoder("4567");
-        assertEquals("4567", outputStreamCaptor.toString()
-                .trim());
-    }
-
-    @Test
     public void GetMessageTest() {
         MoveDecoder md = new MoveDecoder("9631");
         assertEquals(md.getMessage(), "9631");

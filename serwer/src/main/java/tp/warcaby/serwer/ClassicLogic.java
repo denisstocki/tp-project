@@ -1,7 +1,7 @@
 package tp.warcaby.serwer;
 
 import java.util.ArrayList;
-/*
+/**
  * Logic containing most common rules and settings shared by most of variants
  * */
 public abstract class ClassicLogic extends GameLogic{
@@ -12,7 +12,7 @@ public abstract class ClassicLogic extends GameLogic{
         this.size = size;
     }
 
-    /*
+    /**
      * Respond for Player after making move
      * */
     @Override
@@ -73,7 +73,7 @@ public abstract class ClassicLogic extends GameLogic{
         System.out.println("(game)[RESPOND FOR " + color.toUpperCase() + " PLAYER PREPARED]: " + move + " [WHITE]: " + whiteRespond + " [BLACK]: " + blackRespond);
     }
 
-    /*
+    /**
      * Check and update info whether someone is blocked
      * */
     private void updateBlock(String color) {
@@ -90,7 +90,7 @@ public abstract class ClassicLogic extends GameLogic{
             blackBlocked = true;
         }
     }
-    /*
+    /**
      * Count possible moves for a pawn position
      * */
     private int possibleMovesFor(int i, int j) {
@@ -174,7 +174,7 @@ public abstract class ClassicLogic extends GameLogic{
         return counter;
     }
 
-    /*
+    /**
      * Update stats of pieces taken
      * */
     private void updateCount() {
@@ -184,7 +184,7 @@ public abstract class ClassicLogic extends GameLogic{
         blackKills = 0;
     }
 
-    /*
+    /**
      * Check whther sent move is legal or not
      * */
     @Override
@@ -355,7 +355,7 @@ public abstract class ClassicLogic extends GameLogic{
         return true;
     }
 
-    /*
+    /**
      * Promotes piece to Queen, updates board
      * */
     private void promoteToQueen(String move) {
@@ -371,7 +371,7 @@ public abstract class ClassicLogic extends GameLogic{
         }
     }
 
-    /*
+    /**
      * Fills the list of moves forced to pawn
      * */
     @Override
@@ -426,7 +426,7 @@ public abstract class ClassicLogic extends GameLogic{
             }
         }
     }
-    /*
+    /**
      * Checks diagonal queen move for correctness
      * */
     @Override
@@ -450,7 +450,7 @@ public abstract class ClassicLogic extends GameLogic{
             tempY += dy;
         }
     }
-    /*
+    /**
      * creates Capture Info to start counting captured pieces
      * */
     @Override
@@ -480,7 +480,7 @@ public abstract class ClassicLogic extends GameLogic{
             y1 += dy;
         }
     }
-    /*
+    /**
      * Checks whether you jump over your own pieces
      * */
     @Override
@@ -500,7 +500,7 @@ public abstract class ClassicLogic extends GameLogic{
         return result;
     }
 
-    /*
+    /**
      * Check whether capture is affecting only one enemy pawn
      * */
     @Override
@@ -520,7 +520,7 @@ public abstract class ClassicLogic extends GameLogic{
         return result;
     }
 
-    /*
+    /**
      * Check whteher move is forced for apawn
      * */
     @Override
@@ -533,7 +533,7 @@ public abstract class ClassicLogic extends GameLogic{
         return false;
     }
 
-    /*
+    /**
      * Check whther moves is correctly placed on diagonals, considers also queen
      * */
     @Override

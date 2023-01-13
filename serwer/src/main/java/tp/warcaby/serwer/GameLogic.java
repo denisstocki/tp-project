@@ -1,87 +1,87 @@
 package tp.warcaby.serwer;
 
 import java.util.*;
-/*
+/**
  * class holding base of every checkers logic
  * */
 abstract class GameLogic implements Gameable {
-    /*
+    /**
      * It holds server copy of checkers board
      * */
     public List<List<String>> board;
-    /*
+    /**
      * Keeps track of latest made moves
      * */
     public LinkedList<String> latestMoves;
-    /*
+    /**
      * Tells which player is currently eligible to maek a move
      * */
     private TurnState turn;
-    /*
+    /**
      * Holds state of game, if it is finished or already ended
      * */
     public boolean finished;
-    /*
+    /**
      * Keeps tracks if there was at least one round played
      * */
     private boolean turnChanged;
-    /*
+    /**
      * Holds info how game ended
      * */
     public FinishState finishState;
-    /*
+    /**
      * Response for White Player
      * */
     public String whiteRespond;
-    /*
+    /**
      * Response for White Player
      * */
     public String blackRespond;
-    /*
+    /**
      * Keeps track of all possible forced moves
      * */
     public List<String> mustMoves;
-    /*
+    /**
      * Are white pawns blocked and cant make a move?
      * */
     public boolean whiteBlocked;
-    /*
+    /**
      * Are black pawns blocked and cant make a move?
      * */
     public boolean blackBlocked;
-    /*
+    /**
      * Number of white pawns alive
      * */
     public int whiteCount;
-    /*
+    /**
      * Number of black pawns alive
      * */
     public int blackCount;
-    /*
+    /**
      * Number of taken black pawns
      * */
     public int whiteKills;
-    /*
+    /**
      * Number of taken white pawns
      * */
     public int blackKills;
-    /*
+    /**
      * Size of current board played, specifically exact number of rows and columns
      * */
     private final int boardSize;
-    /*
+    /**
      * Keeps track if any pawn was captured yet
      * */
     public boolean unCaptured;
-    /*
+    /**
      * Repetition of moves forcing draw in game
      * */
     public boolean repeated;
-    /*
+    /**
      * Keep track of movements without captures of any pawn
      * */
     public int movesWithoutCapture;
-    /*
+    /**
      * Base constructor
      * */
     public GameLogic(int boardSize, int whiteCount, int blackCount) {
@@ -107,7 +107,7 @@ abstract class GameLogic implements Gameable {
 
         initialize();
     }
-    /*
+    /**
      * Print current state of board to standard outpu
      * */
     @Override
@@ -119,7 +119,7 @@ abstract class GameLogic implements Gameable {
             System.out.println();
         }
     }
-    /*
+    /**
      * Initialize the board, fill it and prepare for game
      * */
     @Override
@@ -145,14 +145,14 @@ abstract class GameLogic implements Gameable {
             }
         }
     }
-    /*
+    /**
      * Get game finished state
      * */
     @Override
     public boolean isFinished() {
         return finished;
     }
-    /*
+    /**
      * Make a move on current board
      * */
     @Override
@@ -198,7 +198,7 @@ abstract class GameLogic implements Gameable {
             }
         }
     }
-    /*
+    /**
      * Check for three time repetitions of movements, then optionally draw game
      * */
     private boolean repetitionCheck() {
@@ -212,7 +212,7 @@ abstract class GameLogic implements Gameable {
         }
         return true;
     }
-    /*
+    /**
      * Change whose is current turn
      * */
     @Override
@@ -224,7 +224,7 @@ abstract class GameLogic implements Gameable {
         }
         turnChanged = true;
     }
-    /*
+    /**
      * Keeps track wheter turn has changed
      * */
     @Override
@@ -236,7 +236,7 @@ abstract class GameLogic implements Gameable {
             return false;
         }
     }
-    /*
+    /**
      * Update current Game state, Draw/Win?Continue
      * */
     @Override

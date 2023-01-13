@@ -3,32 +3,32 @@ package tp.warcaby.serwer;
 
 import java.util.ArrayList;
 
-/*
+/***
  * Claass holding and using moves reeived from sockets connection
  * */
 public class MoveDecoder {
-    /*
+    /**
      * Original position of pawn
      * */
     private final ArrayList<Character> previousCoords;
-    /*
+    /**
      * New position of pawn
      * */
     private final ArrayList<Character> newCoords;
-    /*
+    /**
      * Get old position of pawn
      * */
     public ArrayList<Character> getOldCoords() {
         return previousCoords;
     }
-    /*
+    /**
      * Get New position of pawn
      * */
     public ArrayList<Character> getNewCoords() {
         return newCoords;
     }
 
-    /*
+    /**
      * Prints decoded move to standard outpu
      * */
     public void printMove(){
@@ -39,14 +39,14 @@ public class MoveDecoder {
                 newCoords.get(1)  + ")\n");
     }
 
-    /*
+    /**
      * Get the move message as string
      * */
     public String getMessage() {
         return String.valueOf(previousCoords.get(0)) + previousCoords.get(1)+ newCoords.get(0) + newCoords.get(1);
     }
 
-    /*
+    /**
      * Base move decoder constructor
      * */
     public MoveDecoder(String messageIn) {

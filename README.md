@@ -8,7 +8,7 @@ Jest to nasza implementacja popularnej gry w warcaby, w wielu wariantach. Gra dz
 -JavaFX
 
 ## Jak zagrać
-<img src="https://user-images.githubusercontent.com/57231340/212222663-9e81ee63-0d64-40c7-88ba-5e0cee3597c7.jpg" alt="drawing" height="500"/> 
+<img src="https://user-images.githubusercontent.com/57231340/212222663-9e81ee63-0d64-40c7-88ba-5e0cee3597c7.jpg" alt="drawing" height="500"/> ![download](https://user-images.githubusercontent.com/57231340/212308431-b676ff9b-83f7-4b95-a2c7-2cbe53dddfa7.jpg)
 
 
 ## Jak zagrać

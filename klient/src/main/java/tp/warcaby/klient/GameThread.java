@@ -10,21 +10,40 @@ import java.net.Socket;
 import java.util.Scanner;
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * Main board related thraed in our appliaction
+ * */
 public class GameThread extends Thread{
 
+    /**
+     * Current Board controller
+     * */
     private final BoardController gameController;
+    /**
+     * FX responsibility how the pawn look like
+     * */
     private final Scanner in;
+    /**
+     * PrintWriter to write out of this thread
+     * */
     private final PrintWriter out;
+    /**
+     * Main application process
+     * */
     private final Socket socket;
 
-
+    /**
+     * Our Thread constructor
+     * */
     public GameThread(BoardController gameController, Scanner in, PrintWriter out, Socket socket) {
         this.gameController = gameController;
         this.in = in;
         this.out = out;
         this.socket = socket;
     }
-
+    /**
+     * run function for our thread, handling signals
+     * */
     @Override
     public void run() {
         String[] command = new String[2];
@@ -192,7 +211,9 @@ public class GameThread extends Thread{
             }
         }
     }
-
+    /**
+     * FX responsibility how the pawn look like
+     * */
     private void closeConnection() {
         try {
             socket.close();
@@ -200,7 +221,9 @@ public class GameThread extends Thread{
             throw new RuntimeException(e);
         }
     }
-
+    /**
+     * Wait and send current move
+     * */
     private void waitAndSendMove() {
         CountDownLatch latch;
         gameController.setBoardState(BoardState.UNLOCKED);

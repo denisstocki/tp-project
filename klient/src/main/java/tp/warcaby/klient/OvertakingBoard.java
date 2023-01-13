@@ -2,6 +2,9 @@ package tp.warcaby.klient;
 
 import tp.warcaby.klient.board.BoardState;
 
+/**
+ * View for displaying overtaking variant board
+ * */
 public class OvertakingBoard extends ClassicallyBoardable {
 
     private BoardState boardState;

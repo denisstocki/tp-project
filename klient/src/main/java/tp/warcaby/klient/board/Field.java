@@ -5,16 +5,41 @@ import javafx.scene.control.Button;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 
-
+/**
+ * Class representing one checker field, and its state
+ * */
 public class Field extends Group {
+    /**
+     * Pawn object that currently lives on that field
+     * */
     private Pawn pawn;
+    /**
+     * Visual element purely coded in FX
+     * */
     private Circle outerCrown;
+    /**
+     * Visual element purely coded in FX
+     * */
     private Circle innerCrown;
+    /**
+     * FX responsible button
+     * */
     private Button field;
+    /**
+     * Size of field in pixel
+     * */
     private final double size;
+    /**
+     * size of pawn displayed in pixel
+     * */
     private final double pawnSize;
+    /**
+     * FX field color
+     * */
     private final String color;
-
+    /**
+     * Base Field constructor
+     * */
     public Field(String color, Pawn pawn, double size, double pawnSize, Button field) {
         super();
         this.color = color;
@@ -54,25 +79,40 @@ public class Field extends Group {
         innerCrown.setOnMouseClicked(mouseEvent -> this.field.fire());
     }
 
+    /**
+     * Hides dead pawns behind the board view
+     * */
     public void hideGhost(){
         this.toFront();
     }
 
+    /**
+     * FX responsible button
+     * */
     public void showPawn(){
         pawn.toFront();
     }
-
+    /**
+     * Get pawn living on that field
+     * */
     public Pawn getPawn() {
         return pawn;
     }
-
+    /**
+     * FX responsible button
+     * */
     public Circle getOuterCrown() {
         return outerCrown;
     }
-
+    /**
+     * FX responsible button
+     * */
     public Circle getInnerCrown() {
         return innerCrown;
     }
+    /**
+     * FX style setup
+     * */
     public void setFieldStyle(String color){
         field.setStyle(String.format("-fx-background-color: %s; " +
                 "-fx-background-radius: 0; " +
@@ -82,7 +122,9 @@ public class Field extends Group {
                 "-fx-border-color: #392613;", color));
 
     }
-
+    /**
+     * FX gest field color
+     * */
     public String getFieldColor(){
         return color;
     }

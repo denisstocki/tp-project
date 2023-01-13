@@ -13,12 +13,17 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
 
+/**
+ * Current Game
+ * */
 public class Game extends Application {
 
     public static void main(String[] args) {
         launch();
     }
-
+    /**
+     * Start our game on client side
+     * */
     @Override
     public void start(Stage stage) throws Exception {
 
@@ -27,7 +32,7 @@ public class Game extends Application {
 
         try {
 
-            final Socket socket = new Socket("localhost", 4444);
+            final Socket socket = new Socket("172.20.10.3", 4444);
             final Scanner in = new Scanner(socket.getInputStream());
             final PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 

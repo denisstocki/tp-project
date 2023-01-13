@@ -3,6 +3,9 @@ package tp.warcaby.klient;
 import javafx.application.Platform;
 import javafx.stage.Stage;
 
+/**
+ * FX Ending thread run after game finishes
+ * */
 public class EndingThread extends Thread {
 
     private final Stage stage;

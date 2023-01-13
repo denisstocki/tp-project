@@ -17,97 +17,97 @@ import java.net.Socket;
 import java.util.Locale;
 import java.util.concurrent.CountDownLatch;
 
-/*
+/**
  * Abstract class representing base Board View informations
  * */
 public abstract class Boardable {
-    /*
+    /**
      * Enum holding state of the Board
      * */
     public BoardState boardState;
-    /*
+    /**
      * Reference to stage when Board will be displayed
      * */
     private final Stage stage;
-    /*
+    /**
      * Title of Board view
      * */
     private final String title;
-    /*
+    /**
      * Reference to JavaFX Label holding messages to user
      * */
     public Label infoLabel;
-    /*
+    /**
      * Fields of the board view
      * */
     public Field[][] fields;
-    /*
+    /**
      * Clickable buttons for checkers fields
      * */
     public Button[][] buttons;
-    /*
+    /**
      * Previously chosen Field on Board view
      * */
     public final int[] prevCoords = new int[2];
-    /*
+    /**
      * Currently chosen Field on Board view
      * */
     public final int[] nextCoords = new int[2];
-    /*
+    /**
      * Holds color name to be displayed
      * */
     private final String color;
-    /*
+    /**
      * Latch to moderate access to fields
      * */
     public CountDownLatch latch;
-    /*
+    /**
      * Size of pawn in pixels
      * */
     public final double pawnSize;
-    /*
+    /**
      * Field size in pixels
      * */
     public final double fieldSize;
-    /*
+    /**
      * Was a piece moved
      * */
     public boolean moved;
-    /*
+    /**
      * Reference to JavaFX scene
      * */
     private final Scene scene;
-    /*
+    /**
      * Reference to JavaFX border pane
      * */
     private final BorderPane pane;
-    /*
+    /**
      * Reference to JavaFX grid pane holding board fields
      * */
     public GridPane gridPane;
-    /*
+    /**
      * Reference to JavaFX group of top elements on screen
      * */
     private final Group topGroup;
-    /*
+    /**
      * Reference to JavaFX top pane
      * */
     private final BorderPane topPane;
-    /*
+    /**
      * Holds current mouse state
      * */
     public MouseState mouseState;
-    /*
+    /**
      * Size of Board view displayed in client
      * */
     public final int size;
 
-    /*
+    /**
      * Holds previous color info
      * */
     public String prevColor;
 
-    /*
+    /**
      * Base Boardable constructor
      * */
     public Boardable(BoardState boardState, String color, int size, String title) {
@@ -137,7 +137,7 @@ public abstract class Boardable {
         setBoard();
     }
 
-    /*
+    /**
      * Set up of JavaFX visuasl
      * */
     private void setBoard() {
@@ -150,7 +150,7 @@ public abstract class Boardable {
         initializePawns(color);
     }
 
-    /*
+    /**
      * Setting up main stage
      * */
     private void setStage() {
@@ -158,21 +158,21 @@ public abstract class Boardable {
         stage.setResizable(false);
         stage.setScene(scene);
     }
-    /*
+    /**
      * Setting up main pane
      * */
     private void setPane() {
         pane.setTop(topPane);
         pane.setCenter(gridPane);
     }
-    /*
+    /**
      * Setting up main grid pane
      * */
     private void setGridPane() {
         gridPane.setHgap(0);
         gridPane.setVgap(0);
     }
-    /*
+    /**
      * Setting up main top pane
      * */
     private void setTopPane() {
@@ -181,7 +181,7 @@ public abstract class Boardable {
         topPane.setStyle("-fx-border-width: 3 0 2 0;" +
                 "-fx-border-color: #392613;");
     }
-    /*
+    /**
      * Setting up main top group
      * */
     private void setTopGroup() {
@@ -201,7 +201,7 @@ public abstract class Boardable {
         topGroup.setStyle("-fx-border-width: 3 0 2 0;" +
                 "-fx-border-color: #392613;");
     }
-    /*
+    /**
      * Sets message on label to user
      * */
     private void setInfoLabel() {
@@ -216,7 +216,7 @@ public abstract class Boardable {
                 "-fx-font-weight: bold;" +
                 "-fx-text-fill: #000");
     }
-    /*
+    /**
      * Set move and update board
      * */
     public void setOpponentMove(String move, boolean ended){
@@ -286,20 +286,20 @@ public abstract class Boardable {
             tempY += dy;
         }
     }
-    /*
+    /**
      * Set board state
      * */
     public void setBoardState(BoardState state){
         boardState = state;
     }
 
-    /*
+    /**
      * Set game info
      * */
     public void setGameInfo(String info){
         infoLabel.setText(info);
     }
-    /*
+    /**
      * Display winner info
      * */
     public void setWinnerInfo(String winner){
@@ -307,7 +307,7 @@ public abstract class Boardable {
         else if ("black".equals(winner)) infoLabel.setText("Wygrały czarne pionki !");
         else infoLabel.setText("Remis !");
     }
-    /*
+    /**
      * Set our move on board
      * */
     public void setOurMove(boolean ended){
@@ -380,27 +380,27 @@ public abstract class Boardable {
             tempY += dy;
         }
     }
-    /*
+    /**
      * Shows board view on clients screen
      * */
     public void showBoard(){
         stage.show();
     }
-    /*
+    /**
      * Return if sth was moved
      * */
     public boolean wasMoved(){
         return moved;
     }
-    /*
+    /**
      * Set if sth was moved
      * */
 
     public void setMoved(boolean moved) {
         this.moved = moved;
     }
-    /*
-     * get move
+    /**
+     * get move operation requesting it from stored coords
      * */
 
     public String getMove(){
@@ -409,7 +409,7 @@ public abstract class Boardable {
                 nextCoords[0] +
                 nextCoords[1];
     }
-    /*
+    /**
      * get the state of board
      * */
     public BoardState getBoardState(){
@@ -418,7 +418,7 @@ public abstract class Boardable {
     public void setLatch(CountDownLatch latch){
         this.latch = latch;
     }
-    /*
+    /**
      * Set one of the fields to clicked and processes
      * */
     public void setButton(Button button){
@@ -478,24 +478,26 @@ public abstract class Boardable {
     public String getColor(){
         return color;
     }
-    /*
+    /**
      * get board width
      * */
     public double getBoardX(){
         return stage.getX() + stage.getWidth()/2;
     }
-    /*
+    /**
      * get board height
      * */
     public double getBoardY(){
         return stage.getY() + stage.getHeight()/2;
     }
-
+    /**
+     * Get board size
+     * */
     public int getSize() {
         return size;
     }
 
-    /*
+    /**
      * Instructions to run on game exit
      * */
     public void setOnExit(Socket socket, Thread game){
@@ -509,7 +511,7 @@ public abstract class Boardable {
         });
     }
 
-    /*
+    /**
      * Initialize pawns on the board
      * */
     public abstract void initializePawns(String color);

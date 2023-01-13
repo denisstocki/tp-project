@@ -2,6 +2,10 @@ package tp.warcaby.klient.board;
 
 import javafx.scene.paint.Paint;
 
+
+/**
+ * FX responsibility how the pawn look like
+ * */
 public enum PawnLook {
     BLACK{
         @Override
@@ -83,8 +87,16 @@ public enum PawnLook {
             return PawnState.DISABLED;
         }
     };
-
+    /**
+     * get the current paint
+     * */
     abstract Paint getPaint();
+    /**
+     * get the current color
+     * */
     abstract String getColor();
+    /**
+     * get the pawn current state
+     * */
     abstract PawnState getPawnState();
 }

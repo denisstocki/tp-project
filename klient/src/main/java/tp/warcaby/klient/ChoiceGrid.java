@@ -7,12 +7,25 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 
+/**
+ * FX responsibility how the pawn look like
+ * */
 public class ChoiceGrid extends GridPane {
+    /**
+     * FX Labels
+     * */
     private final Label chooseText, classicChoice, englishChoice, overtakingChoice, polishChoice;
-
+    /**
+     * User wybór
+     * */
     private String choice;
-    private Stage stage;
-
+    /**
+     * reference to current stage
+     * */
+    private final Stage stage;
+    /**
+     * Constructor for game typ choice grif
+     * */
     public ChoiceGrid(Stage stage) {
         this.stage = stage;
 
@@ -55,6 +68,9 @@ public class ChoiceGrid extends GridPane {
         });
     }
 
+    /**
+     * FX set label behaviour
+     * */
     private void setLabelBehaviour(Label label){
         label.setOnMouseEntered(mouseDragEvent -> label.setStyle("-fx-background-radius: 20 20 20 20;" +
                 "-fx-background-color: BD7A44;"+
@@ -72,7 +88,9 @@ public class ChoiceGrid extends GridPane {
                 "-fx-border-color: none;" +
                 "-fx-border-style: solid"));
     }
-
+    /**
+     * FX set current grid layout
+     * */
     private void setGridLayout() {
         chooseText.setPrefSize(220, 50);
         classicChoice.setPrefSize(220, 50);
@@ -90,7 +108,9 @@ public class ChoiceGrid extends GridPane {
 
         setVgap(8);
     }
-
+    /**
+     * FX set Grid style
+     * */
     private void setGridStyle() {
         chooseText.setBackground(Background.fill(Paint.valueOf("#BD7A44")));
         classicChoice.setBackground(Background.fill(Paint.valueOf("BD7A44")));
@@ -122,7 +142,9 @@ public class ChoiceGrid extends GridPane {
                 "-fx-font-family: Arial;" +
                 "-fx-font-size: 17px");
     }
-
+    /**
+     * FX get choice of current user
+     * */
     public String getChoice() {
         return choice;
     }

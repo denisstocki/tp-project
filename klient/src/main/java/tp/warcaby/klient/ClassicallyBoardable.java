@@ -2,13 +2,21 @@ package tp.warcaby.klient;
 
 import javafx.scene.control.Button;
 import tp.warcaby.klient.board.*;
-
+/**
+ * Abstract class for making object boardable and variant classic
+ * */
 public abstract class ClassicallyBoardable extends Boardable {
 
+    /**
+     * COnStRuCtOr ClaSiCaL
+     * */
     public ClassicallyBoardable(BoardState boardState, String color, int size, String title) {
         super(boardState, color, size, title);
     }
 
+    /**
+     * Initialize pawns on current board
+     * */
     @Override
     public void initializePawns(String color) {
         Pawn pawn;

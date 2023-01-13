@@ -6,10 +6,21 @@ import javafx.scene.control.Label;
 import javafx.scene.paint.Paint;
 import javafx.stage.Stage;
 
+/**
+ * FX Stage at the end of the game
+ * */
 public class EndingStage extends Stage {
+    /**
+     * FX LastStage label
+     * */
     private final Label msgLabel;
+    /**
+     * coords of the ending stage
+     * */
     private final double xCoord, yCoord;
-
+    /**
+     * constructor of the ending stage
+     * */
     public EndingStage(String message, double xCoord, double yCoord) {
         this.xCoord = xCoord;
         this.yCoord = yCoord;
@@ -42,7 +53,9 @@ public class EndingStage extends Stage {
         setResizable(false);
         setTitle("Game message");
     }
-
+    /**
+     * FX tie of the template
+     * */
     private void tieTemplate() {
         msgLabel.setText("Game tied!");
         msgLabel.setStyle(
@@ -52,7 +65,9 @@ public class EndingStage extends Stage {
                 "-fx-font-weight: bold");
         msgLabel.setTextFill(Paint.valueOf("brown"));
     }
-
+    /**
+     * FX Black is winner template of stage
+     * */
     private void blackTemplate() {
         msgLabel.setText("Black won the game!");
         msgLabel.setStyle(
@@ -62,7 +77,9 @@ public class EndingStage extends Stage {
                 "-fx-font-weight: bold");
         msgLabel.setTextFill(Paint.valueOf("black"));
     }
-
+    /**
+     * FX Last stage error happend
+     * */
     private void errorTemplate() {
         msgLabel.setText("An error occured!\nRestart the game");
         msgLabel.setStyle(
@@ -72,7 +89,9 @@ public class EndingStage extends Stage {
                 "-fx-font-weight: bold");
         msgLabel.setTextFill(Paint.valueOf("red"));
     }
-
+    /**
+     * white won hurra template
+     * */
     private void whiteTemplate() {
         msgLabel.setText("White won the game!");
         msgLabel.setStyle(

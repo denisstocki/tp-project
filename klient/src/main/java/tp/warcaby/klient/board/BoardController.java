@@ -2,6 +2,9 @@ package tp.warcaby.klient.board;
 
 import java.util.concurrent.CountDownLatch;
 
+/*
+ * Enum holding info whose turn it is now
+ * */
 public class BoardController{
     private final Boardable board;
     private final String color;

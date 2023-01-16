@@ -1,967 +1,357 @@
 package tp.warcaby.serwer;
 
-
 import java.util.ArrayList;
-import java.util.List;
 
-/*
- * Logic containing most common rules and settings shared by most of variants
- * */
-public abstract class ClassicLogic extends GameLogic{
+public class ClassicLogic extends GameLogic{
 
-    private final int size;
-    private ArrayList<ArrayList<String>> bestMoves;
-    private int bestIndex;
-
+    
 
     public ClassicLogic(int size, int whiteCount, int blackCount) {
         super(size, whiteCount, blackCount);
-        this.size = size;
-        bestMoves = new ArrayList<>();
+        createBestMoves();
     }
+    
 
-    /*
-     * Respond for Player after making move
-     * */
+    
     @Override
-    public void createRespond(String move, String color) {
-        String enemy;
+    protected void getPossibleMovesFor(ArrayList<ArrayList<String>> board, int x, int y) {
+        String pawn = board.get(x).get(y);
 
-        if("white".equals(color)){
-            enemy = "B";
+        if (pawn.contains("Q")){
+            addQueensPossibilities(board, x, y, x + 1, y + 1, 1, 1);
+            addQueensPossibilities(board, x, y, x + 1, y - 1, 1, -1);
+            addQueensPossibilities(board, x, y, x - 1, y + 1, -1, 1);
+            addQueensPossibilities(board, x, y, x - 1, y - 1, -1, -1);
         } else {
-            enemy = "W";
-        }
-
-
-
-        if(isLegal(move, color, true)){
-            System.out.println(bestMoves);
-
-            System.out.println(mustMoves + "legal");
-
-            updateCount();
-            updateBlock(enemy);
-            updateFinish();
-            System.out.println(latestMoves  );
-            System.out.println(repeated);
-            if(isFinished()){
-                if("white".equalsIgnoreCase(getWinner())){
-                    whiteRespond = "white";
-                    blackRespond = "white" + move;
-                } else if ("black".equalsIgnoreCase(getWinner())) {
-                    blackRespond = "white";
-                    whiteRespond = "white" + move;
-                } else {
-                    if(repeated){
-                        if ("white".equals(color)) {
-                            whiteRespond = "repeated";
-                            blackRespond = "repeated" + move;
-                        } else {
-                            whiteRespond = "repeated" + move;
-                            blackRespond = "repeated";
-                        }
-                    } else if(unCaptured){
-                        if ("white".equals(color)) {
-                            whiteRespond = "uncaptured";
-                            blackRespond = "uncaptured" + move;
-                        } else {
-                            whiteRespond = "uncaptured" + move;
-                            blackRespond = "uncaptured";
-                        }
-                    } else {
-                        if ("white".equals(color)) {
-                            whiteRespond = "tie";
-                            blackRespond = "tie" + move;
-                        } else {
-                            whiteRespond = "tie" + move;
-                            blackRespond = "tie";
-                        }
+            if(pawn.contains("W")){
+                if(x - 1 >= 0 & y + 1 < size){
+                    if(board.get(x - 1).get(y + 1).equals("E")){
+                        bestMoves.add("" + x + y + (x - 1) + (y + 1));
+                    }
+                }
+                if(x - 1 >= 0 & y - 1 >= 0){
+                    if(board.get(x - 1).get(y - 1).equals("E")){
+                        bestMoves.add("" + x + y + (x - 1) + (y - 1));
+                    }
+                }
+            } else {
+                if(x + 1 < size & y + 1 < size){
+                    if(board.get(x + 1).get(y + 1).equals("E")){
+                        bestMoves.add("" + x + y + (x + 1) + (y + 1));
+                    }
+                }
+                if(x + 1 < size & y - 1 >= 0){
+                    if(board.get(x + 1).get(y - 1).equals("E")){
+                        bestMoves.add("" + x + y + (x + 1) + (y - 1));
                     }
                 }
             }
         }
-        System.out.println("(game)[RESPOND FOR " + color.toUpperCase() + " PLAYER PREPARED]: " + move + " [WHITE]: " + whiteRespond + " [BLACK]: " + blackRespond);
     }
 
-    /*
-     * Check and update info whether someone is blocked
-     * */
-    private void updateBlock(String color) {
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                if(board.get(i).get(j).contains(color) && possibleMovesFor(i, j) > 0){
-                    return;
+    @Override
+    protected void addQueensPossibilities(ArrayList<ArrayList<String>> board, int x, int y, int tempX, int tempY, int dx, int dy) {
+        while (true){
+            if(tempX >= 0 & tempX < size & tempY >= 0 & tempY < size){
+                if(!board.get(tempX).get(tempY).equals("E")){
+                    break;
+                } else {
+                    bestMoves.add("" + x + y + (tempX) + (tempY));
+                    tempX += dx;
+                    tempY += dy;
                 }
+            } else {
+                break;
             }
         }
-        if("W".equals(color)){
-            whiteBlocked = true;
+    }
+
+    @Override
+    public void findMovesRecursive(ArrayList<ArrayList<String>> board, int row, int col, String ownCode, String enemyCode, String pawn, StringBuilder combination) {
+        if (pawn.contains("Q")){
+            if(hasKill(board, row, col, enemyCode, pawn, 1, 1)){
+                int tempX = row + 1;
+                int tempY = col + 1;
+                while(!board.get(tempX).get(tempY).contains(enemyCode)){
+                    tempX++;
+                    tempY++;
+                }
+                tempX++;
+                tempY++;
+                findQueensEmpties(board, row, col, ownCode, enemyCode, pawn, combination, tempX, tempY, 1, 1);
+            } else if(!combination.toString().equals("")){
+                bestMoves.add(combination.toString());
+            }
+            if(hasKill(board, row, col, enemyCode, pawn, 1, -1)){
+                int tempX = row + 1;
+                int tempY = col - 1;
+                while(!board.get(tempX).get(tempY).contains(enemyCode)){
+                    tempX++;
+                    tempY--;
+                }
+                tempX++;
+                tempY--;
+                findQueensEmpties(board, row, col, ownCode, enemyCode, pawn, combination, tempX, tempY, 1, -1);
+            } else if(!combination.toString().equals("")){
+                bestMoves.add(combination.toString());
+            }
+            if(hasKill(board, row, col, enemyCode, pawn, -1, 1)){
+                int tempX = row - 1;
+                int tempY = col + 1;
+                while(!board.get(tempX).get(tempY).contains(enemyCode)){
+                    tempX--;
+                    tempY++;
+                }
+                tempX--;
+                tempY++;
+                findQueensEmpties(board, row, col, ownCode, enemyCode, pawn, combination, tempX, tempY, -1, 1);
+            } else if(!combination.toString().equals("")){
+                bestMoves.add(combination.toString());
+            }
+            if(hasKill(board, row, col, enemyCode, pawn, -1, -1)){
+                int tempX = row - 1;
+                int tempY = col - 1;
+                while(!board.get(tempX).get(tempY).contains(enemyCode)){
+                    tempX--;
+                    tempY--;
+                }
+                tempX--;
+                tempY--;
+                findQueensEmpties(board, row, col, ownCode, enemyCode, pawn, combination, tempX, tempY, -1, -1);
+            } else if(!combination.toString().equals("")){
+                bestMoves.add(combination.toString());
+            }
         } else {
-            blackBlocked = true;
+            if(hasKill(board, row, col, enemyCode, pawn, 1, 1)){
+                System.out.println("Has kill 1");
+                boardClone = doubleCopyOf(board);
+                forkKill(board, row, col, ownCode, enemyCode, pawn, combination, row + 2, col + 2);
+            } else if(!combination.toString().equals("")){
+                bestMoves.add(combination.toString());
+            }
+            if(hasKill(board, row, col, enemyCode, pawn, 1, -1)){
+                System.out.println("Has kill 2");
+                boardClone = doubleCopyOf(board);
+                forkKill(board, row, col, ownCode, enemyCode, pawn, combination, row + 2, col - 2);
+            } else if(!combination.toString().equals("")){
+                bestMoves.add(combination.toString());
+            }
+            if(hasKill(board, row, col, enemyCode, pawn, -1, 1)){
+                System.out.println("Has kill 3");
+                boardClone = doubleCopyOf(board);
+                forkKill(board, row, col, ownCode, enemyCode, pawn, combination, row - 2, col + 2);
+            } else if(!combination.toString().equals("")){
+                bestMoves.add(combination.toString());
+            }
+            if(hasKill(board, row, col, enemyCode, pawn, -1, -1)){
+                System.out.println("Has kill 4");
+                boardClone = doubleCopyOf(board);
+                forkKill(board, row, col, ownCode, enemyCode, pawn, combination, row - 2, col  - 2);
+            } else if(!combination.toString().equals("")){
+                bestMoves.add(combination.toString());
+            }
         }
     }
-    /*
-     * Count possible moves for a pawn position
-     * */
-    private int possibleMovesFor(int i, int j) {
-        String pawn = board.get(i).get(j);
-        String color, enemy;
 
-        int tempX, tempY, counter = 0;
+    @Override
+    public void findQueensEmpties(ArrayList<ArrayList<String>> board, int row, int col, String ownCode, String enemyCode, String pawn, StringBuilder combination, int tempX, int tempY, int dx, int dy) {
+        while(true){
+            if(tempX >= 0 && tempX < size && tempY >= 0 && tempY < size){
+                if("E".equals(board.get(tempX).get(tempY))){
+                    boardClone = doubleCopyOf(board);
+                    forkKill(board, row, col, ownCode, enemyCode, pawn, combination, tempX, tempY);
+                    tempX += dx;
+                    tempY += dy;
+                } else break;
+            } else {
+                break;
+            }
+        }
+    }
 
-        if(pawn.charAt(0) == 'W'){
-            color = "white";
-            enemy = "B";
-        }
-        else{
-            color = "black";
-            enemy = "W";
-        }
+    @Override
+    public void forkKill(ArrayList<ArrayList<String>> board, int row, int col, String ownCode, String enemyCode, String pawn, StringBuilder combination, int tempX, int tempY) {
+        makeMove(boardClone, row, col, tempX, tempY);
+        killMove(boardClone, row, col, tempX, tempY);
+        combinationClone = new StringBuilder(combination);
+        combinationClone.append(row).append(col).append(tempX).append(tempY);
+        findMovesRecursive(
+                boardClone,
+                tempX,
+                tempY,
+                ownCode,
+                enemyCode,
+                pawn,
+                combinationClone);
+    }
+
+    @Override
+    public boolean hasKill(ArrayList<ArrayList<String>> board, int row, int col, String enemyCode, String pawn, int dx, int dy) {
+
+        row += dx;
+        col += dy;
 
         if(pawn.contains("Q")){
-            tempX = i + 1;
-            tempY = j + 1;
-
-            while(tempX < size && tempY < size){
-                createKillCount("" + i + j + tempX + tempY);
-                if(isLegal("" + i + j + tempX + tempY, color, false)) counter++;
-                tempX++;
-                tempY++;
-            }
-
-            tempX = i + 1;
-            tempY = j - 1;
-
-            while(tempX < size && tempY > 0){
-                if(isLegal("" + i + j + tempX + tempY, color, false)) counter++;
-                tempX++;
-                tempY--;
-            }
-
-            tempX = i - 1;
-            tempY = j + 1;
-
-            while(tempX > 0 && tempY < size){
-                if(isLegal("" + i + j + tempX + tempY, color, false)) counter++;
-                tempX--;
-                tempY++;
-            }
-
-            tempX = i - 1;
-            tempY = j - 1;
-
-            while(tempX > 0 && tempY > 0){
-                if(isLegal("" + i + j + tempX + tempY, color, false)) counter++;
-                tempX--;
-                tempY--;
-            }
-        } else {
-            if(i + 1 <= size - 1 && j + 1 <= size - 1){
-                if(board.get(i + 1).get(j + 1).equals("E")) counter++;
-                if(i + 2 <=size && j + 2 <= size){
-                    if(board.get(i + 1).get(j + 1).contains(enemy) && board.get(i + 2).get(j + 2).equals("E")) counter++;
-                }
-            }
-            if(i + 1 <= size - 1 && j - 1 >= 0){
-                if(board.get(i + 1).get(j - 1).equals("E")) counter++;
-                if(i + 2 <=size - 1 && j - 2 >= 0){
-                    if(board.get(i + 1).get(j - 1).contains(enemy) && board.get(i + 2).get(j - 2).equals("E")) counter++;
-                }
-            }
-            if(i - 1 >= 0 && j + 1 <= size - 1){
-                if(board.get(i - 1).get(j + 1).equals("E")) counter++;
-                if(i - 2 >= 0 && j + 2 <= size - 1){
-                    if(board.get(i - 1).get(j + 1).contains(enemy) && board.get(i - 2).get(j + 2).equals("E")) counter++;
-                }
-            }
-            if(i - 1 >= 0 && j - 1 >= 0){
-                if(board.get(i - 1).get(j - 1).equals("E")) counter++;
-                if(i - 2 >= 0 && j - 2 >= 0){
-                    if(board.get(i - 1).get(j - 1).contains(enemy) && board.get(i - 2).get(j - 2).equals("E")) counter++;
-                }
-            }
-        }
-        return counter;
-    }
-
-    /*
-     * Update stats of pieces taken
-     * */
-    private void updateCount() {
-        whiteCount -= whiteKills;
-        blackCount -= blackKills;
-        whiteKills = 0;
-        blackKills = 0;
-    }
-
-    /*
-     * Check whther sent move is legal or not
-     * */
-    @Override
-    public boolean isLegal(String move, String color, boolean create) {
-
-        int x1 = getCoord(move, 0);
-        int y1 = getCoord(move, 1);
-        int x2 = getCoord(move, 2);
-        int y2 = getCoord(move, 3);
-
-        if(create) createKillCount(move);
-
-        String string;
-        if("white".equals(color)) string = "B";
-        else string = "W";
-
-        if(create){
-            if("white".equals(color)){
-                whiteRespond = "cheat";
-                blackRespond = null;
-            } else {
-                blackRespond = "cheat";
-                whiteRespond = null;
-            }
-        }
-
-        if(x1 < 0 || x1 > size - 1) return false; //8
-        if(y1 < 0 || y1 > size - 1) return false;
-        if(x2 < 0 || x2 > size - 1) return false;
-        if(y2 < 0 || y2 > size - 1) return false;
-
-        System.out.println("no tu blad");
-
-        if(create) {
-            if ("white".equals(color)) {
-                whiteRespond = "duplicate";
-                blackRespond = null;
-            } else {
-                blackRespond = "duplicate";
-                whiteRespond = null;
-            }
-        }
-
-        if(x1 == x2 && y1 == y2) return false; //1
-        System.out.println("no tu blad 1");
-
-
-        if(create) {
-            if ("white".equals(color)) {
-                whiteRespond = "betrayal";
-                blackRespond = null;
-            } else {
-                blackRespond = "betrayal";
-                whiteRespond = null;
-            }
-        }
-
-        if(isBetrayalMove(move)) return false; //2
-        System.out.println("no tu blad 2");
-
-
-        if(create) {
-            if ("white".equals(color)) {
-                whiteRespond = "multiple";
-                blackRespond = null;
-            } else {
-                blackRespond = "multiple";
-                whiteRespond = null;
-            }
-        }
-
-        if(!isFairMove(move)) return false; //3
-        System.out.println("no tu blad 3");
-
-
-        if(create) {
-            if ("white".equals(color)) {
-                whiteRespond = "stack";
-                blackRespond = null;
-            } else {
-                blackRespond = "stack";
-                whiteRespond = null;
-            }
-        }
-
-        if(!"E".equals(board.get(x2).get(y2))) return false; //4
-        System.out.println("siema");
-
-        if(create) {
-            if ("white".equals(color)) {
-                whiteRespond = "owner";
-                blackRespond = null;
-            } else {
-                blackRespond = "owner";
-                whiteRespond = null;
-            }
-        }
-
-        if(!board.get(x1).get(y1).contains(getTurn().toString().substring(0, 1))) return false; //6
-
-        if(create) {
-            if ("white".equals(color)) {
-                whiteRespond = "diagonal";
-                blackRespond = null;
-            } else {
-                blackRespond = "diagonal";
-                whiteRespond = null;
-            }
-        }
-
-        if(!isCorrectDiagonal(move)) return false; //5
-
-        if(create){
-            whiteRespond = "repeated";
-            blackRespond = "repeated";
-        }
-
-        if(create){
-            whiteRespond = "uncaptured";
-            blackRespond = "uncaptured";
-        }
-
-        if(movesWithoutCapture >= 30){
-            unCaptured = true;
-            return false;
-        }
-
-        if(create) {
-            if ("white".equals(color)) {
-                whiteRespond = "rules";
-                blackRespond = null;
-            } else {
-                blackRespond = "rules";
-                whiteRespond = null;
-            }
-        }
-
-        System.out.println(mustMoves + "111111");
-        if(create){
-            if(hasBestMoves()){
-                if(followsBestMove(move, bestIndex)){
-                    fetchMove(move);
-                    promoteToQueen(move);
-                    deleteWrongPaths(bestMoves, move, bestIndex);
-                    bestIndex++;
+            while(true){
+                if(row + dx >= 0 && row + dx < size && col + dy >= 0 && col + dy < size &&
+                        row >= 0 && row < size && col >= 0 && col < size){
+                    String unknown = board.get(row).get(col);
+                    if(unknown.contains(enemyCode)){
+                        return board.get(row + dx).get(col + dy).equals("E");
+                    } else if (unknown.contains(String.valueOf(pawn.charAt(0)))) {
+                        return false;
+                    } else {
+                        row += dx;
+                        col += dy;
+                    }
                 } else {
                     return false;
                 }
-                System.out.println("tutaj sirma 1");
             }
-            fetchMove(move);
-            promoteToQueen(move);
-            createBestMoves(string);
-            bestIndex = 0;
-            toBoard(board);
-            System.out.println("tutaj sirma 2");
-            System.out.println(bestMoves);
-
-        }
-        System.out.println(mustMoves + "2222222");
-
-        if(create) {
-            if (hasBestMoves()) {
-                if ("white".equals(color)) {
-                    whiteRespond = "another";
-                    blackRespond = "moved" + move;
-                } else {
-                    blackRespond = "another";
-                    whiteRespond = "moved" + move;
-                }
+        } else {
+            if (row + dx >= 0 && row + dx < size && col + dy >= 0 && col + dy < size &&
+                    row >= 0 && row < size && col >= 0 && col < size){
+                return board.get(row).get(col).contains(enemyCode) &&
+                        board.get(row + dx).get(col + dy).equals("E");
             } else {
-                if ("white".equals(color)) {
-                    whiteRespond = "accepted";
-                    blackRespond = "unblocked" + move;
-                } else {
-                    blackRespond = "accepted";
-                    whiteRespond = "unblocked" + move;
-                }
+                return false;
+            }
+        }
+    }
+
+    @Override
+    public void considerMove(String msg) {
+
+        int x1 = getCoord(msg, 0);
+        int y1 = getCoord(msg, 1);
+        int x2 = getCoord(msg, 2);
+        int y2 = getCoord(msg, 3);
+
+
+        if(index < max){
+            fetchMove(x1, y1, x2, y2);
+            if (index == max){
                 changeTurn();
+                createBestMoves();
+                updateMovesWithoutCapture(x1, y1, x2, y2);
+                updateLatestMoves(x1, y1, x2, y2);
+                updateMoveEnded();
+                updateBlocks();
+                updateWinner(msg);
+                max = findMaxMove();
+                index = 0;
+            }
+        } else {
+            max = findMaxMove();
+            index = 0;
+            fetchMove(x1, y1, x2, y2);
+            if (index == max){
+                changeTurn();
+                createBestMoves();
+                updateMovesWithoutCapture(x1, y1, x2, y2);
+                updateLatestMoves(x1, y1, x2, y2);
+                updateMoveEnded();
+                updateBlocks();
+                updateWinner(msg);
+                index = 0;
             }
         }
-
-        return true;
     }
-
-    public void deleteWrongPaths(ArrayList<ArrayList<String>> bestMoves, String move, int bestIndex) {
-        for (ArrayList<String> list : bestMoves) {
-            if(!list.get(bestIndex).equals(move)){
-                bestMoves.remove(bestIndex);
+    
+    @Override
+    public void fetchMove(int x1, int y1, int x2, int y2) {
+        boolean legal = isLegal(x1, y1, x2, y2, index);
+        System.out.println("legal = " + legal);
+        if (legal){
+            makeMove(board, x1, y1, x2, y2);
+            countMove(board, x1, y1, x2, y2);
+            killMove(board, x1, y1, x2, y2);
+            deleteUntappedMoves(x1, y1, x2, y2);
+            index++;
+            if(index < max){
+                pickCurrentRespond("another", "moved" + x1 + y1 + x2 + y2);
+            } else{
+                promoteMove(board, x2, y2);
+                pickCurrentRespond("accepted", "unblocked" + x1 + y1 + x2 + y2);
             }
+        } else {
+            pickCurrentRespond("illegal", null);
         }
     }
 
-    /*
-     * Promotes piece to Queen, updates board
-     * */
-    private void promoteToQueen(String move) {
-        int x1 = getCoord(move, 0);
-        int y1 = getCoord(move, 1);
-        int x2 = getCoord(move, 2);
-        int y2 = getCoord(move, 3);
+    @Override
+    public void updateWinner(String move) {
+        if(whiteCount == 0 || whiteBlocked){
+            winner = FinishState.BLACK;
+            finished = true;
+            pickCurrentRespond("black", "black" + move);
+        } else if (blackCount == 0 || blackBlocked) {
+            winner = FinishState.WHITE;
+            finished = true;
+            pickCurrentRespond("white", "white" + move);
+        } else if (movesWithoutCapture == 30 || repeated) {
+            winner = FinishState.TIE;
+            finished = true;
+            pickCurrentRespond("tie", "tie" + move);
+        }
+    }
 
-        if(board.get(x2).get(y2).contains("B") && x2 == size - 1 && !hasBestMoves()){
-            board.get(x2).set(y2, "BQ");
-        } else if(board.get(x2).get(y2).contains("W") && x2 == 0 && !hasBestMoves()) {
+    @Override
+    public void promoteMove(ArrayList<ArrayList<String>> board, int x2, int y2) {
+        String pawn = board.get(x2).get(y2);
+
+        if ("W".equals(pawn) && x2 == 0){
             board.get(x2).set(y2, "WQ");
+        } else if ("B".equals(pawn) && x2 == size - 1) {
+            board.get(x2).set(y2, "BQ");
         }
     }
+    
+    
 
-    /*
-     * Fills the list of moves forced to pawn
-     * */
     @Override
-    public void createMustMoves(String move) {
-        int x1 = getCoord(move, 0);
-        int y1 = getCoord(move, 1);
-        int x2 = getCoord(move, 2);
-        int y2 = getCoord(move, 3);
-
-        mustMoves = new ArrayList<>();
-
-        if(whiteKills > 0 || blackKills > 0){
-            String pawn = board.get(x2).get(y2);
-            String enemy;
-
-            if(pawn.charAt(0) == 'W'){
-                enemy = "B";
-            } else {
-                enemy = "W";
-            }
-
-            if(pawn.contains("Q")){
-                checkDiagonalForQueen(x2, y2, 1, 1, size - 1, size - 1, enemy);
-                checkDiagonalForQueen(x2, y2, 1, -1, size - 1, 0, enemy);
-                checkDiagonalForQueen(x2, y2, -1, 1, 0, size - 1, enemy);
-                checkDiagonalForQueen(x2, y2, -1, -1, 0, 0, enemy);
-            } else {
-                if(x2 - 2 >= 0 && y2 - 2 >= 0) {
-                    if (board.get(x2 - 1).get(y2 - 1).contains(enemy) &&
-                            board.get(x2 - 2).get(y2 - 2).equals("E")) {
-                        mustMoves.add("" + x2 + y2 + (x2 - 2) + (y2 - 2));
-                    }
-                }
-                if(x2 - 2 >= 0 && y2 + 2 <= size - 1) {
-                    if (board.get(x2 - 1).get(y2 + 1).contains(enemy) &&
-                            board.get(x2 - 2).get(y2 + 2).equals("E")) {
-                        mustMoves.add("" + x2 + y2 + (x2 - 2) + (y2 + 2));
-                    }
-                }
-                if(x2 + 2 <= size - 1 && y2 + 2 <= size - 1) {
-                    if (board.get(x2 + 1).get(y2 + 1).contains(enemy) &&
-                            board.get(x2 + 2).get(y2 + 2).equals("E")) {
-                        mustMoves.add("" + x2 + y2 + (x2 + 2) + (y2 + 2));
-                    }
-                }
-                if(x2 + 2 <= size - 1 && y2 - 2 >= 0) {
-                    if (board.get(x2 + 1).get(y2 - 1).contains(enemy) &&
-                            board.get(x2 + 2).get(y2 - 2).equals("E")) {
-                        mustMoves.add("" + x2 + y2 + (x2 + 2) + (y2 - 2));
-                    }
-                }
+    public void deleteUntappedMoves(int x1, int y1, int x2, int y2) {
+        for (String combination : bestMoves) {
+            if(!isIncludedOn(combination, "" + x1 + y1 + x2 + y2, index)){
+                bestMoves = deleteEmptiesFrom(bestMoves);
             }
         }
     }
-    /*
-     * Checks diagonal queen move for correctness
-     * */
+    
+
     @Override
-    public void checkDiagonalForQueen(int x2, int y2, int dx, int dy, int maxX, int maxY, String enemy) {
-        int tempX, tempY;
-
-        tempX = x2 + dx;
-        tempY = y2 + dy;
-
-        if(tempX + dx < 0 || tempX + dx > size - 1 || tempY + dy < 0 || tempY + dy > size - 1) return;
-        while(tempX < maxX && tempY < maxY){
-            if(board.get(tempX).get(tempY).contains(enemy)){
-                if (board.get(tempX + dx).get(tempY + dy).equals("E")) {
-                    mustMoves.add("" + x2 + y2 + (tempX + dx) + (tempY + dy));
-                } else {
-                    return;
-                }
-                break;
-            }
-            tempX += dx;
-            tempY += dy;
-        }
-    }
-    /*
-     * creates Capture Info to start counting captured pieces
-     * */
-    @Override
-    public void createKillCount(String move) {
-        whiteKills = 0;
-        blackKills = 0;
-
-        int x1 = getCoord(move, 0);
-        int y1 = getCoord(move, 1);
-        int x2 = getCoord(move, 2);
-        int y2 = getCoord(move, 3);
-
+    public void killMove(ArrayList<ArrayList<String>> board, int x1, int y1, int x2, int y2) {
         int dx, dy;
 
         if(x2 > x1) dx = 1;
         else dx = -1;
-        if (y2 > y1) dy = 1;
+
+        if(y2 > y1) dy = 1;
         else dy = -1;
 
         x1 += dx;
         y1 += dy;
 
         while (x1 != x2 && y1 != y2){
-            if(board.get(x1).get(y1).equals("B") || board.get(x1).get(y1).equals("BQ")) blackKills++;
-            if(board.get(x1).get(y1).equals("W") || board.get(x1).get(y1).equals("WQ")) whiteKills++;
+            board.get(x1).set(y1, "E");
             x1 += dx;
             y1 += dy;
         }
     }
-    /*
-     * Checks whether you jump over your own pieces
-     * */
+
     @Override
-    public boolean isBetrayalMove(String move) {
-        int x1 = getCoord(move, 0);
-        int y1 = getCoord(move, 1);
-        int x2 = getCoord(move, 2);
-        int y2 = getCoord(move, 3);
-
-        String pawn = board.get(x1).get(y1);
-
-        boolean result = false;
-
-        if(("B".equals(pawn) || "BQ".equals(pawn)) && blackKills > 0) result = true;
-        else if(("W".equals(pawn) || "WQ".equals(pawn)) && whiteKills > 0) result = true;
-
-        return result;
+    public void makeMove(ArrayList<ArrayList<String>> board, int x1, int y1, int x2, int y2) {
+        board.get(x2).set(y2, board.get(x1).get(y1));
+        board.get(x1).set(y1, "E");
     }
 
-    /*
-     * Check whether capture is affecting only one enemy pawn
-     * */
     @Override
-    public boolean isFairMove(String move) {
-        int x1 = getCoord(move, 0);
-        int y1 = getCoord(move, 1);
-        int x2 = getCoord(move, 2);
-        int y2 = getCoord(move, 3);
-
-        String pawn = board.get(x1).get(y1);
-
-        boolean result = false;
-
-        if(("B".equals(pawn) || "BQ".equals(pawn)) && whiteKills <= 1) result = true;
-        else if(("W".equals(pawn) || "WQ".equals(pawn)) && blackKills <= 1) result = true;
-
-        return result;
-    }
-
-    /*
-     * Check whteher move is forced for apawn
-     * */
-    @Override
-    public boolean followsBestMove(String move, int bestIndex) {
-        for (ArrayList<String> list : bestMoves) {
-            if(list.get(bestIndex).equals(move)){
+    public boolean isLegal(int x1, int y1, int x2, int y2, int index) {
+        for (String combination : bestMoves) {
+            if(isIncludedOn(combination, "" + x1 + y1 + x2 + y2, index)){
                 return true;
             }
         }
         return false;
-    }
-
-    /*
-     * Check whther moves is correctly placed on diagonals, considers also queen
-     * */
-    @Override
-    public boolean isCorrectDiagonal(String move) {
-        int x1 = getCoord(move, 0);
-        int y1 = getCoord(move, 1);
-        int x2 = getCoord(move, 2);
-        int y2 = getCoord(move, 3);
-
-        String pawn = board.get(x1).get(y1);
-
-        if(Math.abs(x2-x1) == Math.abs(y2-y1)) {
-            if (pawn.contains("Q")) {
-                return true;
-            } else {
-                if("W".equals(pawn)){
-                    if(x2 < x1 && Math.abs(x2-x1) == 1){
-                        return true;
-                    } else if (x2 < x1 && Math.abs(x2-x1) == 2 && blackKills == 1) {
-                        return true;
-                    } else if (x2 > x1 && Math.abs(x2-x1) == 2 && blackKills == 1) {
-                        return true;
-                    }
-                } else {
-                    if(x2 > x1 && Math.abs(x2-x1) == 1){
-                        return true;
-                    } else if (x2 > x1 && Math.abs(x2-x1) == 2 && whiteKills == 1) {
-                        return true;
-                    } else if (x2 < x1 && Math.abs(x2-x1) == 2 && whiteKills == 1) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
-    }
-
-    public void findBestMovesRecursive(ArrayList<ArrayList<String>> currBoard, ArrayList<String> moves, int x, int y, int size, ArrayList<ArrayList<String>> currentBestMoves){
-        String pawn = currBoard.get(x).get(y);
-        String enemy;
-
-        System.out.println("t");
-
-        if(pawn.contains("W")) enemy = "B";
-        else enemy = "W";
-
-        if(pawn.contains("Q")){
-            int tempX, tempY;
-            tempX = x+1;
-            tempY = y+1;
-            loop_1: while (tempX < size && tempY < size){
-                if(currBoard.get(tempX).get(tempY).contains(String.valueOf(pawn.charAt(0)))){
-                    if(!moves.equals(currentBestMoves.get(currentBestMoves.size()-1))) currentBestMoves.add(moves);
-
-                    break loop_1;
-                } else if(currBoard.get(tempX).get(tempY).contains(enemy)){
-                    if(tempX+1 < size & tempY+1 < size & currBoard.get(tempX+1).get(tempY+1).equals("E")){
-                        ArrayList<ArrayList<String>> clone1 = copyMult(currBoard);
-                        clone1.get(tempX+1).set(tempY+1, pawn);
-                        int xx, yy;
-                        xx = x;
-                        yy = y;
-                        while (xx < tempX+1 && yy < tempY+1){
-                            clone1.get(xx).set(yy, "E");
-                            xx++;
-                            yy++;
-                        }
-                        System.out.println("k1 " +x + y + (tempX+1) + (tempY+1));
-                        ArrayList<String> movesClone = copySing(moves);
-                        movesClone.add("" + x + y + (tempX+1) + (tempY+1));
-                        System.out.println(movesClone);
-
-                        findBestMovesRecursive(clone1, movesClone, tempX+1, tempY+1, size,  currentBestMoves);
-                        break loop_1;
-                    }
-                    else {
-                        if(!moves.equals(currentBestMoves.get(currentBestMoves.size()-1))) currentBestMoves.add(moves);
-                        break loop_1;
-                    }
-                }
-                tempX++;
-                tempY++;
-            }
-            if(tempX >= size || tempY >= size && !moves.equals(currentBestMoves.get(currentBestMoves.size()-1))){
-                currentBestMoves.add(moves);
-            }
-            tempX = x+1;
-            tempY = y-1;
-            loop_1: while (tempX < size && tempY >= 0){
-                if(currBoard.get(tempX).get(tempY).contains(String.valueOf(pawn.charAt(0)))){
-                    if(!moves.equals(currentBestMoves.get(currentBestMoves.size()-1))) currentBestMoves.add(moves);
-
-                    break loop_1;
-                } else if(currBoard.get(tempX).get(tempY).contains(enemy)){
-                    if(tempX+1 < size & tempY-1 >= 0 & currBoard.get(tempX+1).get(tempY-1).equals("E")){
-                        ArrayList<ArrayList<String>> clone1 = copyMult(currBoard);
-                        clone1.get(tempX+1).set(tempY-1, pawn);
-                        int xx, yy;
-                        xx = x;
-                        yy = y;
-                        while (xx < tempX+1 && yy > tempY-1){
-                            clone1.get(xx).set(yy, "E");
-                            xx++;
-                            yy--;
-                        }
-                        System.out.println("k2 " +x + y + (tempX+1) + (tempY-1));
-                        ArrayList<String> movesClone = copySing(moves);
-                        movesClone.add("" + x + y + (tempX+1) + (tempY-1));
-                        System.out.println(movesClone);
-
-                        findBestMovesRecursive(clone1, movesClone, tempX+1, tempY-1, size,  currentBestMoves);
-                        break loop_1;
-
-                    }
-                    else {
-                        if(!moves.equals(currentBestMoves.get(currentBestMoves.size()-1))) currentBestMoves.add(moves);
-
-                        break loop_1;
-                    }
-                }
-                tempX++;
-                tempY--;
-            }
-            if(tempX >= size || tempY < 0  && !moves.equals(currentBestMoves.get(currentBestMoves.size()-1))){
-                currentBestMoves.add(moves);
-            }
-            tempX = x-1;
-            tempY = y+1;
-            loop_1: while (tempX >= 0 && tempY < size){
-                if(currBoard.get(tempX).get(tempY).contains(String.valueOf(pawn.charAt(0)))){
-                    if(!moves.equals(currentBestMoves.get(currentBestMoves.size()-1))) currentBestMoves.add(moves);
-
-                    System.out.println(currBoard);
-
-                    break loop_1;
-                } else if(currBoard.get(tempX).get(tempY).contains(enemy)){
-                    if(tempX-1 >= 0 & tempY+1 < size & currBoard.get(tempX-1).get(tempY+1).equals("E")){
-                        ArrayList<ArrayList<String>> clone1 = copyMult(currBoard);
-                        clone1.get(tempX-1).set(tempY+1, pawn);
-                        int xx, yy;
-                        xx = x;
-                        yy = y;
-                        while (xx > tempX-1 && yy < tempY+1){
-                            clone1.get(xx).set(yy, "E");
-                            xx--;
-                            yy++;
-                        }
-                        System.out.println("k3 " +x + y + (tempX-1) + (tempY+1));
-
-                        ArrayList<String> movesClone = copySing(moves);
-                        movesClone.add("" + x + y + (tempX-1) + (tempY+1));
-                        System.out.println(movesClone);
-
-                        findBestMovesRecursive(clone1, movesClone, tempX-1, tempY+1, size, currentBestMoves);
-                        break loop_1;
-
-                    }
-                    else {
-                        if(!moves.equals(currentBestMoves.get(currentBestMoves.size()-1))) currentBestMoves.add(moves);
-
-                        System.out.println(currBoard);
-                        break loop_1;
-                    }
-                }
-                tempX--;
-                tempY++;
-            }
-            if(tempX < 0 || tempY >= size && !moves.equals(currentBestMoves.get(currentBestMoves.size()-1))){
-                currentBestMoves.add(moves);
-            }
-            tempX = x-1;
-            tempY = y-1;
-            loop_1: while (tempX >= 0 && tempY >= 0){
-                if(currBoard.get(tempX).get(tempY).contains(String.valueOf(pawn.charAt(0)))){
-                    if(!moves.equals(currentBestMoves.get(currentBestMoves.size()-1))) currentBestMoves.add(moves);
-
-                    break loop_1;
-                } else if(currBoard.get(tempX).get(tempY).contains(enemy)){
-                    if(tempX-1 >= 0 & tempY-1 >= 0 & currBoard.get(tempX-1).get(tempY-1).equals("E")){
-                        ArrayList<ArrayList<String>> clone1 = copyMult(currBoard);
-                        clone1.get(tempX-1).set(tempY-1, pawn);
-                        int xx, yy;
-                        xx = x;
-                        yy = y;
-                        while (xx > tempX-1 && yy > tempY-1){
-                            clone1.get(xx).set(yy, "E");
-                            xx--;
-                            yy--;
-                        }
-                        System.out.println("k4 " +x + y + (tempX-1) + (tempY-1));
-
-                        ArrayList<String> movesClone = copySing(moves);
-                        movesClone.add("" + x + y + (tempX-1) + (tempY-1));
-                        System.out.println(movesClone);
-                        findBestMovesRecursive(clone1, movesClone, tempX-1, tempY-1, size, currentBestMoves);
-                        break loop_1;
-
-                    }
-                    else {
-                        if(!moves.equals(currentBestMoves.get(currentBestMoves.size()-1))) currentBestMoves.add(moves);
-
-                        break loop_1;
-                    }
-                }
-                tempX--;
-                tempY--;
-
-            }
-            if(tempX < 0 || tempY < 0 && !moves.equals(currentBestMoves.get(currentBestMoves.size()-1))){
-                currentBestMoves.add(moves);
-            }
-        } else {
-            if(x+2 < size && y+2 < size){
-                if(currBoard.get(x+1).get(y+1).contains(enemy) && currBoard.get(x+2).get(y+2).equals("E")){
-                    ArrayList<ArrayList<String>> clone1 = copyMult(currBoard);
-                    clone1.get(x+2).set(y+2, pawn);
-                    clone1.get(x).set(y, "E");
-                    clone1.get(x+1).set(y+1, "E");
-                    ArrayList<String> movesClone = copySing(moves);
-                    movesClone.add("" + x + y + (x+2) + (y+2));
-                    System.out.println("t1 " + x + y + (x+2) + (y+2));
-                    toBoard(clone1);
-
-                    findBestMovesRecursive(clone1, movesClone, x+2, y+2, size, currentBestMoves);
-                } else {
-                    currentBestMoves.add(moves);
-                }
-            }
-            if(x-2 >= 0 && y+2 < size){
-                if(currBoard.get(x-1).get(y+1).contains(enemy) && currBoard.get(x-2).get(y+2).equals("E")){
-                    ArrayList<ArrayList<String>> clone = copyMult(currBoard);
-                    clone.get(x-2).set(y+2, pawn);
-                    clone.get(x).set(y, "E");
-                    clone.get(x-1).set(y+1, "E");
-                    ArrayList<String> movesClone = copySing(moves);
-                    movesClone.add("" + x + y + (x-2) + (y+2));
-                    System.out.println("t2 " + x + y + (x-2) + (y+2));
-                    toBoard(clone);
-
-                    findBestMovesRecursive(clone, movesClone, x-2, y+2, size, currentBestMoves);
-                } else {
-                    currentBestMoves.add(moves);
-                }
-            }
-            if(x+2 < size && y-2 >= 0){
-                if(currBoard.get(x+1).get(y-1).contains(enemy) && currBoard.get(x+2).get(y-2).equals("E")){
-                    ArrayList<ArrayList<String>> clone = copyMult(currBoard);
-                    clone.get(x+2).set(y-2, pawn);
-                    clone.get(x).set(y, "E");
-                    clone.get(x+1).set(y-1, "E");
-                    ArrayList<String> movesClone = copySing(moves);
-                    movesClone.add("" + x + y + (x+2) + (y-2));
-                    System.out.println("t3 " + x + y + (x+2) + (y-2));
-                    toBoard(clone);
-
-                    findBestMovesRecursive(clone, movesClone, x+2, y-2, size, currentBestMoves);
-                } else {
-                    currentBestMoves.add(moves);
-                }
-            }
-            if(x-2 >= 0 && y-2 >= 0){
-                if(currBoard.get(x-1).get(y-1).contains(enemy) && currBoard.get(x-2).get(y-2).equals("E")){
-                    ArrayList<ArrayList<String>> clone = copyMult(currBoard);
-                    clone.get(x-2).set(y-2, pawn);
-                    clone.get(x).set(y, "E");
-                    clone.get(x-1).set(y-1, "E");
-                    ArrayList<String> movesClone = copySing(moves);
-                    movesClone.add("" + x + y + (x-2) + (y-2));
-                    System.out.println("t4 " + x + y + (x-2) + (y-2));
-                    toBoard(clone);
-                    findBestMovesRecursive(clone, movesClone, x-2, y-2, size, currentBestMoves);
-                } else {
-                    currentBestMoves.add(moves);
-                }
-            }
-        }
-    }
-
-    public ArrayList<String> copySing(ArrayList<String> list){
-        ArrayList<String> temp = new ArrayList<>();
-        for (int i = 0; i < list.size(); i++) {
-            temp.add(list.get(i));
-        }
-        return temp;
-    }
-
-    private  ArrayList<ArrayList<String>> copyMult(ArrayList<ArrayList<String>> board) {
-        ArrayList<ArrayList<String>> temp = new ArrayList<>();
-        for (int i = 0; i < board.size(); i++) {
-            temp.add(new ArrayList<String>());
-        }
-        for (int k = 0; k < board.size(); k++) {
-            for (int l = 0; l < board.get(k).size(); l++) {
-                temp.get(k).add(board.get(k).get(l));
-            }
-        }
-        return temp;
-    }
-
-    public void createBestMoves(String color) {
-
-        int max = 0;
-        System.out.println("odpalone");
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                System.out.println("odpalone 1");
-                if(board.get(i).get(j).contains(color)){
-                    System.out.println("odpalone 2");
-
-                    System.out.println("i = " + i + ", j = " + j);
-                    ArrayList<ArrayList<String>> currentBestMoves = new ArrayList<>();
-                    System.out.println();
-                    ArrayList<ArrayList<String>> temp = new ArrayList<>();
-                    temp.add(new ArrayList<String>());
-                    temp.add(new ArrayList<String>());
-                    temp.add(new ArrayList<String>());
-                    temp.add(new ArrayList<String>());
-                    temp.add(new ArrayList<String>());
-                    temp = copyMult(board);
-                    findBestMovesRecursive(temp, new ArrayList<String>(), i, j, size, currentBestMoves);
-                    System.out.println();
-                    int maxlen = countMax(currentBestMoves);
-                    updateBestMoves(currentBestMoves, maxlen, bestMoves);
-                }
-            }
-        }
-        int maxlen = countMax(bestMoves);
-        ArrayList<ArrayList<String>> temp = copyMult(bestMoves);
-        bestMoves.clear();
-        updateBestMoves(temp, maxlen, bestMoves);
-        bestMoves = deleteDuplicates(bestMoves);
-    }
-
-    public ArrayList<ArrayList<String>> deleteDuplicates(ArrayList<ArrayList<String>> bestMoves) {
-        ArrayList<ArrayList<String>> newlist = new ArrayList<>();
-        for (ArrayList<String> list : bestMoves) {
-            StringBuilder move = new StringBuilder();
-            for (int i = 0; i < list.size(); i++) {
-                move.append(list.get(i));
-            }
-            boolean isthere = false;
-            System.out.println(move);
-            for (ArrayList<String> temp : newlist) {
-                StringBuilder test = new StringBuilder();
-                for (int i = 0; i < temp.size(); i++) {
-                    test.append(temp.get(i));
-                }
-                System.out.println(test);
-                if(test.toString().equals(move.toString())){
-                    isthere = true;
-                }
-            }
-            System.out.println();
-            if(!isthere){
-                newlist.add(list);
-            }
-        }
-        return newlist;
-    }
-
-    public boolean hasBestMoves() {
-        for (ArrayList<String> list : bestMoves) {
-            if(!list.isEmpty()){
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private int countMax(ArrayList<ArrayList<String>> currentBestMoves) {
-        int max = 0;
-        for (List<String> list : currentBestMoves) {
-            if(list.size() > max){
-                max = list.size();
-            }
-        }
-        return max;
-    }
-
-    public void updateBestMoves(ArrayList<ArrayList<String>> currentBestMoves, int max, ArrayList<ArrayList<String>> bestMoves) {
-        for (ArrayList<String> list : currentBestMoves) {
-            if(list.size() == max){
-                bestMoves.add(list);
-            }
-        }
-    }
-
-    public void toBoard(ArrayList<ArrayList<String>> board){
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                System.out.print(board.get(i).get(j) + " ");
-            }
-            System.out.println();
-        }
     }
 }

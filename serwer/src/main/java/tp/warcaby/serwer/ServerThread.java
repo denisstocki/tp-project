@@ -124,15 +124,12 @@ public class ServerThread {
                             System.out.println("server = 8");
 
                             isFinished = true;
-                            gameable.showBoard();
                             break;
                         } else if (gameable.moveEnded()) {
                             System.out.println("server = 9");
 
-                            gameable.showBoard();
                             break;
                         }
-                        gameable.showBoard();
                         System.out.println("server = 10");
 
                     }
@@ -163,13 +160,10 @@ public class ServerThread {
 
                         if(gameable.isFinished()){
                             isFinished = true;
-                            gameable.showBoard();
                             break;
                         } else if (gameable.moveEnded()) {
-                            gameable.showBoard();
                             break;
                         }
-                        gameable.showBoard();
                     }
                 }
             }

@@ -17,7 +17,6 @@ abstract class GameLogic implements Gameable {
     /*
      * Tells which player is currently eligible to maek a move
      * */
-    private TurnState turn;
     /*
      * Holds state of game, if it is finished or already ended
      * */
@@ -69,7 +68,6 @@ abstract class GameLogic implements Gameable {
     /*
      * Size of current board played, specifically exact number of rows and columns
      * */
-    private final int boardSize;
     /*
      * Keeps track if any pawn was captured yet
      * */
@@ -82,29 +80,46 @@ abstract class GameLogic implements Gameable {
      * Keep track of movements without captures of any pawn
      * */
     public int movesWithoutCapture;
+    public final int size;
+    public ArrayList<String> bestMoves;
+    public ArrayList<ArrayList<String>> boardClone;
+    public StringBuilder combinationClone;
+    public int index;
+    public int max;
+    public TurnState turn;
+    public boolean turned;
+    public FinishState winner;
+    public int whiteDeaths;
+    public int blackDeaths;
+    public boolean moveEnded;
 
 
     /*
      * Base constructor
      * */
-    public GameLogic(int boardSize, int whiteCount, int blackCount) {
-        this.boardSize = boardSize;
+    public GameLogic(int size, int whiteCount, int blackCount) {
+        this.size = size;
         this.whiteCount = whiteCount;
         this.blackCount = blackCount;
 
-        board = new ArrayList<>(boardSize);
-        mustMoves = new ArrayList<>();
+        board = new ArrayList<>(size);
         latestMoves = new LinkedList<>();
 
         turn = TurnState.WHITE;
-        finishState = FinishState.NOONE;
+        winner = FinishState.NOONE;
 
-        turnChanged = false;
+        index = 0;
+        max = 0;
+
+        whiteRespond = "";
+        blackRespond = "";
+
+        turned = false;
+        finished = false;
+        repeated = false;
         whiteBlocked = false;
         blackBlocked = false;
-        finished = false;
-        unCaptured = false;
-        repeated = false;
+        moveEnded = false;
 
         movesWithoutCapture = 0;
 
@@ -114,61 +129,171 @@ abstract class GameLogic implements Gameable {
      * Print current state of board to standard outpu
      * */
     @Override
-    public void showBoard() {
-        for (int i = 0; i < boardSize; i++) {
-            for (int j = 0; j < boardSize; j++) {
+    public void showBoard(ArrayList<ArrayList<String>> board) {
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
                 System.out.print(board.get(i).get(j) + " ");
             }
             System.out.println();
         }
     }
-    /*
-     * Initialize the board, fill it and prepare for game
-     * */
     @Override
-    public void initialize() {
-        ArrayList<String> rowList;
-        for (int row = 0; row < boardSize; row++) {
-            rowList = new ArrayList<>(boardSize);
-            board.add(rowList);
-            if(row < (boardSize/2 - 1)){
-                for (int col = 0; col < boardSize; col++) {
-                    if((row + col) % 2 == 1) rowList.add("B");
-                    else rowList.add("E");
-                }
-            } else if (row > (boardSize/2)) {
-                for (int col = 0; col < boardSize; col++) {
-                    if((row + col) % 2 == 1) rowList.add("W");
-                    else rowList.add("E");
-                }
-            } else {
-                for (int col = 0; col < boardSize; col++) {
-                    rowList.add("E");
+    public void createBestMoves() {
+        bestMoves = new ArrayList<>();
+        ArrayList<Integer> xCoords = new ArrayList<>();
+        ArrayList<Integer> yCoords = new ArrayList<>();
+        for (int row = 0; row < size; row++) {
+            for (int col = 0; col < size; col++) {
+                if(board.get(row).get(col).contains(turn.getOwnCode())){
+                    xCoords.add(row);
+                    yCoords.add(col);
+                    ArrayList<ArrayList<String>> copyOfBoard = doubleCopyOf(board);
+                    StringBuilder combination = new StringBuilder();
+                    findMovesRecursive(
+                            copyOfBoard,
+                            row,
+                            col,
+                            turn.getOwnCode(),
+                            turn.getEnemyCode(),
+                            copyOfBoard.get(row).get(col),
+                            combination);
                 }
             }
         }
+
+        if(isEmpty(bestMoves)){
+            for (int i = 0; i < xCoords.size(); i++) {
+                getPossibleMovesFor(board, xCoords.get(i), yCoords.get(i));
+            }
+        } else {
+            bestMoves = deduplicateMoves(maximizeMoves(findMaxMove()));
+        }
     }
-    /*
-     * Get game finished state
-     * */
+    @Override
+    public ArrayList<String> deduplicateMoves(ArrayList<String> moves) {
+        ArrayList<String> temp = new ArrayList<>();
+        for (String string : moves) {
+            if(!temp.contains(string)){
+                temp.add(string);
+            }
+        }
+        return temp;
+    }
+    @Override
+    public ArrayList<String> maximizeMoves(int max) {
+        ArrayList<String> tempList = new ArrayList<>();
+
+        for (String string : bestMoves) {
+            if(string.length() == max * 4){
+                tempList.add(string);
+            }
+        }
+        return tempList;
+    }
+    @Override
+    public int findMaxMove() {
+        int result = 0;
+
+        for (String string : bestMoves) {
+            if(string.length() > result){
+                result = string.length();
+            }
+        }
+        System.out.println("result/4 = " + result/4);
+        return result/4;
+    }
+    @Override
+    public ArrayList<ArrayList<String>> doubleCopyOf(ArrayList<ArrayList<String>> board) {
+        ArrayList<ArrayList<String>> tempBoard = new ArrayList<>();
+
+        for (int row = 0; row < size; row++) {
+            ArrayList<String> tempRowList = new ArrayList<>();
+            for (int col = 0; col < size; col++) {
+                tempRowList.add(board.get(row).get(col));
+            }
+            tempBoard.add(tempRowList);
+        }
+
+        return tempBoard;
+    }
+
+    @Override
+    public boolean isRepeated() {
+        for (int i = 0; i < 4; i++) {
+            if(!latestMoves.get(i).equals(latestMoves.get(i + 4)) || !latestMoves.get(i).equals(latestMoves.get(i + 8))){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public String getWhiteRespond() {
+        return whiteRespond;
+    }
+
+    @Override
+    public String getBlackRespond() {
+        return blackRespond;
+    }
+
+    @Override
+    public void pickCurrentRespond(String msg1, String msg2) {
+        if (turn == TurnState.WHITE){
+            whiteRespond = msg1;
+            blackRespond = msg2;
+        } else {
+            blackRespond = msg1;
+            whiteRespond = msg2;
+        }
+    }
+
+    @Override
+    public boolean isIncludedOn(String combination, String move, int index) {
+        return combination.substring(4 * index, 4 * index + 4).equals(move);
+    }
+
+    @Override
+    public boolean hasTurned() {
+        if(turned){
+            turned = false;
+            return true;
+        } else return false;
+    }
+
     @Override
     public boolean isFinished() {
         return finished;
     }
-    /*
-     * Make a move on current board
-     * */
+
     @Override
-    public void fetchMove(String move) {
-        int x1 = getCoord(move, 0);
-        int y1 = getCoord(move, 1);
-        int x2 = getCoord(move, 2);
-        int y2 = getCoord(move, 3);
+    public boolean isEmpty(ArrayList<String> bestMoves) {
+        for (String string : bestMoves) {
+            if(string.length() > 0){
+                return false;
+            }
+        }
+        return true;
+    }
 
-        String pawn = board.get(x1).get(y1);
+    @Override
+    public void changeTurn() {
+        if(turn == TurnState.WHITE) turn = TurnState.BLACK;
+        else turn = TurnState.WHITE;
+        turned = true;
+    }
 
-        board.get(x2).set(y2, pawn);
+    @Override
+    public ArrayList<String> deleteEmptiesFrom(ArrayList<String> moves) {
+        ArrayList<String> temp = new ArrayList<>();
+        for (String combination : moves) {
+            if(!combination.equals("")) temp.add(combination);
+        }
+        return temp;
+    }
 
+    @Override
+    public void countMove(ArrayList<ArrayList<String>> board, int x1, int y1, int x2, int y2) {
         int dx, dy;
 
         if(x2 > x1) dx = 1;
@@ -177,34 +302,120 @@ abstract class GameLogic implements Gameable {
         if(y2 > y1) dy = 1;
         else dy = -1;
 
-        while(x1 != x2 && y1 != y2){
-            board.get(x1).set(y1, "E");
-            x1 += dx;
-            y1 += dy;
-        }
+        x1 += dx;
+        y1 += dy;
 
-        if(whiteKills == 0 && blackKills == 0){
-            if(pawn.contains("Q")){
-                movesWithoutCapture++;
+        whiteDeaths = 0;
+        blackDeaths = 0;
+
+        while (x1 != x2 && y1 != y2){
+            if (board.get(x1).get(y1).contains("W")){
+                whiteCount--;
+                whiteDeaths++;
+                break;
+            } else if (board.get(x1).get(y1).contains("B")) {
+                blackCount--;
+                blackDeaths++;
+                break;
+            } else {
+                x1 += dx;
+                y1 += dy;
             }
-        } else {
+        }
+    }
+
+    @Override
+    public void updateMovesWithoutCapture(int x1, int y1, int x2, int y2) {
+        String pawn = board.get(x2).get(y2);
+
+        if(pawn.contains("Q") && whiteDeaths == 0 && blackDeaths == 0){
+            movesWithoutCapture++;
+        } else if (whiteDeaths == 1 || blackDeaths == 1) {
             movesWithoutCapture = 0;
         }
-
-        if(latestMoves.size() < 12){
-            latestMoves.add(move);
-        } else {
+    }
+    
+    @Override
+    public void updateLatestMoves(int x1, int y1, int x2, int y2) {
+        if(latestMoves.size() == 12){
             latestMoves.remove();
-            latestMoves.add(move);
-            if(repetitionCheck()){
+            latestMoves.add("" + x1 + y1 + x2 + y2);
+            if (isRepeated()){
                 repeated = true;
+            }
+        } else {
+            latestMoves.add("" + x1 + y1 + x2 + y2);
+        }
+    }
+
+    @Override
+    public String getCurrentBestMoves() {
+        StringBuilder result = new StringBuilder("possible");
+        for (String move : bestMoves) {
+            result.append(move.substring(4 * index, 4 * index + 4));
+        }
+        return result.toString();
+    }
+    @Override
+    public boolean moveEnded(){
+        if(moveEnded){
+            moveEnded = false;
+            return true;
+        }
+        return false;
+    }
+    @Override
+    public void updateBlocks() {
+        if(isEmpty(bestMoves)){
+            if (turn == TurnState.WHITE){
+                whiteBlocked = true;
+            } else {
+                blackBlocked = true;
+            }
+        }
+    }
+    @Override
+    public void updateMoveEnded() {
+        if(index == max){
+            moveEnded = true;
+        }
+    }
+    /*
+     * Initialize the board, fill it and prepare for game
+     * */
+    @Override
+    public void initialize() {
+        ArrayList<String> rowList;
+        for (int row = 0; row < size; row++) {
+            rowList = new ArrayList<>(size);
+            board.add(rowList);
+            if(row < (size/2 - 1)){
+                for (int col = 0; col < size; col++) {
+                    if((row + col) % 2 == 1) rowList.add("B");
+                    else rowList.add("E");
+                }
+            } else if (row > (size/2)) {
+                for (int col = 0; col < size; col++) {
+                    if((row + col) % 2 == 1) rowList.add("W");
+                    else rowList.add("E");
+                }
+            } else {
+                for (int col = 0; col < size; col++) {
+                    rowList.add("E");
+                }
             }
         }
     }
     /*
-     * Check for three time repetitions of movements, then optionally draw game
+     * Get game finished state
      * */
-    private boolean repetitionCheck() {
+    /*
+     * Make a move on current board
+     * */
+    /*
+     * Check for three time repetitions of movements, then optionally draw game
+     * */@Override
+    public boolean repetitionCheck() {
         for (int i = 0; i < 4; i++) {
             System.out.println(latestMoves.get(i));
             System.out.println(latestMoves.get(i + 4));
@@ -215,18 +426,11 @@ abstract class GameLogic implements Gameable {
         }
         return true;
     }
+
     /*
      * Change whose is current turn
      * */
-    @Override
-    public void changeTurn() {
-        if(turn == TurnState.WHITE){
-            turn = TurnState.BLACK;
-        } else {
-            turn = TurnState.WHITE;
-        }
-        turnChanged = true;
-    }
+    
     /*
      * Keeps track wheter turn has changed
      * */
@@ -258,19 +462,10 @@ abstract class GameLogic implements Gameable {
             finished = true;
         }
     }
+
     @Override
     public int getCoord(String  move, int index) {
         return Integer.parseInt(String.valueOf(move.charAt(index)));
-    }
-
-    @Override
-    public String getWhiteRespond() {
-        return whiteRespond;
-    }
-
-    @Override
-    public String getBlackRespond() {
-        return blackRespond;
     }
 
     @Override
@@ -280,16 +475,39 @@ abstract class GameLogic implements Gameable {
 
     @Override
     public String getWinner() {
-        return finishState.toString();
+        return winner.toString().toLowerCase();
     }
 
-    /*
-     * Fills the list of moves forced to pawn
-     * */
-    public abstract void createMustMoves(String move);
+    @Override
+    public ArrayList<ArrayList<String>> getBoard(){
+        return board;
+    }
 
-    /*
-     * Check whteher move is forced for apawn
-     * */
-    public abstract boolean followsBestMove(String move, int bestIndex);
+    protected abstract void getPossibleMovesFor(ArrayList<ArrayList<String>> board, int x, int y);
+
+    protected abstract void addQueensPossibilities(ArrayList<ArrayList<String>> board, int x, int y, int tempX, int tempY, int dx, int dy);
+
+    public abstract void findMovesRecursive(ArrayList<ArrayList<String>> board, int row, int col, String ownCode, String enemyCode, String pawn, StringBuilder combination);
+
+    public abstract void findQueensEmpties(ArrayList<ArrayList<String>> board, int row, int col, String ownCode, String enemyCode, String pawn, StringBuilder combination, int tempX, int tempY, int dx, int dy);
+
+    public abstract void forkKill(ArrayList<ArrayList<String>> board, int row, int col, String ownCode, String enemyCode, String pawn, StringBuilder combination, int tempX, int tempY);
+
+    public abstract boolean hasKill(ArrayList<ArrayList<String>> board, int row, int col, String enemyCode, String pawn, int dx, int dy);
+
+    public abstract void considerMove(String msg);
+
+    public abstract void fetchMove(int x1, int y1, int x2, int y2);
+
+    public abstract void updateWinner(String move);
+
+    public abstract void promoteMove(ArrayList<ArrayList<String>> board, int x2, int y2);
+
+    public abstract void deleteUntappedMoves(int x1, int y1, int x2, int y2);
+
+    public abstract void killMove(ArrayList<ArrayList<String>> board, int x1, int y1, int x2, int y2);
+
+    public abstract void makeMove(ArrayList<ArrayList<String>> board, int x1, int y1, int x2, int y2);
+
+    public abstract boolean isLegal(int x1, int y1, int x2, int y2, int index);
 }

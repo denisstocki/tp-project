@@ -4,125 +4,224 @@ import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class ClassicLogicTest {
     
     @Test
     public void ConstructorTest(){
-        MockClassicLogic cl = new MockClassicLogic(8, 12,12);
+        MockGameable cl = new MockClassicLogic(8, 12,12);
         assertTrue(true);
     }
 
     @Test
     public void RespondTest(){
-        MockClassicLogic cl = new MockClassicLogic(8, 12,12);
+        MockGameable cl = new MockClassicLogic(8, 12,12);
         //Just add it the response the Game is giving us
 
-        PrintStream standardOut = System.out;
-        ByteArrayOutputStream outputStreamCaptor = new ByteArrayOutputStream();
-        System.setOut(new PrintStream(outputStreamCaptor));
+        cl.considerMove("5242");
 
-        cl.createRespond("1122", "BLACK");
+        assertEquals("illegal", cl.getWhiteRespond());
 
-        assertEquals(outputStreamCaptor.toString().trim(), "(game)[RESPOND FOR BLACK PLAYER PREPARED]: 1122 [WHITE]: null [BLACK]: multiple");
+        cl.considerMove("5243");
 
+        assertEquals("accepted", cl.getWhiteRespond());
+
+        cl.considerMove("2534");
+
+        assertEquals("accepted", cl.getBlackRespond());
+
+        cl.considerMove("4325");
+
+        assertEquals("accepted", cl.getWhiteRespond());
+        assertEquals("unblocked4325", cl.getBlackRespond());
+
+        MockGameable mock = new MockClassicLogic(4, 2, 2);
+        mock.considerMove("3021");
+        mock.considerMove("0312");
+        mock.considerMove("2103");
+        mock.considerMove("0110");
+        mock.considerMove("3221");
+        mock.considerMove("1032");
+        mock.considerMove("0312");
+        mock.considerMove("3210");
+        mock.considerMove("1203");
+        mock.considerMove("1032");
+        mock.considerMove("0312");
+        mock.considerMove("3210");
+        mock.considerMove("1203");
+        mock.considerMove("1032");
+        mock.considerMove("0312");
+        mock.considerMove("3210");
+        mock.considerMove("1203");
+        mock.considerMove("1032");
+
+        assertEquals(mock.getBlackRespond(), "tie1032");
+        assertEquals(mock.getWhiteRespond(), "tie");
     }
 
     @Test
-    public void RepetitionCheckTest(){
-        MockGameLogic gl = new MockGameLogic(4, 2,2);
-        gl.showBoard();
-        System.out.println("\n");
-        gl.fetchMove("0312");
-        gl.fetchMove("3221");
-        gl.showBoard();
-        System.out.println("\n");
-        gl.fetchMove("1223");
-        gl.fetchMove("2112");
-        gl.fetchMove("2332");
-        gl.promoteToQueen("2332");
-        gl.fetchMove("1203");
-        gl.promoteToQueen("1203");
-        gl.showBoard();
-        System.out.println("\n");
+    public void blackRespondTest(){
+        assertTrue(true);
+    }
 
-        //Now repetting moves
+    @Test
+    public void whiteRespondTest(){
+        assertTrue(true);
+    }
 
-        gl.fetchMove("0312");
+    @Test
+    public void moveEndedTest(){
+        MockGameable mock = new MockClassicLogic(8, 12, 12);
+        mock.considerMove("5243");
+        assertTrue(mock.moveEnded());
+    }
 
-        gl.fetchMove("3223");
+    @Test
+    public void getTurnTest(){
+        MockGameable mock = new MockClassicLogic(8, 12, 12);
+        assertEquals(TurnState.WHITE.toString(), mock.getTurn());
+    }
 
-        gl.fetchMove("1203");
-
-        gl.fetchMove("2332");
-
-
-        gl.fetchMove("0312");
-
-        gl.fetchMove("3223");
-
-        gl.fetchMove("1203");
-
-        gl.fetchMove("2332");
-
-
-        gl.fetchMove("0312");
-
-        gl.fetchMove("3223");
-
-        gl.fetchMove("1203");
-        gl.fetchMove("2332");
-
-        System.out.println(gl.latestMoves);
-        assertTrue(gl.repetitionCheck());
-
-
-//        assertEquals(gl.isFinished(), true);
-//        assertEquals(gl.getWinner(), "TIE");
-
+    @Test
+    public void fetchMoveTest(){
+        MockGameable mock = new MockClassicLogic(8, 12, 12);
+        mock.fetchMove(5, 2, 4, 2);
+        ArrayList<ArrayList<String>> mockBoard = mock.getBoard();
+        assertEquals("[[E, B, E, B, E, B, E, B], [B, E, B, E, B, E, B, E], [E, B, E, B, E, B, E, B], [E, E, E, E, E, E, E, E], [E, E, E, E, E, E, E, E], [W, E, W, E, W, E, W, E], [E, W, E, W, E, W, E, W], [W, E, W, E, W, E, W, E]]" , mockBoard.toString());
     }
 
 
     @Test
-    public void QueenPromotionTest(){
-        MockGameLogic gl = new MockGameLogic(4, 2,2);
-        gl.showBoard();
-        System.out.println("\n");
-        gl.fetchMove("0312");
-        gl.fetchMove("3221");
-        gl.showBoard();
-        System.out.println("\n");
-        gl.fetchMove("1223");
-        gl.fetchMove("2112");
-        gl.fetchMove("2332");
-        gl.promoteToQueen("2332");
-        gl.fetchMove("1203");
-        gl.promoteToQueen("1203");
-        gl.showBoard();
-        System.out.println("\n");
+    public void currentBestMovesTest(){
+        MockGameable cl = new MockClassicLogic(8, 12,12);
+        String bestMoves = cl.getCurrentBestMoves();
+        assertTrue(bestMoves.contains("5241"));
+        assertTrue(bestMoves.contains("5243"));
+        assertTrue(bestMoves.contains("5443"));
+        assertTrue(bestMoves.contains("5445"));
+        assertTrue(bestMoves.contains("5645"));
+        assertTrue(bestMoves.contains("5647"));
+        assertTrue(bestMoves.contains("5041"));
+    }
 
+    @Test
+    public void isFinishedTest(){
+        MockGameable mock = new MockClassicLogic(8, 12,12);
+        assertFalse(mock.isFinished());
+
+        mock = new MockClassicLogic(4, 2, 2);
+        mock.considerMove("3021");
+        mock.considerMove("0312");
+        mock.considerMove("2103");
+        mock.considerMove("0110");
+        mock.considerMove("3221");
+        mock.considerMove("1032");
+        mock.considerMove("0312");
+        mock.considerMove("3210");
+        mock.considerMove("1203");
+        mock.considerMove("1032");
+        mock.considerMove("0312");
+        mock.considerMove("3210");
+        mock.considerMove("1203");
+        mock.considerMove("1032");
+        mock.considerMove("0312");
+        mock.considerMove("3210");
+        mock.considerMove("1203");
+        mock.considerMove("1032");
+        assertTrue(mock.isFinished());
+    }
+
+    @Test
+    public void isEmptyTest(){
+        MockGameable mock = new MockClassicLogic(8, 12,12);
+        assertTrue(mock.isEmpty(new ArrayList<>()));
+    }
+
+    @Test
+    public void deDuplicateMovesTest(){
+        MockGameable mock = new MockClassicLogic(8, 12,12);
+        ArrayList<String> moves = new ArrayList<>();
+        moves.add("1243");
+        moves.add("1243");
+        moves.add("4323");
+        ArrayList<String> expected = new ArrayList<>();
+        expected.add("1243");
+        expected.add("4323");
+        assertEquals(mock.deduplicateMoves(moves), expected);
+    }
+
+    @Test
+    public void createBestMovesTest(){
+        MockGameable mock = new MockClassicLogic(8, 12,12);
+
+        mock.considerMove("5243");
+        mock.considerMove("2534");
+        mock.createBestMoves();
+
+        assertEquals(mock.getCurrentBestMoves(), "possible4325");
+
+        mock.considerMove("4325");
+        mock.createBestMoves();
+
+        assertEquals(mock.getCurrentBestMoves(), "possible14361634");
+    }
+
+    @Test
+    public void repetitionCheckTest(){
+        MockGameable mock = new MockClassicLogic(4, 2, 2);
+        mock.considerMove("3021");
+        mock.considerMove("0312");
+        mock.considerMove("2103");
+        mock.considerMove("0110");
+        mock.considerMove("3221");
+        mock.considerMove("1032");
+        mock.considerMove("0312");
+        mock.considerMove("3210");
+        mock.considerMove("1203");
+        mock.considerMove("1032");
+        mock.considerMove("0312");
+        mock.considerMove("3210");
+        mock.considerMove("1203");
+        mock.considerMove("1032");
+        mock.considerMove("0312");
+        mock.considerMove("3210");
+        mock.considerMove("1203");
+        mock.considerMove("1032");
+        assertTrue(mock.repetitionCheck());
+    }
+
+
+    @Test
+    public void getWinnerTest(){
+        MockGameable mock = new MockClassicLogic(4, 2, 2);
+        mock.considerMove("3021");
+        mock.considerMove("0312");
+        mock.considerMove("2103");
+        mock.considerMove("0110");
+        mock.considerMove("3221");
+        mock.considerMove("1032");
+        mock.considerMove("0312");
+        mock.considerMove("3210");
+        mock.considerMove("1203");
+        mock.considerMove("1032");
+        mock.considerMove("0312");
+        mock.considerMove("3210");
+        mock.considerMove("1203");
+        mock.considerMove("1032");
+        mock.considerMove("0312");
+        mock.considerMove("3210");
+        mock.considerMove("1203");
+        mock.considerMove("1032");
+
+        assertEquals(mock.getWinner(), "tie");
     }
 
     @Test
     public void QueenMovesTest(){
-        MockGameLogic gl = new MockGameLogic(4, 2,2);
-        gl.showBoard();
-        System.out.println("\n");
-        gl.fetchMove("0312");
-        gl.fetchMove("3221");
-        gl.showBoard();
-        System.out.println("\n");
-        gl.fetchMove("1223");
-        gl.fetchMove("2112");
-        gl.fetchMove("2332");
-        gl.promoteToQueen("2332");
-        gl.fetchMove("1203");
-        gl.promoteToQueen("1203");
-        gl.showBoard();
-        System.out.println("\n");
+
 
     }
 

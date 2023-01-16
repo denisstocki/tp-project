@@ -1,7 +1,5 @@
 package tp.warcaby.serwer;
 
-import java.util.List;
-
 /**
  * Logic holding rules for overtaking checkers varaint
  * */
@@ -12,46 +10,19 @@ public class OvertakingCheckers extends ClassicLogic {
     }
 
     @Override
-    public boolean isMustMove(String move) {
-        return false;
-    }
-
-    @Override
-    public boolean hasMustMoves() {
-        return false;
-    }
-
-    /**
-     * Check for overtaking variant win
-     * */
-    @Override
-    public String getWinner() {
-        if(finishState == FinishState.WHITE){
-            return FinishState.BLACK.toString();
-        } else if (finishState == FinishState.BLACK) {
-            return FinishState.WHITE.toString();
-        } else {
-            return FinishState.TIE.toString();
+    public void updateWinner(String move){
+        if(whiteCount == 0 || whiteBlocked){
+            winner = FinishState.WHITE;
+            finished = true;
+            pickCurrentRespond("black", "black" + move);
+        } else if (blackCount == 0 || blackBlocked) {
+            winner = FinishState.BLACK;
+            finished = true;
+            pickCurrentRespond("white", "white" + move);
+        } else if (movesWithoutCapture == 30 || repeated) {
+            winner = FinishState.TIE;
+            finished = true;
+            pickCurrentRespond("tie", "tie" + move);
         }
-    }
-
-    @Override
-    public boolean hasTurned() {
-        return false;
-    }
-
-    @Override
-    public void considerMove(String move) {
-
-    }
-
-    @Override
-    public boolean moveEnded() {
-        return false;
-    }
-
-    @Override
-    public String getCurrentBestMoves() {
-        return null;
     }
 }

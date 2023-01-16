@@ -1,5 +1,4 @@
-/Users/denisstocki/Desktop/tp-project/serwer/src/test/java/tp/warcaby/serwer/MockGameLogic.java
-/Users/denisstocki/Desktop/tp-project/serwer/src/test/java/tp/warcaby/serwer/MoveDecoderTest.java
-/Users/denisstocki/Desktop/tp-project/serwer/src/test/java/tp/warcaby/serwer/MockClassicLogic.java
-/Users/denisstocki/Desktop/tp-project/serwer/src/test/java/tp/warcaby/serwer/ClassicLogicTest.java
-/Users/denisstocki/Desktop/tp-project/serwer/src/test/java/tp/warcaby/serwer/GameLogicTest.java
+/home/denis/Desktop/tp-project/serwer/src/test/java/tp/warcaby/serwer/MockGameable.java
+/home/denis/Desktop/tp-project/serwer/src/test/java/tp/warcaby/serwer/MockClassicLogic.java
+/home/denis/Desktop/tp-project/serwer/src/test/java/tp/warcaby/serwer/MoveDecoderTest.java
+/home/denis/Desktop/tp-project/serwer/src/test/java/tp/warcaby/serwer/ClassicLogicTest.java

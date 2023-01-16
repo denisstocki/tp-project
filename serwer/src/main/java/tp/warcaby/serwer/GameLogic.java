@@ -24,11 +24,9 @@ abstract class GameLogic implements Gameable {
     /*
      * Keeps tracks if there was at least one round played
      * */
-    private boolean turnChanged;
     /*
      * Holds info how game ended
      * */
-    public FinishState finishState;
     /*
      * Response for White Player
      * */
@@ -40,7 +38,6 @@ abstract class GameLogic implements Gameable {
     /*
      * Keeps track of all possible forced moves
      * */
-    public List<String> mustMoves;
     /*
      * Are white pawns blocked and cant make a move?
      * */
@@ -57,21 +54,6 @@ abstract class GameLogic implements Gameable {
      * Number of black pawns alive
      * */
     public int blackCount;
-    /*
-     * Number of taken black pawns
-     * */
-    public int whiteKills;
-    /*
-     * Number of taken white pawns
-     * */
-    public int blackKills;
-    /*
-     * Size of current board played, specifically exact number of rows and columns
-     * */
-    /*
-     * Keeps track if any pawn was captured yet
-     * */
-    public boolean unCaptured;
     /*
      * Repetition of moves forcing draw in game
      * */
@@ -124,18 +106,6 @@ abstract class GameLogic implements Gameable {
         movesWithoutCapture = 0;
 
         initialize();
-    }
-    /*
-     * Print current state of board to standard outpu
-     * */
-    @Override
-    public void showBoard(ArrayList<ArrayList<String>> board) {
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                System.out.print(board.get(i).get(j) + " ");
-            }
-            System.out.println();
-        }
     }
     @Override
     public void createBestMoves() {
@@ -254,14 +224,6 @@ abstract class GameLogic implements Gameable {
     }
 
     @Override
-    public boolean hasTurned() {
-        if(turned){
-            turned = false;
-            return true;
-        } else return false;
-    }
-
-    @Override
     public boolean isFinished() {
         return finished;
     }
@@ -352,7 +314,7 @@ abstract class GameLogic implements Gameable {
     public String getCurrentBestMoves() {
         StringBuilder result = new StringBuilder("possible");
         for (String move : bestMoves) {
-            result.append(move.substring(4 * index, 4 * index + 4));
+            result.append(move, 4 * index, 4 * index + 4);
         }
         return result.toString();
     }
@@ -425,42 +387,6 @@ abstract class GameLogic implements Gameable {
             }
         }
         return true;
-    }
-
-    /*
-     * Change whose is current turn
-     * */
-    
-    /*
-     * Keeps track wheter turn has changed
-     * */
-    @Override
-    public boolean turned() {
-        if(turnChanged){
-            turnChanged = false;
-            return true;
-        } else {
-            return false;
-        }
-    }
-    /*
-     * Update current Game state, Draw/Win?Continue
-     * */
-    @Override
-    public void updateFinish() {
-        if(whiteCount == 0 || whiteBlocked){
-            finishState = FinishState.BLACK;
-            finished = true;
-        } else if (blackCount == 0 || blackBlocked) {
-            finishState = FinishState.WHITE;
-            finished = true;
-        } else if (repeated) {
-            finishState = FinishState.TIE;
-            finished = true;
-        } else if (unCaptured) {
-            finishState = FinishState.TIE;
-            finished = true;
-        }
     }
 
     @Override

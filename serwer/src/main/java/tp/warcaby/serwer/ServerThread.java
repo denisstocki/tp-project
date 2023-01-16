@@ -49,23 +49,16 @@ public class ServerThread {
                 gameType = readMessageFrom(readA);
                 System.out.println("[RECEIVED MESSAGE FROM WHITE PAWN PLAYER]: '" + gameType + "'\n");
 
-                switch (gameType){
-                    case "classic":
-                        gameable = new ClassicCheckers();
-                        break;
-                    case "english":
-                        gameable = new EnglishCheckers();
-                        break;
-                    case "overtaking":
-                        gameable = new OvertakingCheckers();
-                        break;
-                    case "polish":
-                        gameable = new PolishCheckers();
-                        break;
-                    default:
+                switch (gameType) {
+                    case "classic" -> gameable = new ClassicCheckers();
+                    case "english" -> gameable = new EnglishCheckers();
+                    case "overtaking" -> gameable = new OvertakingCheckers();
+                    case "polish" -> gameable = new PolishCheckers();
+                    default -> {
                         sendMessageTo(writeA, "error");
                         System.out.println("[SENT MESSAGE TO WHITE PAWN PLAYER]: 'error'\n");
                         serverSocket.close();
+                    }
                 }
 
                 socketB = serverSocket.accept();

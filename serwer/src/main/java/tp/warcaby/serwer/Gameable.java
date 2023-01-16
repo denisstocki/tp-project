@@ -11,8 +11,6 @@ public interface Gameable {
     /*
      * Print current state of board to standard outpu
      * */
-    void showBoard(ArrayList<ArrayList<String>> board);
-
     void createBestMoves();
 
     ArrayList<String> deduplicateMoves(ArrayList<String> moves);
@@ -33,7 +31,6 @@ public interface Gameable {
 
     boolean isIncludedOn(String combination, String move, int index);
 
-    boolean hasTurned();
 
     boolean isFinished();
 
@@ -81,12 +78,10 @@ public interface Gameable {
     /*
      * Keeps track wheter turn has changed
      * */
-    boolean turned();
 
     /*
      * Update current Game state, Draw/Win?Continue
      * */
-    void updateFinish();
 
     int getCoord(String move, int index);
 

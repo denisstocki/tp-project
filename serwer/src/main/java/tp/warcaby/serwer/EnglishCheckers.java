@@ -8,4 +8,6 @@ public class EnglishCheckers extends ClassicLogic {
     public EnglishCheckers() {
         super(8, 12, 12);
     }
+
+
 }

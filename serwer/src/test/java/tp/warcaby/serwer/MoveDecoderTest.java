@@ -11,8 +11,7 @@ import static org.junit.Assert.assertTrue;
 public class MoveDecoderTest {
 
     @Test
-    public void ContructorTest() {
-        MoveDecoder md = new MoveDecoder("1234");
+    public void ConstructorTest() {
         assertTrue(true);
     }
 
@@ -31,8 +30,8 @@ public class MoveDecoderTest {
 
     @Test
     public void GetNewCoordsTest() {
-        MoveDecoder md = new MoveDecoder("DUPA");
-        assertEquals('P', md.getNewCoords().get(0).charValue());
-        assertEquals('A', md.getNewCoords().get(1).charValue());
+        MoveDecoder md = new MoveDecoder("krok");
+        assertEquals('o', md.getNewCoords().get(0).charValue());
+        assertEquals('k', md.getNewCoords().get(1).charValue());
     }
 }

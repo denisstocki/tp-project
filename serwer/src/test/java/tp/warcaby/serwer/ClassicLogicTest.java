@@ -218,13 +218,4 @@ public class ClassicLogicTest {
 
         assertEquals(mock.getWinner(), "tie");
     }
-
-    @Test
-    public void QueenMovesTest(){
-
-
-    }
-
-
-    
 }

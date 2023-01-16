@@ -83,43 +83,61 @@ public class ServerThread {
 
                 moveCounter = 0;
 
+                assert gameable != null;
+
                 game_loop : while (!isFinished) {
                     while (true) {
-
+                        sendMessageTo(writeA, gameable.getCurrentBestMoves());
+                        System.out.println("server = 1");
                         if(!readA.hasNext()){
+                            System.out.println("server = 2");
                             sendMessageTo(writeB, "error");
                             break game_loop;
                         }
                         String move = readA.nextLine();
+                        System.out.println("server = 3");
+
                         System.out.println("[MOVE NUMBER: " + ++moveCounter + "] [WHITE PAWN PLAYER MOVE IS: " + move + "]\n");
 
-                        assert gameable != null;
 
-                        gameable.createRespond(move, "white");
+                        gameable.considerMove(move);
+                        System.out.println("server = 4");
 
                         String whiteRespond = gameable.getWhiteRespond();
                         String blackRespond = gameable.getBlackRespond();
+                        System.out.println("server = 5");
 
                         if(whiteRespond != null){
+                            System.out.println("server = 6");
+
                             sendMessageTo(writeA, whiteRespond);
                             System.out.println("[SENT MESSAGE TO WHITE PLAYER]: " + whiteRespond);
                         }
                         if(blackRespond != null){
+                            System.out.println("server = 7");
+
                             sendMessageTo(writeB, blackRespond);
                             System.out.println("[SENT MESSAGE TO BLACK PLAYER]: " + blackRespond);
                         }
 
                         if(gameable.isFinished()){
+                            System.out.println("server = 8");
+
                             isFinished = true;
                             gameable.showBoard();
                             break;
-                        } else if (gameable.turned()) {
+                        } else if (gameable.moveEnded()) {
+                            System.out.println("server = 9");
+
                             gameable.showBoard();
                             break;
                         }
                         gameable.showBoard();
+                        System.out.println("server = 10");
+
                     }
                     while (!isFinished){
+                        sendMessageTo(writeB, gameable.getCurrentBestMoves());
 
                         if(!readB.hasNext()){
                             sendMessageTo(writeA, "error");
@@ -129,7 +147,7 @@ public class ServerThread {
                         String move = readB.nextLine();
                         System.out.println("[MOVE NUMBER: " + ++moveCounter + "] [BLACK PAWN PLAYER MOVE IS: " + move + "]\n");
 
-                        gameable.createRespond(move, "black");
+                        gameable.considerMove(move);
 
                         String whiteRespond = gameable.getWhiteRespond();
                         String blackRespond = gameable.getBlackRespond();
@@ -147,7 +165,7 @@ public class ServerThread {
                             isFinished = true;
                             gameable.showBoard();
                             break;
-                        } else if (gameable.turned()) {
+                        } else if (gameable.moveEnded()) {
                             gameable.showBoard();
                             break;
                         }

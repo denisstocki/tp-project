@@ -9,6 +9,11 @@ public class EnglishCheckers extends ClassicLogic {
         super(8, 12, 12);
     }
 
+    @Override
+    public boolean isMustMove(String move) {
+        return false;
+    }
+
     /**
      * Check diagonal move for correctness, english varaint rules
      * */
@@ -51,6 +56,12 @@ public class EnglishCheckers extends ClassicLogic {
 
         return false;
     }
+
+    @Override
+    public boolean hasMustMoves() {
+        return false;
+    }
+
     /**
      * Check diagonal queen move for correctness, english varaint rules
      * */
@@ -67,5 +78,25 @@ public class EnglishCheckers extends ClassicLogic {
                 mustMoves.add("" + x2 + y2 + (tempX + dx) + (tempY + dy));
             }
         }
+    }
+
+    @Override
+    public boolean hasTurned() {
+        return false;
+    }
+
+    @Override
+    public void considerMove(String move) {
+
+    }
+
+    @Override
+    public boolean moveEnded() {
+        return false;
+    }
+
+    @Override
+    public String getCurrentBestMoves() {
+        return null;
     }
 }

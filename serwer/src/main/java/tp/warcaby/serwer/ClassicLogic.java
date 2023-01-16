@@ -1,18 +1,26 @@
 package tp.warcaby.serwer;
 
+
 import java.util.ArrayList;
-/**
+import java.util.List;
+
+/*
  * Logic containing most common rules and settings shared by most of variants
  * */
 public abstract class ClassicLogic extends GameLogic{
 
     private final int size;
+    private ArrayList<ArrayList<String>> bestMoves;
+    private int bestIndex;
+
+
     public ClassicLogic(int size, int whiteCount, int blackCount) {
         super(size, whiteCount, blackCount);
         this.size = size;
+        bestMoves = new ArrayList<>();
     }
 
-    /**
+    /*
      * Respond for Player after making move
      * */
     @Override
@@ -25,7 +33,10 @@ public abstract class ClassicLogic extends GameLogic{
             enemy = "W";
         }
 
+
+
         if(isLegal(move, color, true)){
+            System.out.println(bestMoves);
 
             System.out.println(mustMoves + "legal");
 
@@ -73,7 +84,7 @@ public abstract class ClassicLogic extends GameLogic{
         System.out.println("(game)[RESPOND FOR " + color.toUpperCase() + " PLAYER PREPARED]: " + move + " [WHITE]: " + whiteRespond + " [BLACK]: " + blackRespond);
     }
 
-    /**
+    /*
      * Check and update info whether someone is blocked
      * */
     private void updateBlock(String color) {
@@ -90,7 +101,7 @@ public abstract class ClassicLogic extends GameLogic{
             blackBlocked = true;
         }
     }
-    /**
+    /*
      * Count possible moves for a pawn position
      * */
     private int possibleMovesFor(int i, int j) {
@@ -174,7 +185,7 @@ public abstract class ClassicLogic extends GameLogic{
         return counter;
     }
 
-    /**
+    /*
      * Update stats of pieces taken
      * */
     private void updateCount() {
@@ -184,7 +195,7 @@ public abstract class ClassicLogic extends GameLogic{
         blackKills = 0;
     }
 
-    /**
+    /*
      * Check whther sent move is legal or not
      * */
     @Override
@@ -196,6 +207,10 @@ public abstract class ClassicLogic extends GameLogic{
         int y2 = getCoord(move, 3);
 
         if(create) createKillCount(move);
+
+        String string;
+        if("white".equals(color)) string = "B";
+        else string = "W";
 
         if(create){
             if("white".equals(color)){
@@ -212,6 +227,8 @@ public abstract class ClassicLogic extends GameLogic{
         if(x2 < 0 || x2 > size - 1) return false;
         if(y2 < 0 || y2 > size - 1) return false;
 
+        System.out.println("no tu blad");
+
         if(create) {
             if ("white".equals(color)) {
                 whiteRespond = "duplicate";
@@ -223,6 +240,7 @@ public abstract class ClassicLogic extends GameLogic{
         }
 
         if(x1 == x2 && y1 == y2) return false; //1
+        System.out.println("no tu blad 1");
 
 
         if(create) {
@@ -236,6 +254,7 @@ public abstract class ClassicLogic extends GameLogic{
         }
 
         if(isBetrayalMove(move)) return false; //2
+        System.out.println("no tu blad 2");
 
 
         if(create) {
@@ -249,6 +268,7 @@ public abstract class ClassicLogic extends GameLogic{
         }
 
         if(!isFairMove(move)) return false; //3
+        System.out.println("no tu blad 3");
 
 
         if(create) {
@@ -315,19 +335,30 @@ public abstract class ClassicLogic extends GameLogic{
 
         System.out.println(mustMoves + "111111");
         if(create){
-            if(hasMustMoves()){
-                if(!isMustMove(move)){
-                    return false; //7
+            if(hasBestMoves()){
+                if(followsBestMove(move, bestIndex)){
+                    fetchMove(move);
+                    promoteToQueen(move);
+                    deleteWrongPaths(bestMoves, move, bestIndex);
+                    bestIndex++;
+                } else {
+                    return false;
                 }
+                System.out.println("tutaj sirma 1");
             }
             fetchMove(move);
-            createMustMoves(move);
             promoteToQueen(move);
+            createBestMoves(string);
+            bestIndex = 0;
+            toBoard(board);
+            System.out.println("tutaj sirma 2");
+            System.out.println(bestMoves);
+
         }
         System.out.println(mustMoves + "2222222");
 
         if(create) {
-            if (hasMustMoves()) {
+            if (hasBestMoves()) {
                 if ("white".equals(color)) {
                     whiteRespond = "another";
                     blackRespond = "moved" + move;
@@ -350,23 +381,31 @@ public abstract class ClassicLogic extends GameLogic{
         return true;
     }
 
-    /**
+    public void deleteWrongPaths(ArrayList<ArrayList<String>> bestMoves, String move, int bestIndex) {
+        for (ArrayList<String> list : bestMoves) {
+            if(!list.get(bestIndex).equals(move)){
+                bestMoves.remove(bestIndex);
+            }
+        }
+    }
+
+    /*
      * Promotes piece to Queen, updates board
      * */
-    public void promoteToQueen(String move) {
+    private void promoteToQueen(String move) {
         int x1 = getCoord(move, 0);
         int y1 = getCoord(move, 1);
         int x2 = getCoord(move, 2);
         int y2 = getCoord(move, 3);
 
-        if(board.get(x2).get(y2).contains("B") && x2 == size - 1 && !hasMustMoves()){
+        if(board.get(x2).get(y2).contains("B") && x2 == size - 1 && !hasBestMoves()){
             board.get(x2).set(y2, "BQ");
-        } else if(board.get(x2).get(y2).contains("W") && x2 == 0 && !hasMustMoves()) {
+        } else if(board.get(x2).get(y2).contains("W") && x2 == 0 && !hasBestMoves()) {
             board.get(x2).set(y2, "WQ");
         }
     }
 
-    /**
+    /*
      * Fills the list of moves forced to pawn
      * */
     @Override
@@ -421,7 +460,7 @@ public abstract class ClassicLogic extends GameLogic{
             }
         }
     }
-    /**
+    /*
      * Checks diagonal queen move for correctness
      * */
     @Override
@@ -445,7 +484,7 @@ public abstract class ClassicLogic extends GameLogic{
             tempY += dy;
         }
     }
-    /**
+    /*
      * creates Capture Info to start counting captured pieces
      * */
     @Override
@@ -475,7 +514,7 @@ public abstract class ClassicLogic extends GameLogic{
             y1 += dy;
         }
     }
-    /**
+    /*
      * Checks whether you jump over your own pieces
      * */
     @Override
@@ -495,7 +534,7 @@ public abstract class ClassicLogic extends GameLogic{
         return result;
     }
 
-    /**
+    /*
      * Check whether capture is affecting only one enemy pawn
      * */
     @Override
@@ -515,20 +554,20 @@ public abstract class ClassicLogic extends GameLogic{
         return result;
     }
 
-    /**
+    /*
      * Check whteher move is forced for apawn
      * */
     @Override
-    public boolean isMustMove(String move) {
-        for (String mustMove : mustMoves) {
-            if(move.equals(mustMove)){
+    public boolean followsBestMove(String move, int bestIndex) {
+        for (ArrayList<String> list : bestMoves) {
+            if(list.get(bestIndex).equals(move)){
                 return true;
             }
         }
         return false;
     }
 
-    /**
+    /*
      * Check whther moves is correctly placed on diagonals, considers also queen
      * */
     @Override
@@ -565,5 +604,364 @@ public abstract class ClassicLogic extends GameLogic{
         }
 
         return false;
+    }
+
+    public void findBestMovesRecursive(ArrayList<ArrayList<String>> currBoard, ArrayList<String> moves, int x, int y, int size, ArrayList<ArrayList<String>> currentBestMoves){
+        String pawn = currBoard.get(x).get(y);
+        String enemy;
+
+        System.out.println("t");
+
+        if(pawn.contains("W")) enemy = "B";
+        else enemy = "W";
+
+        if(pawn.contains("Q")){
+            int tempX, tempY;
+            tempX = x+1;
+            tempY = y+1;
+            loop_1: while (tempX < size && tempY < size){
+                if(currBoard.get(tempX).get(tempY).contains(String.valueOf(pawn.charAt(0)))){
+                    if(!moves.equals(currentBestMoves.get(currentBestMoves.size()-1))) currentBestMoves.add(moves);
+
+                    break loop_1;
+                } else if(currBoard.get(tempX).get(tempY).contains(enemy)){
+                    if(tempX+1 < size & tempY+1 < size & currBoard.get(tempX+1).get(tempY+1).equals("E")){
+                        ArrayList<ArrayList<String>> clone1 = copyMult(currBoard);
+                        clone1.get(tempX+1).set(tempY+1, pawn);
+                        int xx, yy;
+                        xx = x;
+                        yy = y;
+                        while (xx < tempX+1 && yy < tempY+1){
+                            clone1.get(xx).set(yy, "E");
+                            xx++;
+                            yy++;
+                        }
+                        System.out.println("k1 " +x + y + (tempX+1) + (tempY+1));
+                        ArrayList<String> movesClone = copySing(moves);
+                        movesClone.add("" + x + y + (tempX+1) + (tempY+1));
+                        System.out.println(movesClone);
+
+                        findBestMovesRecursive(clone1, movesClone, tempX+1, tempY+1, size,  currentBestMoves);
+                        break loop_1;
+                    }
+                    else {
+                        if(!moves.equals(currentBestMoves.get(currentBestMoves.size()-1))) currentBestMoves.add(moves);
+                        break loop_1;
+                    }
+                }
+                tempX++;
+                tempY++;
+            }
+            if(tempX >= size || tempY >= size && !moves.equals(currentBestMoves.get(currentBestMoves.size()-1))){
+                currentBestMoves.add(moves);
+            }
+            tempX = x+1;
+            tempY = y-1;
+            loop_1: while (tempX < size && tempY >= 0){
+                if(currBoard.get(tempX).get(tempY).contains(String.valueOf(pawn.charAt(0)))){
+                    if(!moves.equals(currentBestMoves.get(currentBestMoves.size()-1))) currentBestMoves.add(moves);
+
+                    break loop_1;
+                } else if(currBoard.get(tempX).get(tempY).contains(enemy)){
+                    if(tempX+1 < size & tempY-1 >= 0 & currBoard.get(tempX+1).get(tempY-1).equals("E")){
+                        ArrayList<ArrayList<String>> clone1 = copyMult(currBoard);
+                        clone1.get(tempX+1).set(tempY-1, pawn);
+                        int xx, yy;
+                        xx = x;
+                        yy = y;
+                        while (xx < tempX+1 && yy > tempY-1){
+                            clone1.get(xx).set(yy, "E");
+                            xx++;
+                            yy--;
+                        }
+                        System.out.println("k2 " +x + y + (tempX+1) + (tempY-1));
+                        ArrayList<String> movesClone = copySing(moves);
+                        movesClone.add("" + x + y + (tempX+1) + (tempY-1));
+                        System.out.println(movesClone);
+
+                        findBestMovesRecursive(clone1, movesClone, tempX+1, tempY-1, size,  currentBestMoves);
+                        break loop_1;
+
+                    }
+                    else {
+                        if(!moves.equals(currentBestMoves.get(currentBestMoves.size()-1))) currentBestMoves.add(moves);
+
+                        break loop_1;
+                    }
+                }
+                tempX++;
+                tempY--;
+            }
+            if(tempX >= size || tempY < 0  && !moves.equals(currentBestMoves.get(currentBestMoves.size()-1))){
+                currentBestMoves.add(moves);
+            }
+            tempX = x-1;
+            tempY = y+1;
+            loop_1: while (tempX >= 0 && tempY < size){
+                if(currBoard.get(tempX).get(tempY).contains(String.valueOf(pawn.charAt(0)))){
+                    if(!moves.equals(currentBestMoves.get(currentBestMoves.size()-1))) currentBestMoves.add(moves);
+
+                    System.out.println(currBoard);
+
+                    break loop_1;
+                } else if(currBoard.get(tempX).get(tempY).contains(enemy)){
+                    if(tempX-1 >= 0 & tempY+1 < size & currBoard.get(tempX-1).get(tempY+1).equals("E")){
+                        ArrayList<ArrayList<String>> clone1 = copyMult(currBoard);
+                        clone1.get(tempX-1).set(tempY+1, pawn);
+                        int xx, yy;
+                        xx = x;
+                        yy = y;
+                        while (xx > tempX-1 && yy < tempY+1){
+                            clone1.get(xx).set(yy, "E");
+                            xx--;
+                            yy++;
+                        }
+                        System.out.println("k3 " +x + y + (tempX-1) + (tempY+1));
+
+                        ArrayList<String> movesClone = copySing(moves);
+                        movesClone.add("" + x + y + (tempX-1) + (tempY+1));
+                        System.out.println(movesClone);
+
+                        findBestMovesRecursive(clone1, movesClone, tempX-1, tempY+1, size, currentBestMoves);
+                        break loop_1;
+
+                    }
+                    else {
+                        if(!moves.equals(currentBestMoves.get(currentBestMoves.size()-1))) currentBestMoves.add(moves);
+
+                        System.out.println(currBoard);
+                        break loop_1;
+                    }
+                }
+                tempX--;
+                tempY++;
+            }
+            if(tempX < 0 || tempY >= size && !moves.equals(currentBestMoves.get(currentBestMoves.size()-1))){
+                currentBestMoves.add(moves);
+            }
+            tempX = x-1;
+            tempY = y-1;
+            loop_1: while (tempX >= 0 && tempY >= 0){
+                if(currBoard.get(tempX).get(tempY).contains(String.valueOf(pawn.charAt(0)))){
+                    if(!moves.equals(currentBestMoves.get(currentBestMoves.size()-1))) currentBestMoves.add(moves);
+
+                    break loop_1;
+                } else if(currBoard.get(tempX).get(tempY).contains(enemy)){
+                    if(tempX-1 >= 0 & tempY-1 >= 0 & currBoard.get(tempX-1).get(tempY-1).equals("E")){
+                        ArrayList<ArrayList<String>> clone1 = copyMult(currBoard);
+                        clone1.get(tempX-1).set(tempY-1, pawn);
+                        int xx, yy;
+                        xx = x;
+                        yy = y;
+                        while (xx > tempX-1 && yy > tempY-1){
+                            clone1.get(xx).set(yy, "E");
+                            xx--;
+                            yy--;
+                        }
+                        System.out.println("k4 " +x + y + (tempX-1) + (tempY-1));
+
+                        ArrayList<String> movesClone = copySing(moves);
+                        movesClone.add("" + x + y + (tempX-1) + (tempY-1));
+                        System.out.println(movesClone);
+                        findBestMovesRecursive(clone1, movesClone, tempX-1, tempY-1, size, currentBestMoves);
+                        break loop_1;
+
+                    }
+                    else {
+                        if(!moves.equals(currentBestMoves.get(currentBestMoves.size()-1))) currentBestMoves.add(moves);
+
+                        break loop_1;
+                    }
+                }
+                tempX--;
+                tempY--;
+
+            }
+            if(tempX < 0 || tempY < 0 && !moves.equals(currentBestMoves.get(currentBestMoves.size()-1))){
+                currentBestMoves.add(moves);
+            }
+        } else {
+            if(x+2 < size && y+2 < size){
+                if(currBoard.get(x+1).get(y+1).contains(enemy) && currBoard.get(x+2).get(y+2).equals("E")){
+                    ArrayList<ArrayList<String>> clone1 = copyMult(currBoard);
+                    clone1.get(x+2).set(y+2, pawn);
+                    clone1.get(x).set(y, "E");
+                    clone1.get(x+1).set(y+1, "E");
+                    ArrayList<String> movesClone = copySing(moves);
+                    movesClone.add("" + x + y + (x+2) + (y+2));
+                    System.out.println("t1 " + x + y + (x+2) + (y+2));
+                    toBoard(clone1);
+
+                    findBestMovesRecursive(clone1, movesClone, x+2, y+2, size, currentBestMoves);
+                } else {
+                    currentBestMoves.add(moves);
+                }
+            }
+            if(x-2 >= 0 && y+2 < size){
+                if(currBoard.get(x-1).get(y+1).contains(enemy) && currBoard.get(x-2).get(y+2).equals("E")){
+                    ArrayList<ArrayList<String>> clone = copyMult(currBoard);
+                    clone.get(x-2).set(y+2, pawn);
+                    clone.get(x).set(y, "E");
+                    clone.get(x-1).set(y+1, "E");
+                    ArrayList<String> movesClone = copySing(moves);
+                    movesClone.add("" + x + y + (x-2) + (y+2));
+                    System.out.println("t2 " + x + y + (x-2) + (y+2));
+                    toBoard(clone);
+
+                    findBestMovesRecursive(clone, movesClone, x-2, y+2, size, currentBestMoves);
+                } else {
+                    currentBestMoves.add(moves);
+                }
+            }
+            if(x+2 < size && y-2 >= 0){
+                if(currBoard.get(x+1).get(y-1).contains(enemy) && currBoard.get(x+2).get(y-2).equals("E")){
+                    ArrayList<ArrayList<String>> clone = copyMult(currBoard);
+                    clone.get(x+2).set(y-2, pawn);
+                    clone.get(x).set(y, "E");
+                    clone.get(x+1).set(y-1, "E");
+                    ArrayList<String> movesClone = copySing(moves);
+                    movesClone.add("" + x + y + (x+2) + (y-2));
+                    System.out.println("t3 " + x + y + (x+2) + (y-2));
+                    toBoard(clone);
+
+                    findBestMovesRecursive(clone, movesClone, x+2, y-2, size, currentBestMoves);
+                } else {
+                    currentBestMoves.add(moves);
+                }
+            }
+            if(x-2 >= 0 && y-2 >= 0){
+                if(currBoard.get(x-1).get(y-1).contains(enemy) && currBoard.get(x-2).get(y-2).equals("E")){
+                    ArrayList<ArrayList<String>> clone = copyMult(currBoard);
+                    clone.get(x-2).set(y-2, pawn);
+                    clone.get(x).set(y, "E");
+                    clone.get(x-1).set(y-1, "E");
+                    ArrayList<String> movesClone = copySing(moves);
+                    movesClone.add("" + x + y + (x-2) + (y-2));
+                    System.out.println("t4 " + x + y + (x-2) + (y-2));
+                    toBoard(clone);
+                    findBestMovesRecursive(clone, movesClone, x-2, y-2, size, currentBestMoves);
+                } else {
+                    currentBestMoves.add(moves);
+                }
+            }
+        }
+    }
+
+    public ArrayList<String> copySing(ArrayList<String> list){
+        ArrayList<String> temp = new ArrayList<>();
+        for (int i = 0; i < list.size(); i++) {
+            temp.add(list.get(i));
+        }
+        return temp;
+    }
+
+    private  ArrayList<ArrayList<String>> copyMult(ArrayList<ArrayList<String>> board) {
+        ArrayList<ArrayList<String>> temp = new ArrayList<>();
+        for (int i = 0; i < board.size(); i++) {
+            temp.add(new ArrayList<String>());
+        }
+        for (int k = 0; k < board.size(); k++) {
+            for (int l = 0; l < board.get(k).size(); l++) {
+                temp.get(k).add(board.get(k).get(l));
+            }
+        }
+        return temp;
+    }
+
+    public void createBestMoves(String color) {
+
+        int max = 0;
+        System.out.println("odpalone");
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                System.out.println("odpalone 1");
+                if(board.get(i).get(j).contains(color)){
+                    System.out.println("odpalone 2");
+
+                    System.out.println("i = " + i + ", j = " + j);
+                    ArrayList<ArrayList<String>> currentBestMoves = new ArrayList<>();
+                    System.out.println();
+                    ArrayList<ArrayList<String>> temp = new ArrayList<>();
+                    temp.add(new ArrayList<String>());
+                    temp.add(new ArrayList<String>());
+                    temp.add(new ArrayList<String>());
+                    temp.add(new ArrayList<String>());
+                    temp.add(new ArrayList<String>());
+                    temp = copyMult(board);
+                    findBestMovesRecursive(temp, new ArrayList<String>(), i, j, size, currentBestMoves);
+                    System.out.println();
+                    int maxlen = countMax(currentBestMoves);
+                    updateBestMoves(currentBestMoves, maxlen, bestMoves);
+                }
+            }
+        }
+        int maxlen = countMax(bestMoves);
+        ArrayList<ArrayList<String>> temp = copyMult(bestMoves);
+        bestMoves.clear();
+        updateBestMoves(temp, maxlen, bestMoves);
+        bestMoves = deleteDuplicates(bestMoves);
+    }
+
+    public ArrayList<ArrayList<String>> deleteDuplicates(ArrayList<ArrayList<String>> bestMoves) {
+        ArrayList<ArrayList<String>> newlist = new ArrayList<>();
+        for (ArrayList<String> list : bestMoves) {
+            StringBuilder move = new StringBuilder();
+            for (int i = 0; i < list.size(); i++) {
+                move.append(list.get(i));
+            }
+            boolean isthere = false;
+            System.out.println(move);
+            for (ArrayList<String> temp : newlist) {
+                StringBuilder test = new StringBuilder();
+                for (int i = 0; i < temp.size(); i++) {
+                    test.append(temp.get(i));
+                }
+                System.out.println(test);
+                if(test.toString().equals(move.toString())){
+                    isthere = true;
+                }
+            }
+            System.out.println();
+            if(!isthere){
+                newlist.add(list);
+            }
+        }
+        return newlist;
+    }
+
+    public boolean hasBestMoves() {
+        for (ArrayList<String> list : bestMoves) {
+            if(!list.isEmpty()){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private int countMax(ArrayList<ArrayList<String>> currentBestMoves) {
+        int max = 0;
+        for (List<String> list : currentBestMoves) {
+            if(list.size() > max){
+                max = list.size();
+            }
+        }
+        return max;
+    }
+
+    public void updateBestMoves(ArrayList<ArrayList<String>> currentBestMoves, int max, ArrayList<ArrayList<String>> bestMoves) {
+        for (ArrayList<String> list : currentBestMoves) {
+            if(list.size() == max){
+                bestMoves.add(list);
+            }
+        }
+    }
+
+    public void toBoard(ArrayList<ArrayList<String>> board){
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                System.out.print(board.get(i).get(j) + " ");
+            }
+            System.out.println();
+        }
     }
 }

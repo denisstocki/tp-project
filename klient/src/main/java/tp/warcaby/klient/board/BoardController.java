@@ -135,4 +135,18 @@ public class BoardController{
     public String getColor(){
         return board.getColor();
     }
+
+    public void setBestMoves(String moves) {
+        if(board.isReversed()){
+            StringBuilder result = new StringBuilder();
+
+            for (int i = 0; i < moves.length(); i += 4) {
+                result.append(decodeMove(moves.substring(i, i + 4)));
+            }
+
+            board.setBestMoves(result.toString());
+        } else {
+            board.setBestMoves(moves);
+        }
+    }
 }

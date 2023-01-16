@@ -6,8 +6,8 @@ import tp.warcaby.klient.ClassicallyBoardable;
  * */
 public class ClassicBoard extends ClassicallyBoardable {
 
-    public ClassicBoard(BoardState boardState, String color) {
-        super(boardState, color, 8, "Classic checkers");
+    public ClassicBoard(BoardState boardState, String color, boolean reverse) {
+        super(boardState, color, 8, "Classic checkers", reverse);
         System.out.println(color + "siema");
     }
 }

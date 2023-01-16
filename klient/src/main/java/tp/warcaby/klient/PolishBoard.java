@@ -9,7 +9,7 @@ public class PolishBoard extends ClassicallyBoardable {
 
     private BoardState boardState;
 
-    public PolishBoard(BoardState boardState, String color) {
-        super(boardState, color, 10, "Polish checkers");
+    public PolishBoard(BoardState boardState, String color, boolean reverse) {
+        super(boardState, color, 10, "Polish checkers", reverse);
     }
 }

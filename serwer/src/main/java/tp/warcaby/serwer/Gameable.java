@@ -34,4 +34,10 @@ public interface Gameable {
     boolean turned();
     void showBoard();
     void checkDiagonalForQueen(int x2, int y2, int dx, int dy, int maxX, int maxY, String enemy);
+
+    boolean hasTurned();
+    void considerMove(String move);
+    boolean moveEnded();
+
+    String getCurrentBestMoves();
 }

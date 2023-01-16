@@ -9,7 +9,7 @@ public class OvertakingBoard extends ClassicallyBoardable {
 
     private BoardState boardState;
 
-    public OvertakingBoard(BoardState boardState, String color) {
-        super(boardState, color, 8, "Overtaking checkers");
+    public OvertakingBoard(BoardState boardState, String color, boolean reverse) {
+        super(boardState, color, 8, "Overtaking checkers", reverse);
     }
 }

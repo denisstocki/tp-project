@@ -5,8 +5,10 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
@@ -14,7 +16,7 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.Socket;
-import java.util.Locale;
+import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -88,7 +90,7 @@ public abstract class Boardable {
     /**
      * Reference to JavaFX group of top elements on screen
      * */
-    private final Group topGroup;
+    private final Pane topPaneGroup;
     /**
      * Reference to JavaFX top pane
      * */
@@ -107,26 +109,48 @@ public abstract class Boardable {
      * */
     public String prevColor;
 
+    public final Character[] letters;
+    public final int[] numbers;
+    private final GridPane upperLettersPane;
+    private final GridPane lowerLettersPane;
+    private final GridPane leftNumbersPane;
+    private final GridPane rightNumbersPane;
+    private final GridPane topGridPane;
+    private boolean reverse;
+
+    private ArrayList<String> currentBestMoves;
+    private ArrayList<Field> possibleFields;
+
     /**
      * Base Boardable constructor
      * */
-    public Boardable(BoardState boardState, String color, int size, String title) {
-        double screenX = 800;
+    public Boardable(BoardState boardState, String color, int size, String title, boolean reverse) {
+        double screenX = 800 - (double)480/size;
 
         this.boardState = boardState;
         this.color = color;
         this.size = size;
         this.pawnSize = 0.3375 * ((screenX)/size);
-        this.fieldSize = 0.9 * ((screenX)/size);
+        this.fieldSize = (double) 640 / size;
         this.title = title;
+        this.reverse = reverse;
+
+        letters = new Character[]{'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'};
+        numbers = new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
 
         infoLabel = new Label();
+        upperLettersPane = new GridPane();
+        lowerLettersPane = new GridPane();
+        leftNumbersPane = new GridPane();
+        rightNumbersPane = new GridPane();
+        topGridPane = new GridPane();
         stage = new Stage();
         fields = new Field[size][size];
+        possibleFields = new ArrayList<>();
         buttons = new Button[size][size];
         pane = new BorderPane();
         gridPane = new GridPane();
-        topGroup = new Group();
+        topPaneGroup = new Pane();
         topPane = new BorderPane();
         scene = new Scene(pane);
 
@@ -135,6 +159,9 @@ public abstract class Boardable {
         prevColor = null;
 
         setBoard();
+
+        System.out.println("x = " + scene.getWidth());
+        System.out.println("y = " + scene.getHeight());
     }
 
     /**
@@ -143,11 +170,65 @@ public abstract class Boardable {
     private void setBoard() {
         setInfoLabel();
         setTopGroup();
+        setTopGridPane();
+        setLettersGrid(upperLettersPane);
+        setLettersGrid(lowerLettersPane);
+        setNumbersGrid(leftNumbersPane);
+        setNumbersGrid(rightNumbersPane);
         setTopPane();
         setGridPane();
         setPane();
         setStage();
         initializePawns(color);
+    }
+
+    private void setTopGridPane() {
+        topGridPane.add(topPaneGroup, 0, 0);
+        topGridPane.add(infoLabel, 1, 0);
+        topGridPane.setStyle("-fx-border-width: 3 0 3 0;" +
+                "-fx-border-color: #392613;");
+    }
+
+    private void setNumbersGrid(GridPane gridPane) {
+        Label label;
+        for (int i = 0; i < size; i++) {
+            if(reverse){
+                label = new Label(String.valueOf(numbers[size - 1 - i]));
+            } else {
+                label = new Label(String.valueOf(numbers[i]));
+            }
+            label.setAlignment(Pos.CENTER);
+            label.setPrefSize(25, (double) 650 / size);
+            label.setBackground(Background.fill(Paint.valueOf("#E3C193")));
+            gridPane.add(label, 0, i);
+        }
+//        gridPane.setStyle("-fx-border-width: 3 3 3 3;" +
+//                "-fx-border-color: #392613;");
+    }
+
+    private void setLettersGrid(GridPane gridPane) {
+        Label label;
+        label = new Label();
+        label.setPrefSize(25, 30);
+        label.setBackground(Background.fill(Paint.valueOf("#E3C193")));
+        gridPane.add(label, 0, 0);
+        for (int i = 1; i <= size; i++) {
+            if(reverse){
+                label = new Label(String.valueOf(letters[size - i]));
+            } else {
+                label = new Label(String.valueOf(letters[i - 1]));
+            }
+            label.setAlignment(Pos.CENTER);
+            label.setPrefSize((double) 644/size, 30);
+            label.setBackground(Background.fill(Paint.valueOf("#E3C193")));
+            gridPane.add(label, i, 0);
+        }
+        label = new Label();
+        label.setPrefSize(25, 30);
+        label.setBackground(Background.fill(Paint.valueOf("#E3C193")));
+        gridPane.add(label, size + 1, 0);
+//        gridPane.setStyle("-fx-border-width: 3 3 3 3;" +
+//                "-fx-border-color: #392613;");
     }
 
     /**
@@ -162,8 +243,11 @@ public abstract class Boardable {
      * Setting up main pane
      * */
     private void setPane() {
-        pane.setTop(topPane);
+        pane.setLeft(leftNumbersPane);
         pane.setCenter(gridPane);
+        pane.setRight(rightNumbersPane);
+        pane.setTop(topPane);
+        pane.setBottom(lowerLettersPane);
     }
     /**
      * Setting up main grid pane
@@ -171,15 +255,18 @@ public abstract class Boardable {
     private void setGridPane() {
         gridPane.setHgap(0);
         gridPane.setVgap(0);
+        gridPane.setStyle("-fx-border-width: 2 2 2 2;" +
+                "-fx-border-color: #392613;");
+        gridPane.setPrefSize(644, 644);
     }
     /**
      * Setting up main top pane
      * */
     private void setTopPane() {
-        topPane.setLeft(topGroup);
-        topPane.setRight(infoLabel);
-        topPane.setStyle("-fx-border-width: 3 0 2 0;" +
-                "-fx-border-color: #392613;");
+        topPane.setTop(topGridPane);
+        topPane.setBottom(upperLettersPane);
+//        topPane.setStyle("-fx-border-width: 3 0 2 0;" +
+//                "-fx-border-color: #392613;");
     }
     /**
      * Setting up main top group
@@ -188,18 +275,13 @@ public abstract class Boardable {
         Rectangle rectangle = new Rectangle(50, 50, Paint.valueOf("#734d26"));
         Circle circle = new Circle(15, Paint.valueOf(color));
 
-        topGroup.getChildren().add(rectangle);
-        topGroup.getChildren().add(circle);
+        topPaneGroup.getChildren().add(rectangle);
+        topPaneGroup.getChildren().add(circle);
 
         circle.setCenterX(25);
         circle.setCenterY(25);
         rectangle.setX(0);
         rectangle.setY(0);
-
-        rectangle.setStyle("-fx-border-width: 3 3 2 3;" +
-                "-fx-border-color: #392613;");
-        topGroup.setStyle("-fx-border-width: 3 0 2 0;" +
-                "-fx-border-color: #392613;");
     }
     /**
      * Sets message on label to user
@@ -207,7 +289,7 @@ public abstract class Boardable {
     private void setInfoLabel() {
         infoLabel.setText("Your move!");
         infoLabel.setAlignment(Pos.CENTER);
-        infoLabel.setPrefSize(fieldSize * size - 50, 50);
+        infoLabel.setPrefSize(644, 50);
         infoLabel.setStyle("-fx-background-color: #734d26;" +
                 "-fx-border-width: 0 0 0 3;" +
                 "-fx-border-color: #392613;" +
@@ -434,6 +516,7 @@ public abstract class Boardable {
                             if (mouseState.toString().equalsIgnoreCase("first_click") && fields[k][l].getPawn().getLook().getColor().equals(color)) {
                                 if(prevColor != null){
                                     fields[prevCoords[0]][prevCoords[1]].setFieldStyle(prevColor);
+                                    getPreviousFields();
                                     System.out.println("1");
                                 }
                                 System.out.println("2");
@@ -442,12 +525,17 @@ public abstract class Boardable {
                                 mouseState = MouseState.SECOND_CLICK;
                                 prevColor = fields[k][l].getFieldColor();
                                 fields[k][l].setFieldStyle("#FFB31A");
+                                savePossibleFields(k, l);
+                                showPossibleFields();
                                 System.out.println("pierwszy ruch " + fields[prevCoords[0]][prevCoords[1]].getPawn().getLook().getColor());
                             } else if (mouseState.toString().equalsIgnoreCase("second_click")) {
                                 if(fields[k][l].getPawn().getLook().getColor().equals(color)){
                                     System.out.println("3");
                                     if(k != prevCoords[0] || l != prevCoords[1]){
                                         fields[k][l].setFieldStyle("#FFB31A");
+                                        getPreviousFields();
+                                        savePossibleFields(k, l);
+                                        showPossibleFields();
                                         fields[prevCoords[0]][prevCoords[1]].setFieldStyle(prevColor);
                                         prevCoords[0] = k;
                                         prevCoords[1] = l;
@@ -464,6 +552,7 @@ public abstract class Boardable {
                                         System.out.println("dobry ruch");
                                     }
                                     fields[prevCoords[0]][prevCoords[1]].setFieldStyle(prevColor);
+                                    getPreviousFields();
                                     latch.countDown();
                                 }
                             }
@@ -473,6 +562,28 @@ public abstract class Boardable {
                 }
             } else infoLabel.setText("Nie możesz wykonać teraz ruchu !");
         });
+    }
+
+    private void getPreviousFields() {
+        for (Field field : possibleFields) {
+            field.setOldFieldStyle();
+        }
+    }
+
+    private void savePossibleFields(int x, int y) {
+        possibleFields = new ArrayList<>();
+
+        for (String move : currentBestMoves) {
+            if(String.valueOf(x).equals(move.substring(0, 1)) && String.valueOf(y).equals(move.substring(1, 2))){
+                possibleFields.add(fields[Integer.parseInt(String.valueOf(move.charAt(2)))][Integer.parseInt(String.valueOf(move.charAt(3)))]);
+            }
+        }
+    }
+
+    private void showPossibleFields() {
+        for (Field field : possibleFields) {
+            field.setFieldStyle("green");
+        }
     }
 
     public String getColor(){
@@ -515,4 +626,18 @@ public abstract class Boardable {
      * Initialize pawns on the board
      * */
     public abstract void initializePawns(String color);
+
+    public void setBestMoves(String moves) {
+        currentBestMoves = new ArrayList<>();
+
+        for (int i = 0; i < moves.length(); i += 4) {
+            currentBestMoves.add(moves.substring(i, i + 4));
+        }
+
+        System.out.println("currentBestMoves = " + currentBestMoves);
+    }
+
+    public boolean isReversed() {
+        return reverse;
+    }
 }

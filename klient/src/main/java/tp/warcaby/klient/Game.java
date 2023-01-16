@@ -32,7 +32,7 @@ public class Game extends Application {
 
         try {
 
-            final Socket socket = new Socket("172.20.10.3", 4444);
+            final Socket socket = new Socket("localhost", 4444);
             final Scanner in = new Scanner(socket.getInputStream());
             final PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 
@@ -54,16 +54,16 @@ public class Game extends Application {
                 out.println(message);
                 System.out.println("[Sent message]: " + message);
 
-                if ("classic".equals(message)) board = new ClassicBoard(BoardState.LOCKED, "white");
-                else if ("english".equals(message)) board = new EnglishBoard(BoardState.LOCKED, "white");
-                else if ("overtaking".equals(message)) board = new OvertakingBoard(BoardState.LOCKED, "white");
-                else if ("polish".equals(message)) board = new PolishBoard(BoardState.LOCKED, "white");
+                if ("classic".equals(message)) board = new ClassicBoard(BoardState.LOCKED, "white", false);
+                else if ("english".equals(message)) board = new EnglishBoard(BoardState.LOCKED, "white", false);
+                else if ("overtaking".equals(message)) board = new OvertakingBoard(BoardState.LOCKED, "white", false);
+                else if ("polish".equals(message)) board = new PolishBoard(BoardState.LOCKED, "white", false);
 
             }
-            else if ("classic".equals(message)) board = new ClassicBoard(BoardState.LOCKED, "black");
-            else if ("english".equals(message)) board = new EnglishBoard(BoardState.LOCKED, "black");
-            else if ("overtaking".equals(message)) board = new OvertakingBoard(BoardState.LOCKED, "black");
-            else if ("polish".equals(message)) board = new PolishBoard(BoardState.LOCKED, "black");
+            else if ("classic".equals(message)) board = new ClassicBoard(BoardState.LOCKED, "black", true);
+            else if ("english".equals(message)) board = new EnglishBoard(BoardState.LOCKED, "black", true);
+            else if ("overtaking".equals(message)) board = new OvertakingBoard(BoardState.LOCKED, "black", true);
+            else if ("polish".equals(message)) board = new PolishBoard(BoardState.LOCKED, "black", true);
 
             Thread game = new GameThread(new BoardController(board), in, out, socket);
 

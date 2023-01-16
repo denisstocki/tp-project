@@ -86,6 +86,8 @@ public class GameThread extends Thread{
             } else if (command[0].contains("repeated") && !command[0].equals("repeated")){
                 command[1] = command[0].replace("repeated", "");
                 lost = true;
+            } else if (command[0].contains("possible")){
+                command[1] = command[0].replace("possible", "");
             }
 
             switch (command[0]) {
@@ -94,13 +96,19 @@ public class GameThread extends Thread{
                     Platform.runLater(() -> gameController.setGameInfo("Wykonano nielegalny ruch! Spróbuj ponownie ..."));
                     waitAndSendMove();
                     break;
+                case "possible":
+                    gameController.setBestMoves(command[1]);
+                    waitAndSendMove();
+                    break;
                 case "joined":
                     Platform.runLater(()-> gameController.setGameInfo("Dolaczyl drugi gracz ... Twoj ruch !"));
+                    gameController.setBestMoves(in.nextLine().replace("possible", ""));
                     waitAndSendMove();
                     break;
                 case "another":
                     Platform.runLater(()->gameController.setGameInfo("Wykonaj kolejny ruch !"));
                     Platform.runLater(()->gameController.setOurMove(false));
+                    gameController.setBestMoves(in.nextLine().replace("possible", ""));
                     waitAndSendMove();
                     break;
                 case "cheat":
@@ -195,6 +203,7 @@ public class GameThread extends Thread{
                 case "unblocked":
                     Platform.runLater(()->gameController.setOpponentMove(command[1], true));
                     Platform.runLater(()->gameController.setGameInfo("Twoj ruch!"));
+                    gameController.setBestMoves(in.nextLine().replace("possible", ""));
                     waitAndSendMove();
                     break;
                 case "error":

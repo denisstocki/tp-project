@@ -10,8 +10,8 @@ public abstract class ClassicallyBoardable extends Boardable {
     /**
      * COnStRuCtOr ClaSiCaL
      * */
-    public ClassicallyBoardable(BoardState boardState, String color, int size, String title) {
-        super(boardState, color, size, title);
+    public ClassicallyBoardable(BoardState boardState, String color, int size, String title, boolean reverse) {
+        super(boardState, color, size, title, reverse);
     }
 
     /**

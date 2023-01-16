@@ -7,5 +7,5 @@ public enum FinishState {
     WHITE,
     BLACK,
     TIE,
-    DEFAULT
+    NOONE
 }

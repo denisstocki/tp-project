@@ -37,6 +37,8 @@ public class Field extends Group {
      * FX field color
      * */
     private final String color;
+
+    private String oldColor;
     /**
      * Base Field constructor
      * */
@@ -53,7 +55,7 @@ public class Field extends Group {
                 "-fx-background-radius: 0; " +
                 "-fx-background-insets: 0 0 -1 0, 0, 1, 2;" +
                 "-fx-border-insets: 0 0 -1 0, 0, 1, 2;" +
-                "-fx-border-width: 1 1 1 1;" +
+                "-fx-border-width: 0 0 0 0;" +
                 "-fx-border-color: #392613;", color));
         this.getChildren().add(pawn);
         this.getChildren().add(outerCrown);
@@ -110,6 +112,19 @@ public class Field extends Group {
     public Circle getInnerCrown() {
         return innerCrown;
     }
+
+    public void memoriseOldColor(){
+        this.oldColor = color;
+    }
+
+    public void setOldFieldStyle(){
+        field.setStyle(String.format("-fx-background-color: %s; " +
+                "-fx-background-radius: 0; " +
+                "-fx-background-insets: 0 0 -1 0, 0, 1, 2;" +
+                "-fx-border-insets: 0 0 -1 0, 0, 1, 2;" +
+                "-fx-border-width: 0 0 0 0;" +
+                "-fx-border-color: #392613;", color));
+    }
     /**
      * FX style setup
      * */
@@ -118,7 +133,7 @@ public class Field extends Group {
                 "-fx-background-radius: 0; " +
                 "-fx-background-insets: 0 0 -1 0, 0, 1, 2;" +
                 "-fx-border-insets: 0 0 -1 0, 0, 1, 2;" +
-                "-fx-border-width: 1 1 1 1;" +
+                "-fx-border-width: 0 0 0 0;" +
                 "-fx-border-color: #392613;", color));
 
     }

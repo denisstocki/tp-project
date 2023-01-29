@@ -1,6 +1,7 @@
 package tp.warcaby.serwer;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Simplest interface representing object playable in checkers
@@ -88,4 +89,6 @@ public interface Gameable {
     String getTurn();
 
     String getWinner();
+
+    String getCurrentRandomMove(Random random);
 }

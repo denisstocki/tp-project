@@ -36,6 +36,19 @@ public class Game extends Application {
             final Scanner in = new Scanner(socket.getInputStream());
             final PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 
+            Stage playerChoiceStage = new Stage();
+            PlayerChoiceGrid grid = new PlayerChoiceGrid(playerChoiceStage);
+            Scene scene = new Scene(grid, 300, 182);
+
+            playerChoiceStage.setResizable(false);
+            playerChoiceStage.setTitle("Warcaby");
+            playerChoiceStage.setScene(scene);
+            playerChoiceStage.showAndWait();
+
+            message = grid.getChoice();
+            out.println(message);
+            System.out.println("[Sent message]: " + message);
+
             message = in.nextLine();
             System.out.println("[Received message]: " + message);
 

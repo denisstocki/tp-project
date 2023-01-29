@@ -8,7 +8,7 @@ import java.util.Scanner;
 /**
  * Base class of connection from server to clients
  * */
-public class ServerThread {
+public class Server {
     /**
      * Main server loop
      * */
@@ -22,6 +22,7 @@ public class ServerThread {
             Scanner readA, readB;
             PrintWriter writeA, writeB;
             Gameable gameable;
+            BotThread bot;
             Socket socketA, socketB;
             boolean isFinished;
             int gameNumber, playerNumber, moveCounter;
@@ -42,6 +43,16 @@ public class ServerThread {
 
                 readA = new Scanner(socketA.getInputStream());
                 writeA = new PrintWriter(socketA.getOutputStream(), true);
+
+                String playerType = readMessageFrom(readA);
+
+                if("bot".equals(playerType)){
+                    System.out.println("[PLAYER NUMBER (BOT): "+ ++playerNumber + "JOINED THE GAME...] (black pawns)\n" +
+                            "[THE GAME NUMBER: " + gameNumber + " WILL SOON START...]\n");
+                    bot = new BotThread(readA, writeA);
+                    bot.start();
+                    continue;
+                }
 
                 sendMessageTo(writeA, "choose");
                 System.out.println("[SENT MESSAGE TO WHITE PAWN PLAYER]: 'choose'\n");

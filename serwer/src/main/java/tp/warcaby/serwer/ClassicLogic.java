@@ -1,6 +1,7 @@
 package tp.warcaby.serwer;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class ClassicLogic extends GameLogic{
 
@@ -123,28 +124,24 @@ public class ClassicLogic extends GameLogic{
             }
         } else {
             if(hasKill(board, row, col, enemyCode, pawn, 1, 1)){
-                System.out.println("Has kill 1");
                 boardClone = doubleCopyOf(board);
                 forkKill(board, row, col, ownCode, enemyCode, pawn, combination, row + 2, col + 2);
             } else if(!combination.toString().equals("")){
                 bestMoves.add(combination.toString());
             }
             if(hasKill(board, row, col, enemyCode, pawn, 1, -1)){
-                System.out.println("Has kill 2");
                 boardClone = doubleCopyOf(board);
                 forkKill(board, row, col, ownCode, enemyCode, pawn, combination, row + 2, col - 2);
             } else if(!combination.toString().equals("")){
                 bestMoves.add(combination.toString());
             }
             if(hasKill(board, row, col, enemyCode, pawn, -1, 1)){
-                System.out.println("Has kill 3");
                 boardClone = doubleCopyOf(board);
                 forkKill(board, row, col, ownCode, enemyCode, pawn, combination, row - 2, col + 2);
             } else if(!combination.toString().equals("")){
                 bestMoves.add(combination.toString());
             }
             if(hasKill(board, row, col, enemyCode, pawn, -1, -1)){
-                System.out.println("Has kill 4");
                 boardClone = doubleCopyOf(board);
                 forkKill(board, row, col, ownCode, enemyCode, pawn, combination, row - 2, col  - 2);
             } else if(!combination.toString().equals("")){
@@ -261,7 +258,6 @@ public class ClassicLogic extends GameLogic{
     @Override
     public void fetchMove(int x1, int y1, int x2, int y2) {
         boolean legal = isLegal(x1, y1, x2, y2, index);
-        System.out.println("legal = " + legal);
         if (legal){
             makeMove(board, x1, y1, x2, y2);
             countMove(board, x1, y1, x2, y2);

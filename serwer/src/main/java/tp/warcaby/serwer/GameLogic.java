@@ -169,7 +169,6 @@ abstract class GameLogic implements Gameable {
                 result = string.length();
             }
         }
-        System.out.println("result/4 = " + result/4);
         return result/4;
     }
     @Override
@@ -308,6 +307,12 @@ abstract class GameLogic implements Gameable {
         } else {
             latestMoves.add("" + x1 + y1 + x2 + y2);
         }
+    }
+
+    @Override
+    public String getCurrentRandomMove(Random random) {
+        int rand = random.nextInt(bestMoves.size());
+        return bestMoves.get(rand).substring(4 * index, 4 * index + 4);
     }
 
     @Override

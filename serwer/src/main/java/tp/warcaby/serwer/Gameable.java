@@ -91,4 +91,6 @@ public interface Gameable {
     String getWinner();
 
     String getCurrentRandomMove(Random random);
+    String getCourse();
+
 }

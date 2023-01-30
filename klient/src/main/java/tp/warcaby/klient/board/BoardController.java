@@ -149,4 +149,8 @@ public class BoardController{
             board.setBestMoves(moves);
         }
     }
+
+    public void setDBMove(String move, boolean isQueenMove) {
+        board.setDBMove(move, isQueenMove);
+    }
 }

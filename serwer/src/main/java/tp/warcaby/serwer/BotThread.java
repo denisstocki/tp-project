@@ -11,9 +11,11 @@ public class BotThread extends Thread{
     private Gameable game;
     private boolean isFinished;
     private Random random;
+    private CheckersDBConnection db;
 
 
-    public BotThread(Scanner in, PrintWriter out) {
+    public BotThread(CheckersDBConnection db, Scanner in, PrintWriter out) {
+        this.db = db;
         this.in = in;
         this.out = out;
 
@@ -95,5 +97,9 @@ public class BotThread extends Thread{
                 }
             }
         }
+        db.connect();
+        db.insertCourse(game.getCourse(), "bot", gameType);
+        System.out.println(db.readCourse(1));
+        db.disconnect();
     }
 }

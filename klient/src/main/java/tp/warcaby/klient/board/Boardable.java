@@ -1,7 +1,6 @@
 package tp.warcaby.klient.board;
 
 import javafx.geometry.Pos;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -335,6 +334,56 @@ public abstract class Boardable {
             fields[x2][y2].getInnerCrown().toFront();
         } else if (ended & x2 == 0 & fields[x1][y1].getPawn().getLook().toString().equals(color.toUpperCase())) {
             if("white".equals(color)){
+                fields[x2][y2].getPawn().make(PawnLook.WHITE_QUEEN);
+            } else {
+                fields[x2][y2].getPawn().make(PawnLook.BLACK_QUEEN);
+            }
+            fields[x2][y2].getPawn().toFront();
+            fields[x2][y2].getOuterCrown().toFront();
+            fields[x2][y2].getInnerCrown().setFill(fields[x2][y2].getPawn().getLook().getPaint());
+            fields[x2][y2].getInnerCrown().toFront();
+        } else {
+            fields[x2][y2].getPawn().make(fields[x1][y1].getPawn().getLook());
+            fields[x2][y2].getPawn().toFront();
+        }
+
+        fields[x1][y1].getPawn().make(PawnLook.GHOST);
+        buttons[x1][y1].toFront();
+
+        int tempX, tempY, dx, dy;
+
+        if(x2 > x1) dx = 1;
+        else dx = -1;
+        if(y2 > y1) dy = 1;
+        else dy = -1;
+
+        tempX = x1 + dx;
+        tempY = y1 + dy;
+
+        while (tempX != x2 && tempY != y2){
+            fields[tempX][tempY].getPawn().make(PawnLook.GHOST);
+            buttons[tempX][tempY].toFront();
+            tempX += dx;
+            tempY += dy;
+        }
+    }
+
+    public void setDBMove(String move, boolean isQueenMove){
+        int x1 = Integer.parseInt(String.valueOf(move.charAt(0)));
+        int y1 = Integer.parseInt(String.valueOf(move.charAt(1)));
+        int x2 = Integer.parseInt(String.valueOf(move.charAt(2)));
+        int y2 = Integer.parseInt(String.valueOf(move.charAt(3)));
+
+        String enemy;
+
+        if(fields[x1][y1].getPawn().getLook().toString().toLowerCase().contains("queen")){
+            fields[x2][y2].getPawn().make(fields[x1][y1].getPawn().getLook());
+            fields[x2][y2].getPawn().toFront();
+            fields[x2][y2].getOuterCrown().toFront();
+            fields[x2][y2].getInnerCrown().setFill(fields[x2][y2].getPawn().getLook().getPaint());
+            fields[x2][y2].getInnerCrown().toFront();
+        } else if(isQueenMove){
+            if("white".equals(fields[x1][y1].getPawn().getLook().getColor())){
                 fields[x2][y2].getPawn().make(PawnLook.WHITE_QUEEN);
             } else {
                 fields[x2][y2].getPawn().make(PawnLook.BLACK_QUEEN);

@@ -14,7 +14,7 @@ public class PlayerChoiceGrid extends GridPane {
     /**
      * FX Labels
      * */
-    private final Label chooseText, playerChoice, botChoice;
+    private final Label chooseText, playerChoice, botChoice, dbChoice;
     /**
      * User wybór
      * */
@@ -32,10 +32,12 @@ public class PlayerChoiceGrid extends GridPane {
         chooseText = new Label("Wybierz rodzaj gracza:");
         playerChoice = new Label("1. Gracz internetowy");
         botChoice = new Label("2. Bot");
+        dbChoice = new Label("3. Powtorka");
 
         add(chooseText, 0, 0);
         add(playerChoice, 0, 1);
         add(botChoice, 0, 2);
+        add(dbChoice, 0, 3);
 
         setGridStyle();
 
@@ -43,6 +45,7 @@ public class PlayerChoiceGrid extends GridPane {
 
         setLabelBehaviour(playerChoice);
         setLabelBehaviour(botChoice);
+        setLabelBehaviour(dbChoice);
 
         playerChoice.setOnMouseClicked(mouseEvent -> {
             choice = "player";
@@ -50,6 +53,10 @@ public class PlayerChoiceGrid extends GridPane {
         });
         botChoice.setOnMouseClicked(mouseEvent -> {
             choice = "bot";
+            this.stage.hide();
+        });
+        dbChoice.setOnMouseClicked(mouseEvent -> {
+            choice = "db";
             this.stage.hide();
         });
     }
@@ -81,12 +88,14 @@ public class PlayerChoiceGrid extends GridPane {
         chooseText.setPrefSize(270, 50);
         playerChoice.setPrefSize(270, 50);
         botChoice.setPrefSize(270, 50);
+        dbChoice.setPrefSize(270, 50);
 
         setAlignment(Pos.CENTER);
 
         chooseText.setAlignment(Pos.CENTER);
         playerChoice.setAlignment(Pos.CENTER);
         botChoice.setAlignment(Pos.CENTER);
+        dbChoice.setAlignment(Pos.CENTER);
 
         setVgap(8);
     }
@@ -97,6 +106,7 @@ public class PlayerChoiceGrid extends GridPane {
         chooseText.setBackground(Background.fill(Paint.valueOf("#BD7A44")));
         playerChoice.setBackground(Background.fill(Paint.valueOf("BD7A44")));
         botChoice.setBackground(Background.fill(Paint.valueOf("BD7A44")));
+        dbChoice.setBackground(Background.fill(Paint.valueOf("BD7A44")));
         setBackground(Background.fill(Paint.valueOf("E3C193")));
         chooseText.setStyle("-fx-background-radius: 20 20 20 20;" +
                 "-fx-background-color: BD7A44;"+
@@ -108,6 +118,10 @@ public class PlayerChoiceGrid extends GridPane {
                 "-fx-font-family: Arial;" +
                 "-fx-font-size: 17px");
         botChoice.setStyle("-fx-background-radius: 20 20 20 20;" +
+                "-fx-background-color: BD7A44;"+
+                "-fx-font-family: Arial;" +
+                "-fx-font-size: 17px");
+        dbChoice.setStyle("-fx-background-radius: 20 20 20 20;" +
                 "-fx-background-color: BD7A44;"+
                 "-fx-font-family: Arial;" +
                 "-fx-font-size: 17px");

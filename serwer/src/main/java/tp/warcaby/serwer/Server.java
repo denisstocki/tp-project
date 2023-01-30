@@ -23,7 +23,9 @@ public class Server {
             PrintWriter writeA, writeB;
             Gameable gameable;
             BotThread bot;
+            DBThread dbThread;
             Socket socketA, socketB;
+            CheckersDBConnection db;
             boolean isFinished;
             int gameNumber, playerNumber, moveCounter;
 
@@ -31,6 +33,8 @@ public class Server {
             playerNumber = 0;
 
             while (true) {
+
+                db = new CheckersDBConnection();
 
                 System.out.println("[WAITING TO START GAME NUMBER " + (++gameNumber) + "]\n");
 
@@ -49,8 +53,12 @@ public class Server {
                 if("bot".equals(playerType)){
                     System.out.println("[PLAYER NUMBER (BOT): "+ ++playerNumber + "JOINED THE GAME...] (black pawns)\n" +
                             "[THE GAME NUMBER: " + gameNumber + " WILL SOON START...]\n");
-                    bot = new BotThread(readA, writeA);
+                    bot = new BotThread(db, readA, writeA);
                     bot.start();
+                    continue;
+                } else if ("db".equals(playerType)) {
+                    dbThread = new DBThread(db, readA, writeA);
+                    dbThread.start();
                     continue;
                 }
 
@@ -170,6 +178,10 @@ public class Server {
                         }
                     }
                 }
+                db.connect();
+                db.insertCourse(gameable.getCourse(), playerType, gameType);
+                System.out.println(db.readCourse(1));
+                db.disconnect();
             }
         }
     }

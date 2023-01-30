@@ -49,6 +49,24 @@ public class Game extends Application {
             out.println(message);
             System.out.println("[Sent message]: " + message);
 
+            if ("db".equals(message)){
+
+                message = in.nextLine();
+
+                if ("classic".equals(message)) board = new ClassicBoard(BoardState.LOCKED, "white", false);
+                else if ("english".equals(message)) board = new EnglishBoard(BoardState.LOCKED, "white", false);
+                else if ("overtaking".equals(message)) board = new OvertakingBoard(BoardState.LOCKED, "white", false);
+                else if ("polish".equals(message)) board = new PolishBoard(BoardState.LOCKED, "white", false);
+
+                Thread game = new GameThread(new BoardController(board), in, out, socket);
+
+                board.setOnExit(socket, game);
+
+                game.start();
+
+                return;
+            }
+
             message = in.nextLine();
             System.out.println("[Received message]: " + message);
 

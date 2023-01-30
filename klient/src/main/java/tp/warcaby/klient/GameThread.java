@@ -88,6 +88,12 @@ public class GameThread extends Thread{
                 lost = true;
             } else if (command[0].contains("possible")){
                 command[1] = command[0].replace("possible", "");
+            } else if (command[0].contains("data")){
+                command[1] = command[0].replace("data", "");
+                command[0] = "data";
+            } else if (command[0].contains("dataQ")){
+                command[1] = command[0].replace("dataQ", "");
+                command[0] = "dataQ";
             }
 
             switch (command[0]) {
@@ -142,6 +148,16 @@ public class GameThread extends Thread{
                 case "rules":
                     Platform.runLater(()->gameController.setGameInfo("Dokoncz zaczete bicie!"));
                     waitAndSendMove();
+                    break;
+                case "data":
+                    Platform.runLater(()->gameController.setGameInfo("Odtwarzanie rozgrywki!"));
+                    Platform.runLater(()->gameController.setDBMove(command[1], false));
+                    out.println("ok");
+                    break;
+                case "dataQ":
+                    Platform.runLater(()->gameController.setGameInfo("Odtwarzanie rozgrywki!"));
+                    Platform.runLater(()->gameController.setDBMove(command[1], true));
+                    out.println("ok");
                     break;
                 case "repeated":
                     closeConnection();

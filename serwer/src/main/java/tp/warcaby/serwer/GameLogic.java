@@ -75,6 +75,9 @@ abstract class GameLogic implements Gameable {
     public int blackDeaths;
     public boolean moveEnded;
 
+    public String course = "";
+
+
 
     /*
      * Base constructor
@@ -408,6 +411,8 @@ abstract class GameLogic implements Gameable {
     public String getWinner() {
         return winner.toString().toLowerCase();
     }
+
+    public String getCourse(){return course;}
 
     @Override
     public ArrayList<ArrayList<String>> getBoard(){

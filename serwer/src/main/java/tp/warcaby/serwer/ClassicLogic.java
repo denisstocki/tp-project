@@ -266,7 +266,6 @@ public class ClassicLogic extends GameLogic{
             index++;
             if(index < max){
                 pickCurrentRespond("another", "moved" + x1 + y1 + x2 + y2);
-                course += "" + x1 + y1 + x2 + y2;
             } else{
                 promoteMove(board, x2, y2);
                 pickCurrentRespond("accepted", "unblocked" + x1 + y1 + x2 + y2);

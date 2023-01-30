@@ -30,15 +30,17 @@ public class DBThread extends Thread {
         while (index != max){
             String msg = course.substring(index, index + 4);
             index += 4;
-            if(index < max & course.charAt(index) == 'q') {
-                out.println("dataQ" + msg);
-                index++;
-            } else {
-                out.println("data" + msg);
+            if(index < max) {
+                if(course.charAt(index) == 'q'){
+                    out.println("dataQ" + msg);
+                    index++;
+                } else {
+                    out.println("data" + msg);
+                }
             }
             System.out.println(in.nextLine());
             try {
-                Thread.sleep(5000);
+                Thread.sleep(2000);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }

@@ -88,12 +88,15 @@ public class GameThread extends Thread{
                 lost = true;
             } else if (command[0].contains("possible")){
                 command[1] = command[0].replace("possible", "");
-            } else if (command[0].contains("data")){
-                command[1] = command[0].replace("data", "");
-                command[0] = "data";
             } else if (command[0].contains("dataQ")){
                 command[1] = command[0].replace("dataQ", "");
                 command[0] = "dataQ";
+            } else if (command[0].contains("dataW")){
+                command[1] = command[0].replace("dataW", "");
+                command[0] = "dataW";
+            } else if (command[0].contains("data")){
+                command[1] = command[0].replace("data", "");
+                command[0] = "data";
             }
 
             switch (command[0]) {
@@ -152,12 +155,10 @@ public class GameThread extends Thread{
                 case "data":
                     Platform.runLater(()->gameController.setGameInfo("Odtwarzanie rozgrywki!"));
                     Platform.runLater(()->gameController.setDBMove(command[1], false));
-                    out.println("ok");
                     break;
                 case "dataQ":
                     Platform.runLater(()->gameController.setGameInfo("Odtwarzanie rozgrywki!"));
                     Platform.runLater(()->gameController.setDBMove(command[1], true));
-                    out.println("ok");
                     break;
                 case "repeated":
                     closeConnection();
@@ -191,6 +192,16 @@ public class GameThread extends Thread{
                         endingThread.start();
                     });
                     break;
+                case "dataW":
+                    closeConnection();
+                    Platform.runLater(()->{
+                        EndingStage endingStage;
+                        Thread endingThread;
+                        endingStage = new EndingStage(command[1].toLowerCase(), gameController.getBoardX(), gameController.getBoardY());
+                        endingThread = new EndingThread(endingStage);
+                        endingThread.start();
+                    });
+                    break game_loop;
                 case "black":
                 case "white":
                 case "tie":
@@ -253,7 +264,6 @@ public class GameThread extends Thread{
         CountDownLatch latch;
         gameController.setBoardState(BoardState.UNLOCKED);
         gameController.setMoved(false);
-        System.out.println("pierwsza proba");
         while (!gameController.wasMoved()){
             latch = new CountDownLatch(1);
             gameController.setLatch(latch);
@@ -262,7 +272,6 @@ public class GameThread extends Thread{
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            System.out.println("druga proba");
             Platform.runLater(()->gameController.setGameInfo("Nie ruszaj pionkow przeciwnika !"));
         }
         gameController.setBoardState(BoardState.LOCKED);

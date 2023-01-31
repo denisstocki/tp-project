@@ -5,15 +5,18 @@ import java.util.Random;
 
 public class ClassicLogic extends GameLogic{
 
-    
+
+    private String winnerString;
 
     public ClassicLogic(int size, int whiteCount, int blackCount) {
         super(size, whiteCount, blackCount);
         createBestMoves();
     }
-    
 
-    
+    public String getWinnerString() {
+        return winnerString;
+    }
+
     @Override
     protected void getPossibleMovesFor(ArrayList<ArrayList<String>> board, int x, int y) {
         String pawn = board.get(x).get(y);
@@ -284,14 +287,17 @@ public class ClassicLogic extends GameLogic{
     public void updateWinner(String move) {
         if(whiteCount == 0 || whiteBlocked){
             winner = FinishState.BLACK;
+            winnerString = "black";
             finished = true;
             pickCurrentRespond("black", "black" + move);
         } else if (blackCount == 0 || blackBlocked) {
             winner = FinishState.WHITE;
+            winnerString = "white";
             finished = true;
             pickCurrentRespond("white", "white" + move);
         } else if (movesWithoutCapture == 30 || repeated) {
             winner = FinishState.TIE;
+            winnerString = "tie";
             finished = true;
             pickCurrentRespond("tie", "tie" + move);
         }

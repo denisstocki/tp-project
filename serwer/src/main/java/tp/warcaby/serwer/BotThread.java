@@ -98,7 +98,7 @@ public class BotThread extends Thread{
             }
         }
         db.connect();
-        db.insertCourse(game.getCourse(), "bot", gameType);
+        db.insertCourse(game.getCourse(), "bot", gameType, game.getWinner().toString());
         System.out.println(db.readCourse(1));
         db.disconnect();
     }

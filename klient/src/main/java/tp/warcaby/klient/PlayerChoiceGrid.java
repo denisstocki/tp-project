@@ -2,6 +2,7 @@ package tp.warcaby.klient;
 
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Paint;
@@ -15,6 +16,7 @@ public class PlayerChoiceGrid extends GridPane {
      * FX Labels
      * */
     private final Label chooseText, playerChoice, botChoice, dbChoice;
+    private final TextField chooseDB;
     /**
      * User wybór
      * */
@@ -33,11 +35,13 @@ public class PlayerChoiceGrid extends GridPane {
         playerChoice = new Label("1. Gracz internetowy");
         botChoice = new Label("2. Bot");
         dbChoice = new Label("3. Powtorka");
+        chooseDB = new TextField("ID gry ...");
 
         add(chooseText, 0, 0);
         add(playerChoice, 0, 1);
         add(botChoice, 0, 2);
         add(dbChoice, 0, 3);
+        add(chooseDB, 0, 4);
 
         setGridStyle();
 
@@ -56,7 +60,7 @@ public class PlayerChoiceGrid extends GridPane {
             this.stage.hide();
         });
         dbChoice.setOnMouseClicked(mouseEvent -> {
-            choice = "db";
+            choice = "db" + chooseDB.getText();
             this.stage.hide();
         });
     }
@@ -89,6 +93,7 @@ public class PlayerChoiceGrid extends GridPane {
         playerChoice.setPrefSize(270, 50);
         botChoice.setPrefSize(270, 50);
         dbChoice.setPrefSize(270, 50);
+        chooseDB.setPrefSize(270, 50);
 
         setAlignment(Pos.CENTER);
 
@@ -96,6 +101,7 @@ public class PlayerChoiceGrid extends GridPane {
         playerChoice.setAlignment(Pos.CENTER);
         botChoice.setAlignment(Pos.CENTER);
         dbChoice.setAlignment(Pos.CENTER);
+        chooseDB.setAlignment(Pos.CENTER);
 
         setVgap(8);
     }
@@ -107,6 +113,7 @@ public class PlayerChoiceGrid extends GridPane {
         playerChoice.setBackground(Background.fill(Paint.valueOf("BD7A44")));
         botChoice.setBackground(Background.fill(Paint.valueOf("BD7A44")));
         dbChoice.setBackground(Background.fill(Paint.valueOf("BD7A44")));
+        chooseDB.setBackground(Background.fill(Paint.valueOf("BD7A44")));
         setBackground(Background.fill(Paint.valueOf("E3C193")));
         chooseText.setStyle("-fx-background-radius: 20 20 20 20;" +
                 "-fx-background-color: BD7A44;"+
@@ -122,6 +129,10 @@ public class PlayerChoiceGrid extends GridPane {
                 "-fx-font-family: Arial;" +
                 "-fx-font-size: 17px");
         dbChoice.setStyle("-fx-background-radius: 20 20 20 20;" +
+                "-fx-background-color: BD7A44;"+
+                "-fx-font-family: Arial;" +
+                "-fx-font-size: 17px");
+        chooseDB.setStyle("-fx-background-radius: 20 20 20 20;" +
                 "-fx-background-color: BD7A44;"+
                 "-fx-font-family: Arial;" +
                 "-fx-font-size: 17px");

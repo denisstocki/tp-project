@@ -9,28 +9,37 @@ public class DBThread extends Thread {
     private String course;
     private final Scanner in;
     private final PrintWriter out;
+    private final int id;
 
-    public DBThread(CheckersDBConnection db, Scanner readA, PrintWriter writeA) {
+    public DBThread(CheckersDBConnection db, Scanner readA, PrintWriter writeA, int id) {
         this.dbConnection = db;
         this.in = readA;
         this.out = writeA;
+        this.id = id;
     }
 
     @Override
     public void start(){
 
         dbConnection.connect();
-        course = dbConnection.readCourse(1);
+        course = dbConnection.readCourse(id);
         System.out.println(course);
         int max = course.length();
         int index = 0;
 
-        out.println(dbConnection.readGameType(1));
+        out.println(dbConnection.readGameType(id));
 
         while (index != max){
             String msg = course.substring(index, index + 4);
             index += 4;
-            if(index < max) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            if(index == max) {
+                out.println("data" + msg);
+            } else {
                 if(course.charAt(index) == 'q'){
                     out.println("dataQ" + msg);
                     index++;
@@ -38,14 +47,8 @@ public class DBThread extends Thread {
                     out.println("data" + msg);
                 }
             }
-            System.out.println(in.nextLine());
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
         }
-
+        out.println("dataW" + dbConnection.readWinner(id).toUpperCase());
         dbConnection.disconnect();
     }
 }

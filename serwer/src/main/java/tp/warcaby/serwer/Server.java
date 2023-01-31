@@ -56,8 +56,8 @@ public class Server {
                     bot = new BotThread(db, readA, writeA);
                     bot.start();
                     continue;
-                } else if ("db".equals(playerType)) {
-                    dbThread = new DBThread(db, readA, writeA);
+                } else if (playerType.contains("db")) {
+                    dbThread = new DBThread(db, readA, writeA, Integer.parseInt(playerType.replace("db", "")));
                     dbThread.start();
                     continue;
                 }
@@ -179,7 +179,7 @@ public class Server {
                     }
                 }
                 db.connect();
-                db.insertCourse(gameable.getCourse(), playerType, gameType);
+                db.insertCourse(gameable.getCourse(), playerType, gameType, gameable.getWinner().toString());
                 System.out.println(db.readCourse(1));
                 db.disconnect();
             }

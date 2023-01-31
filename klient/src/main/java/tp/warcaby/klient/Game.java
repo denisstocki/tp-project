@@ -38,7 +38,7 @@ public class Game extends Application {
 
             Stage playerChoiceStage = new Stage();
             PlayerChoiceGrid grid = new PlayerChoiceGrid(playerChoiceStage);
-            Scene scene = new Scene(grid, 300, 182);
+            Scene scene = new Scene(grid, 300, 298);
 
             playerChoiceStage.setResizable(false);
             playerChoiceStage.setTitle("Warcaby");
@@ -49,7 +49,7 @@ public class Game extends Application {
             out.println(message);
             System.out.println("[Sent message]: " + message);
 
-            if ("db".equals(message)){
+            if (message.contains("db")){
 
                 message = in.nextLine();
 
